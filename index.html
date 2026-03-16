@@ -589,7 +589,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
         </div>
         <div class="card" style="max-width:380px;margin-top:0">
           <p style="font-size:12px;color:var(--text-secondary);margin-bottom:.75rem">Credentials and API keys are stored in your browser's local storage only — never sent to any server.</p>
-          <button class="btn btn-sm" style="color:var(--red-600);border-color:#fecaca" onclick="resetCreds()">Reset to defaults (admin / admin123)</button>
+          <button class="btn btn-sm" style="color:var(--red-600);border-color:#fecaca" onclick="resetCreds()">Reset to defaults</button>
         </div>
       </div>
 
@@ -716,7 +716,7 @@ function goPublicSearch(){
 // ════════════════════════════════════════════
 //  AUTH
 // ════════════════════════════════════════════
-function getCreds(){ return { u:LS.g('sl_u')||'admin', p:LS.g('sl_p')||'admin123' }; }
+function getCreds(){ return { u:LS.g('sl_u')||'SRCs', p:LS.g('sl_p')||'nusrc' }; }
 function doLogin(){
   const u=document.getElementById('loginUser').value.trim();
   const p=document.getElementById('loginPass').value;
@@ -992,7 +992,7 @@ function changeCreds(){
   showAlert('pwSt','success','Credentials updated.');
   document.getElementById('newU').value=''; document.getElementById('newP1').value=''; document.getElementById('newP2').value='';
 }
-function resetCreds(){ LS.d('sl_u'); LS.d('sl_p'); showAlert('pwSt','success','Reset to admin / admin123'); }
+function resetCreds(){ LS.d('sl_u'); LS.d('sl_p'); showAlert('pwSt','success','Credits Reset'); }
 
 // ════════════════════════════════════════════
 //  PUBLIC SEARCH
