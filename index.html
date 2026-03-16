@@ -308,6 +308,33 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
           <div class="card-sub" style="margin-bottom:.75rem">Fallback order: Scopus &rarr; ScienceDirect &rarr; OpenAlex &rarr; Semantic Scholar</div>
           <div id="ovSources"></div>
         </div>
+
+        <!-- SHAREABLE LINK PANEL — always visible once data is loaded -->
+        <div id="shareSection" style="display:none">
+          <div class="card" style="border-color:var(--green-100);background:var(--green-50)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
+              <span style="font-size:18px">&#x1F4F1;</span>
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--green-600)">Share with researchers</div>
+                <div style="font-size:12px;color:var(--gray-600)">Give everyone access on any device</div>
+              </div>
+            </div>
+            <p id="shareNote" style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:.75rem"></p>
+            <div id="shareUrlWrap" style="display:none;gap:6px;flex-wrap:wrap;align-items:center">
+              <input type="text" id="shareUrlInput" readonly
+                style="flex:1;min-width:0;font-size:11px;font-family:'JetBrains Mono',monospace;padding:7px 10px;background:var(--white);border:1px solid var(--green-100);cursor:text;border-radius:var(--radius-sm)"/>
+              <button class="btn btn-sm" onclick="copyShareUrl()"
+                style="white-space:nowrap;color:var(--green-600);border-color:var(--green-100);background:var(--white);font-weight:600">
+                &#x1F4CB; Copy link
+              </button>
+            </div>
+            <div id="shareNoUrl" style="display:none;font-size:12px;color:var(--green-600)"></div>
+            <div id="copyMsg" style="font-size:12px;color:var(--green-600);margin-top:6px;display:none;font-weight:500">
+              &#x2713; Link copied! Share it with your researchers.
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="admin-panel" id="tSheet">
@@ -374,6 +401,31 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
             <div id="uploadSt"></div>
           </div>
         </div>
+      <!-- Share link appears here after any import method succeeds -->
+      <div id="shareSectionSheet" style="display:none;margin-top:1rem">
+        <div class="card" style="border-color:var(--green-100);background:var(--green-50)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
+            <span style="font-size:18px">&#x1F4F1;</span>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--green-600)">Share with researchers</div>
+              <div style="font-size:12px;color:var(--gray-600)">Works on any device &mdash; mobile, tablet, desktop</div>
+            </div>
+          </div>
+          <p id="shareNoteSheet" style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:.75rem"></p>
+          <div id="shareUrlWrapSheet" style="display:none;gap:6px;flex-wrap:wrap;align-items:center">
+            <input type="text" id="shareUrlInputSheet" readonly
+              style="flex:1;min-width:0;font-size:11px;font-family:'JetBrains Mono',monospace;padding:7px 10px;background:var(--white);border:1px solid var(--green-100);cursor:text;border-radius:var(--radius-sm)"/>
+            <button class="btn btn-sm" onclick="copyShareUrlSheet()"
+              style="white-space:nowrap;color:var(--green-600);border-color:var(--green-100);background:var(--white);font-weight:600">
+              &#x1F4CB; Copy link
+            </button>
+          </div>
+          <div id="copyMsgSheet" style="font-size:12px;color:var(--green-600);margin-top:6px;display:none;font-weight:500">
+            &#x2713; Copied! Share this link with your researchers.
+          </div>
+        </div>
+      </div>
+
       </div>
 
       <div class="admin-panel" id="tSources">
@@ -573,7 +625,7 @@ function doLogin(){
 function adminLogout(){document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';showPage('pageLanding');}
 function enterAdmin(){
   var saved=LS.g('sl_url');
-  if(saved){document.getElementById('adminUrl').value=saved;sheetUrl=saved;if(sheetRecords.length===0)loadRecords(saved,true);else{renderStats();renderTable();updOverview();}}
+  if(saved){document.getElementById('adminUrl').value=saved;sheetUrl=saved;if(sheetRecords.length===0)loadRecords(saved,true);else{renderStats();renderTable();updOverview();updShareSection();}}
   var key=getKey();
   if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
   updOverviewSources();showPage('pageAdmin');aTab('tOverview',document.querySelector('.sidebar-item'));
@@ -615,14 +667,14 @@ async function loadRecords(url,isAdmin){
     var csv=await fetchCSV(csvUrl);parseCSV(csv);
     if(sheetRecords.length===0)throw new Error('No DOIs found. Ensure a column contains values like 10.xxxx/yyyy');
     LS.s('sl_url',csvUrl);LS.s('sl_rec',JSON.stringify(sheetRecords));sheetUrl=csvUrl;lastSync=new Date();
-    if(isAdmin){showAlert('sheetSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();document.getElementById('connPill').style.display='inline-flex';}
+    if(isAdmin){showAlert('sheetSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';}
     updMeta();
   }catch(e){
     if(isAdmin){document.getElementById('sheetSt').innerHTML='<div class="alert alert-error">\u2717 '+esc(e.message)+'</div><div class="card" style="margin-top:10px"><div class="card-title" style="margin-bottom:.5rem">Troubleshooting</div><ol style="font-size:12px;color:var(--text-secondary);padding-left:1.1rem;line-height:1.8"><li>Sheet must be set to <strong>Anyone with the link \u2192 Viewer</strong></li><li>Use <strong>File \u2192 Share \u2192 Publish to web \u2192 CSV</strong></li><li>If just published, wait 60 seconds and retry</li><li>Try <strong>Paste data</strong> or <strong>Upload CSV</strong> instead</li></ol></div>';}
     var c=LS.g('sl_rec');if(c&&sheetRecords.length===0){try{sheetRecords=JSON.parse(c);updMeta();}catch(_){}}
   }
 }
-function loadPasted(){var raw=document.getElementById('pasteArea').value.trim();if(!raw){showAlert('pasteSt','error','Nothing pasted yet.');return;}parseCSV(tsvToCsv(raw));if(sheetRecords.length===0){showAlert('pasteSt','error','No DOIs found.');return;}LS.s('sl_rec',JSON.stringify(sheetRecords));LS.d('sl_url');sheetUrl='';lastSync=new Date();showAlert('pasteSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();document.getElementById('connPill').style.display='inline-flex';updMeta();}
+function loadPasted(){var raw=document.getElementById('pasteArea').value.trim();if(!raw){showAlert('pasteSt','error','Nothing pasted yet.');return;}parseCSV(tsvToCsv(raw));if(sheetRecords.length===0){showAlert('pasteSt','error','No DOIs found.');return;}LS.s('sl_rec',JSON.stringify(sheetRecords));LS.d('sl_url');sheetUrl='';lastSync=new Date();showAlert('pasteSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';updMeta();}
 function tsvToCsv(t){return t.split('\n').map(function(r){return r.split('\t').map(function(c){var x=c.trim();return(x.indexOf(',')>=0||x.indexOf('"')>=0)?'"'+x.replace(/"/g,'""')+'"':x;}).join(',');}).join('\n');}
 function handleDrop(e){e.preventDefault();document.getElementById('dropZone').style.borderColor='var(--border)';document.getElementById('dropZone').style.background='var(--gray-50)';var f=e.dataTransfer.files[0];if(f)readCsvFile(f);}
 function loadFile(i){var f=i.files[0];if(f)readCsvFile(f);}
@@ -637,7 +689,7 @@ function readCsvFile(file){
     LS.s('sl_rec',JSON.stringify(sheetRecords));LS.d('sl_url');sheetUrl='';lastSync=new Date();
     document.getElementById('dropZone').innerHTML='<div style="font-size:20px;margin-bottom:.4rem">\u2705</div><div style="font-size:13px;font-weight:500;color:var(--green-600)">'+esc(file.name)+'</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">'+sheetRecords.length+' records \u2014 click to replace</div>';
     showAlert('uploadSt','success','\u2713 Loaded '+sheetRecords.length+' records from '+esc(file.name));
-    renderStats();renderTable();updOverview();document.getElementById('connPill').style.display='inline-flex';updMeta();
+    renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';updMeta();
   };
   reader.onerror=function(){showAlert('uploadSt','error','Could not read file.');};
   reader.readAsText(file);
@@ -661,34 +713,77 @@ function parseRow(r){var res=[],cur='',inQ=false;for(var i=0;i<r.length;i++){var
 function renderStats(){document.getElementById('stTotal').textContent=sheetRecords.length;document.getElementById('stTitles').textContent=sheetRecords.filter(function(r){return r.title;}).length;document.getElementById('stAuthors').textContent=sheetRecords.filter(function(r){return r.authors;}).length;updOverviewSources();}
 function updOverview(){
   var el=document.getElementById('ovSheet');
-  if(!sheetRecords.length){el.innerHTML='<div class="alert alert-warning">\u26A0 No data loaded.</div>';return;}
-  var srcLabel=sheetUrl
-    ?'<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'\u2026':sheetUrl)+'</span>'
-    :'<span style="font-size:12px;color:var(--text-secondary)">Loaded via paste or file upload</span>';
-  var shareHtml='';
-  if(sheetUrl){
-    var shareUrl=buildShareUrl(sheetUrl);
-    shareHtml='<div style="margin-top:10px;padding:10px 12px;background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius-sm)">'
-      +'<div style="font-size:12px;font-weight:500;color:var(--green-600);margin-bottom:4px">&#x1F4F1; Mobile &amp; cross-device access</div>'
-      +'<div style="font-size:11px;color:var(--gray-600);margin-bottom:8px;line-height:1.5">Share this link with researchers. It loads the sheet automatically on any device — no setup needed.</div>'
-      +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
-      +'<input type="text" id="shareUrlInput" value="'+esc(shareUrl)+'" readonly style="flex:1;min-width:0;font-size:11px;padding:5px 8px;background:var(--white);cursor:text"/>'
-      +'<button class="btn btn-sm" onclick="copyShareUrl()" style="white-space:nowrap;color:var(--green-600);border-color:var(--green-100);background:var(--white)">Copy link</button>'
-      +'</div>'
-      +'<div id="copyMsg" style="font-size:11px;color:var(--green-600);margin-top:5px;display:none">\u2713 Link copied to clipboard!</div>'
-      +'</div>';
+  if(!sheetRecords.length){
+    el.innerHTML='<div class="alert alert-warning">&#x26A0; No data loaded. Go to Sheet Config.</div>';
+    var ss=document.getElementById('shareSection');if(ss)ss.style.display='none';
+    return;
   }
+  var srcLabel=sheetUrl
+    ?'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'…':sheetUrl)+'</span>'
+    :'<span style="font-size:12px;color:var(--text-secondary)">Loaded via paste or file upload</span>';
   el.innerHTML=srcLabel
     +'<div style="font-size:12px;color:var(--text-secondary);margin-top:6px">'
-    +sheetRecords.length+' DOIs \u00B7 '
-    +sheetRecords.filter(function(r){return r.title;}).length+' with titles \u00B7 '
+    +sheetRecords.length+' DOIs · '
+    +sheetRecords.filter(function(r){return r.title;}).length+' with titles · '
     +sheetRecords.filter(function(r){return r.authors;}).length+' with authors'
-    +(lastSync?' \u00B7 Loaded '+lastSync.toLocaleTimeString():'')
-    +'</div>'+shareHtml;
+    +(lastSync?' · Loaded '+lastSync.toLocaleTimeString():'')
+    +'</div>';
+  updShareSection();
+}
 }
 function buildShareUrl(csvUrl){
   var base=window.location.href.split('?')[0].split('#')[0];
   return base+'?sheet='+encodeURIComponent(csvUrl);
+}
+function updShareSection(){
+  // ── Overview tab share panel ──────────────────────
+  var sl=document.getElementById('shareSection');
+  if(sl){
+    if(!sheetRecords.length){sl.style.display='none';}
+    else{
+      sl.style.display='block';
+      if(sheetUrl){
+        document.getElementById('shareNote').innerHTML='Share this link with researchers. Opens the database automatically on <strong>any device</strong> — mobile, tablet, desktop — no setup needed.';
+        document.getElementById('shareUrlInput').value=buildShareUrl(sheetUrl);
+        document.getElementById('shareUrlWrap').style.display='flex';
+        var snu=document.getElementById('shareNoUrl');if(snu)snu.style.display='none';
+      } else {
+        document.getElementById('shareNote').innerHTML='Data loaded via <strong>paste or file upload</strong>. Use <strong>Sheet Config → URL</strong> to connect via a Google Sheets URL, then copy the shareable link here.';
+        document.getElementById('shareUrlWrap').style.display='none';
+        var snu=document.getElementById('shareNoUrl');if(snu)snu.style.display='block';
+      }
+    }
+  }
+  // ── Sheet Config tab share panel ──────────────────
+  var ss=document.getElementById('shareSectionSheet');
+  if(ss){
+    if(!sheetRecords.length){ss.style.display='none';}
+    else{
+      ss.style.display='block';
+      if(sheetUrl){
+        document.getElementById('shareNoteSheet').innerHTML='Sheet connected! Copy the link below and share it with researchers — works on <strong>any device, any browser</strong> with no login or setup needed.';
+        document.getElementById('shareUrlInputSheet').value=buildShareUrl(sheetUrl);
+        document.getElementById('shareUrlWrapSheet').style.display='flex';
+      } else {
+        document.getElementById('shareNoteSheet').innerHTML='Data was loaded via paste or file upload. To enable mobile sharing, use the <strong>URL method</strong> above to connect via a Google Sheets link — the shareable link will appear here.';
+        document.getElementById('shareUrlWrapSheet').style.display='none';
+      }
+    }
+  }
+}
+function copyShareUrlSheet(){
+  var el=document.getElementById('shareUrlInputSheet');
+  if(!el)return;
+  try{
+    navigator.clipboard.writeText(el.value).then(function(){
+      var msg=document.getElementById('copyMsgSheet');
+      if(msg){msg.style.display='block';setTimeout(function(){msg.style.display='none';},2500);}
+    });
+  }catch(_){
+    el.select();document.execCommand('copy');
+    var msg=document.getElementById('copyMsgSheet');
+    if(msg){msg.style.display='block';setTimeout(function(){msg.style.display='none';},2500);}
+  }
 }
 function copyShareUrl(){
   var el=document.getElementById('shareUrlInput');
