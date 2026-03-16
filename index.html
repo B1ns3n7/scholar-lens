@@ -459,7 +459,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
       <h1>Research Paper Search</h1>
       <p>Search by DOI, author name, or title &mdash; results are limited to papers in the connected database.</p>
     </div>
-    <div id="nsNotice" style="display:none"><div class="ns-bar">&#x26A0; <span><strong>No sheet connected.</strong> Showing sample data.</span></div></div>
+    <div id="nsNotice" style="display:none"><div class="ns-bar">&#x26A0; <span><strong>No sheet connected.</strong> Ask your admin to share the app link that includes the database URL, or an admin can connect a sheet via Admin → Sheet Config.</span></div></div>
     <div class="scope-bar">&#x1F3AF; <span><strong>Scoped to your database.</strong> Only sheet DOIs are shown. <span id="sheetScopeCount"></span></span></div>
     <div class="search-box">
       <div class="filter-row">
@@ -535,11 +535,31 @@ function showPage(id){
 }
 function goAdminLogin(){showPage('pageAdminLogin');}
 function goPublicSearch(){
+  // Priority 1: URL param ?sheet=... (works on any device, set by admin share link)
+  var urlSheet=getUrlSheet();
+  // Priority 2: localStorage (same browser/device as admin)
   var saved=LS.g('sl_url');
-  if(saved&&sheetRecords.length===0){sheetUrl=saved;loadRecords(saved,false).then(function(){document.getElementById('nsNotice').style.display='none';updMeta();});}
-  if(!saved&&sheetRecords.length===0){loadSample();document.getElementById('nsNotice').style.display='flex';}
+  var source=urlSheet||saved||'';
+  if(source&&sheetRecords.length===0){
+    sheetUrl=source;
+    loadRecords(source,false).then(function(){
+      document.getElementById('nsNotice').style.display='none';updMeta();
+    });
+  }
+  if(!source&&sheetRecords.length===0){loadSample();document.getElementById('nsNotice').style.display='flex';}
   var cm=LS.g('sl_meta');if(cm){try{metaCache=JSON.parse(cm);}catch(_){}}
   updMeta();showPage('pageSearch');
+}
+function getUrlSheet(){
+  try{
+    var params=new URLSearchParams(window.location.search);
+    var s=params.get('sheet');
+    if(s)return decodeURIComponent(s);
+    // Also check hash fragment for compatibility
+    var hash=window.location.hash;
+    if(hash&&hash.startsWith('#sheet=')){return decodeURIComponent(hash.slice(7));}
+  }catch(_){}
+  return '';
 }
 function _d(s){try{return atob(s);}catch(_){return'';}}function getCreds(){var u=LS.g('sl_u');var p=LS.g('sl_p');return{u:u||_d('UktN'),p:p||_d('c2Nob2xhci1sZW5z')};}
 function doLogin(){
@@ -639,7 +659,51 @@ function parseCSV(csv){
 }
 function parseRow(r){var res=[],cur='',inQ=false;for(var i=0;i<r.length;i++){var c=r[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur.trim());cur='';continue;}cur+=c;}res.push(cur.trim());return res;}
 function renderStats(){document.getElementById('stTotal').textContent=sheetRecords.length;document.getElementById('stTitles').textContent=sheetRecords.filter(function(r){return r.title;}).length;document.getElementById('stAuthors').textContent=sheetRecords.filter(function(r){return r.authors;}).length;updOverviewSources();}
-function updOverview(){var el=document.getElementById('ovSheet');if(!sheetRecords.length){el.innerHTML='<div class="alert alert-warning">\u26A0 No data loaded.</div>';return;}var src=sheetUrl?'<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'\u2026':sheetUrl)+'</span>':'<span style="font-size:12px;color:var(--text-secondary)">Loaded via paste or file upload</span>';el.innerHTML=src+'<div style="font-size:12px;color:var(--text-secondary);margin-top:6px">'+sheetRecords.length+' DOIs \u00B7 '+sheetRecords.filter(function(r){return r.title;}).length+' with titles \u00B7 '+sheetRecords.filter(function(r){return r.authors;}).length+' with authors'+(lastSync?' \u00B7 Loaded '+lastSync.toLocaleTimeString():'')+' </div>';}
+function updOverview(){
+  var el=document.getElementById('ovSheet');
+  if(!sheetRecords.length){el.innerHTML='<div class="alert alert-warning">\u26A0 No data loaded.</div>';return;}
+  var srcLabel=sheetUrl
+    ?'<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'\u2026':sheetUrl)+'</span>'
+    :'<span style="font-size:12px;color:var(--text-secondary)">Loaded via paste or file upload</span>';
+  var shareHtml='';
+  if(sheetUrl){
+    var shareUrl=buildShareUrl(sheetUrl);
+    shareHtml='<div style="margin-top:10px;padding:10px 12px;background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius-sm)">'
+      +'<div style="font-size:12px;font-weight:500;color:var(--green-600);margin-bottom:4px">&#x1F4F1; Mobile &amp; cross-device access</div>'
+      +'<div style="font-size:11px;color:var(--gray-600);margin-bottom:8px;line-height:1.5">Share this link with researchers. It loads the sheet automatically on any device — no setup needed.</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
+      +'<input type="text" id="shareUrlInput" value="'+esc(shareUrl)+'" readonly style="flex:1;min-width:0;font-size:11px;padding:5px 8px;background:var(--white);cursor:text"/>'
+      +'<button class="btn btn-sm" onclick="copyShareUrl()" style="white-space:nowrap;color:var(--green-600);border-color:var(--green-100);background:var(--white)">Copy link</button>'
+      +'</div>'
+      +'<div id="copyMsg" style="font-size:11px;color:var(--green-600);margin-top:5px;display:none">\u2713 Link copied to clipboard!</div>'
+      +'</div>';
+  }
+  el.innerHTML=srcLabel
+    +'<div style="font-size:12px;color:var(--text-secondary);margin-top:6px">'
+    +sheetRecords.length+' DOIs \u00B7 '
+    +sheetRecords.filter(function(r){return r.title;}).length+' with titles \u00B7 '
+    +sheetRecords.filter(function(r){return r.authors;}).length+' with authors'
+    +(lastSync?' \u00B7 Loaded '+lastSync.toLocaleTimeString():'')
+    +'</div>'+shareHtml;
+}
+function buildShareUrl(csvUrl){
+  var base=window.location.href.split('?')[0].split('#')[0];
+  return base+'?sheet='+encodeURIComponent(csvUrl);
+}
+function copyShareUrl(){
+  var el=document.getElementById('shareUrlInput');
+  if(!el)return;
+  try{
+    navigator.clipboard.writeText(el.value).then(function(){
+      var msg=document.getElementById('copyMsg');
+      if(msg){msg.style.display='block';setTimeout(function(){msg.style.display='none';},2500);}
+    });
+  }catch(_){
+    el.select();document.execCommand('copy');
+    var msg=document.getElementById('copyMsg');
+    if(msg){msg.style.display='block';setTimeout(function(){msg.style.display='none';},2500);}
+  }
+}
 function renderTable(){var wrap=document.getElementById('recordsTbl');if(!sheetRecords.length){wrap.innerHTML='<div class="alert alert-warning">\u26A0 No records.</div>';return;}var rows=sheetRecords.slice(0,200).map(function(r){return'<tr><td class="td-doi">'+esc(r.doi)+'</td><td class="td-title" title="'+esc(r.title)+'">'+esc(r.title||'\u2014')+'</td><td class="td-author" title="'+esc(r.authors)+'">'+esc(r.authors||'\u2014')+'</td></tr>';}).join('');var more=sheetRecords.length>200?'<tr><td colspan="3" style="text-align:center;padding:10px;font-size:11px;color:var(--text-secondary)">Showing 200 of '+sheetRecords.length+'</td></tr>':'';wrap.innerHTML='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">'+sheetRecords.length+' records</div><div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>DOI</th><th>Title</th><th>Authors</th></tr></thead><tbody>'+rows+more+'</tbody></table></div></div>';}
 function changeCreds(){var u=document.getElementById('newU').value.trim();var p1=document.getElementById('newP1').value;var p2=document.getElementById('newP2').value;if(!u||!p1||!p2){showAlert('pwSt','error','All fields required.');return;}if(p1!==p2){showAlert('pwSt','error','Passwords do not match.');return;}if(p1.length<6){showAlert('pwSt','error','Password must be at least 6 characters.');return;}LS.s('sl_u',u);LS.s('sl_p',p1);showAlert('pwSt','success','Credentials updated.');document.getElementById('newU').value='';document.getElementById('newP1').value='';document.getElementById('newP2').value='';}
 function resetCreds(){LS.d('sl_u');LS.d('sl_p');showAlert('pwSt','success','Credentials reset to defaults.');}
@@ -718,7 +782,30 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 function hl(text,q){if(!q)return esc(text);var parts=esc(text).split(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'));return parts.map(function(p,i){return i%2===1?'<span class="hl">'+p+'</span>':p;}).join('');}
 function showAlert(id,type,msg,loading){var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};var icon=loading?'<div class="spinner"></div>':{info:'\u2139',success:'\u2713',error:'\u2717',warn:'\u26A0'}[type];var el=document.getElementById(id);if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('pageAdminLogin').classList.contains('show'))doLogin();});
-(function(){var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}})();
+(function(){
+  // Restore cached records
+  var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
+  var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
+  // If URL contains ?sheet=..., pre-load the sheet URL so it's ready
+  // when the researcher clicks into the search page
+  try{
+    var params=new URLSearchParams(window.location.search);
+    var urlSheet=params.get('sheet');
+    if(!urlSheet){var h=window.location.hash;if(h&&h.startsWith('#sheet='))urlSheet=decodeURIComponent(h.slice(7));}
+    if(urlSheet){
+      // Override any cached URL with the one from the link
+      LS.s('sl_url',decodeURIComponent(urlSheet));
+      sheetUrl=decodeURIComponent(urlSheet);
+      // Pre-fetch in background so search page loads fast
+      loadRecords(decodeURIComponent(urlSheet),false).then(function(){
+        updMeta();
+        // If already on search page, hide the no-sheet notice
+        var ns=document.getElementById('nsNotice');
+        if(ns)ns.style.display='none';
+      });
+    }
+  }catch(_){}
+})();
 </script>
 </body>
 </html>
