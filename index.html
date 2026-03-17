@@ -619,25 +619,41 @@ function getUrlSheet(){
 function getUrlDois(){
   try{
     var params=new URLSearchParams(window.location.search);
-    var d=params.get('dois');
-    if(!d)return null;
-    var decoded=decodeURIComponent(escape(atob(d)));
-    var dois=decoded.split(',').map(function(x){return x.trim();}).filter(function(x){return x.startsWith('10.');});
-    if(dois.length>0){
-      return dois.map(function(doi){return{doi:doi,title:'',authors:''};});
+
+    // New format: ?data= encodes full records (doi\x1Ftitle\x1Fauthors joined by \x1E)
+    var d=params.get('data');
+    if(d){
+      var decoded=decodeURIComponent(escape(atob(decodeURIComponent(d))));
+      var records=decoded.split('\x1E').map(function(row){
+        var parts=row.split('\x1F');
+        return{doi:(parts[0]||'').trim(),title:(parts[1]||'').trim(),authors:(parts[2]||'').trim()};
+      }).filter(function(r){return r.doi.startsWith('10.');});
+      if(records.length>0)return records;
+    }
+
+    // Legacy format: ?dois= encodes only DOI list (comma-separated, base64)
+    var legacy=params.get('dois');
+    if(legacy){
+      var decoded=decodeURIComponent(escape(atob(decodeURIComponent(legacy))));
+      var dois=decoded.split(',').map(function(x){return x.trim();}).filter(function(x){return x.startsWith('10.');});
+      if(dois.length>0)return dois.map(function(doi){return{doi:doi,title:'',authors:''};});
     }
   }catch(_){}
   return null;
 }
 
-// FIX #3: Define the missing buildDoiShareUrl function
+// FIX #3 (enhanced): buildDoiShareUrl encodes full records (doi|title|authors) so
+// other devices receive titles and authors immediately without waiting for API enrichment.
+// Format per record: "doi\x1Ftitle\x1Fauthors" — joined by \x1E (record separator).
+// The whole payload is UTF-8 → base64 encoded.
 function buildDoiShareUrl(){
   try{
-    var dois=sheetRecords.map(function(r){return r.doi;}).join(',');
-    var encoded=btoa(unescape(encodeURIComponent(dois)));
+    var payload=sheetRecords.map(function(r){
+      return [r.doi,r.title||'',r.authors||''].join('\x1F');
+    }).join('\x1E');
+    var encoded=btoa(unescape(encodeURIComponent(payload)));
     var base=window.location.href.split('?')[0].split('#')[0];
-    // URL-encode base64 (it may contain +, /, =)
-    return base+'?dois='+encodeURIComponent(encoded);
+    return base+'?data='+encodeURIComponent(encoded);
   }catch(_){return window.location.href.split('?')[0].split('#')[0];}
 }
 
@@ -1059,31 +1075,68 @@ function hl(text,q){if(!q)return esc(text);var parts=esc(text).split(new RegExp(
 function showAlert(id,type,msg,loading){var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};var icon=loading?'<div class="spinner"></div>':{info:'\u2139',success:'\u2713',error:'\u2717',warn:'\u26A0'}[type];var el=document.getElementById(id);if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('pageAdminLogin').classList.contains('show'))doLogin();});
 (function(){
+  // --- clean up broken saved URLs ---
   var savedUrl=LS.g('sl_url')||'';
   var isBroken=savedUrl && (
     savedUrl.indexOf('/d/e/pub')>=0 ||
     savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0 ||
     (savedUrl.indexOf('/d/e/')>=0 && savedUrl.indexOf('/d/e/2PACX')<0 && savedUrl.indexOf('export?format=csv')<0)
   );
-  if(isBroken){
-    LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
-  }
+  if(isBroken){LS.d('sl_url');LS.d('sl_rec');LS.d('sl_meta');}
+
+  // --- restore cached records from localStorage (admin's own browser) ---
   var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
   var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
+
+  // --- read URL params ---
+  var params;
+  try{params=new URLSearchParams(window.location.search);}catch(_){params=null;}
+
+  // Priority 1: ?data= or ?dois= — full record payload encoded in URL
+  // This is the share link for paste/upload — works on ANY device, no localStorage needed.
+  var urlRecords=getUrlDois(); // reads ?data= and ?dois= params
+  if(urlRecords&&urlRecords.length>0){
+    // Override whatever was in localStorage — the URL is the source of truth
+    sheetRecords=urlRecords;
+    LS.d('sl_url'); // clear any saved sheet URL so we don't double-load
+    updMeta();
+    // Auto-navigate straight to search — skip the landing page entirely
+    showPage('pageSearch');
+    document.getElementById('nsNotice').style.display='none';
+    return;
+  }
+
+  // Priority 2: ?sheet= — Google Sheet CSV URL embedded in the share link
+  var urlSheet=null;
   try{
-    var params=new URLSearchParams(window.location.search);
-    var urlSheet=params.get('sheet');
-    if(!urlSheet){var h=window.location.hash;if(h&&h.startsWith('#sheet='))urlSheet=decodeURIComponent(h.slice(7));}
-    if(urlSheet){
-      LS.s('sl_url',decodeURIComponent(urlSheet));
-      sheetUrl=decodeURIComponent(urlSheet);
-      loadRecords(decodeURIComponent(urlSheet),false).then(function(){
-        updMeta();
-        var ns=document.getElementById('nsNotice');
-        if(ns)ns.style.display='none';
-      });
+    if(params){
+      urlSheet=params.get('sheet');
+      if(!urlSheet){var h=window.location.hash;if(h&&h.startsWith('#sheet='))urlSheet=decodeURIComponent(h.slice(7));}
+      if(urlSheet)urlSheet=decodeURIComponent(urlSheet);
     }
   }catch(_){}
+
+  if(urlSheet){
+    // Save it so the researcher's browser remembers it for next visit
+    LS.s('sl_url',urlSheet);
+    sheetUrl=urlSheet;
+    // Pre-fetch in background then auto-navigate to search
+    loadRecords(urlSheet,false).then(function(){
+      updMeta();
+      var ns=document.getElementById('nsNotice');if(ns)ns.style.display='none';
+    });
+    showPage('pageSearch');
+    document.getElementById('nsNotice').style.display='none';
+    return;
+  }
+
+  // Priority 3: localStorage has a saved sheet URL from a previous admin/researcher session
+  var localSheet=LS.g('sl_url');
+  if(localSheet&&sheetRecords.length===0){
+    sheetUrl=localSheet;
+    loadRecords(localSheet,false).then(function(){updMeta();});
+  }
+  // No auto-redirect — stay on landing page so user picks their role
 })();
 </script>
 </body>
