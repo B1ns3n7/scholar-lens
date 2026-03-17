@@ -881,6 +881,13 @@ function hl(text,q){if(!q)return esc(text);var parts=esc(text).split(new RegExp(
 function showAlert(id,type,msg,loading){var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};var icon=loading?'<div class="spinner"></div>':{info:'\u2139',success:'\u2713',error:'\u2717',warn:'\u26A0'}[type];var el=document.getElementById(id);if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('pageAdminLogin').classList.contains('show'))doLogin();});
 (function(){
+  // Clear any broken saved URL (missing the long publish ID)
+  var savedUrl=LS.g('sl_url')||'';
+  if(savedUrl && savedUrl.indexOf('/d/e/pub')>=0){
+    // Broken — /d/e/ immediately followed by /pub with no ID
+    LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
+    savedUrl='';
+  }
   // Restore cached records
   var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
   var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
