@@ -587,22 +587,27 @@ function showPage(id){
 }
 function goAdminLogin(){showPage('pageAdminLogin');}
 function goPublicSearch(){
+  // Always reset records so we never serve stale cached data
+  sheetRecords=[];
   var urlDois=getUrlDois();
-  if(urlDois&&urlDois.length>0&&sheetRecords.length===0){
+  if(urlDois&&urlDois.length>0){
     sheetRecords=urlDois;
     document.getElementById('nsNotice').style.display='none';
     updMeta();
+  } else {
+    var urlSheet=getUrlSheet();
+    var saved=LS.g('sl_url');
+    var source=urlSheet||saved||'';
+    if(source){
+      sheetUrl=source;
+      loadRecords(source,false).then(function(){
+        document.getElementById('nsNotice').style.display='none';updMeta();
+      });
+    } else {
+      loadSample();
+      document.getElementById('nsNotice').style.display='flex';
+    }
   }
-  var urlSheet=getUrlSheet();
-  var saved=LS.g('sl_url');
-  var source=urlSheet||saved||'';
-  if(!urlDois&&source&&sheetRecords.length===0){
-    sheetUrl=source;
-    loadRecords(source,false).then(function(){
-      document.getElementById('nsNotice').style.display='none';updMeta();
-    });
-  }
-  if(!urlDois&&!source&&sheetRecords.length===0){loadSample();document.getElementById('nsNotice').style.display='flex';}
   var cm=LS.g('sl_meta');if(cm){try{metaCache=JSON.parse(cm);}catch(_){}}
   updMeta();showPage('pageSearch');
 }
@@ -670,11 +675,15 @@ function doLogin(){
 function adminLogout(){document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';showPage('pageLanding');}
 function enterAdmin(){
   var saved=LS.g('sl_url');
-  if(saved){document.getElementById('adminUrl').value=saved;sheetUrl=saved;if(sheetRecords.length===0)loadRecords(saved,true);else{renderStats();renderTable();updOverview();updShareSection();}}
+  if(saved){
+    document.getElementById('adminUrl').value=saved;
+    sheetUrl=saved;
+    // Always re-fetch — never trust in-memory records which may be stale
+    loadRecords(saved,true);
+  }
   var key=getKey();
   if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
   updOverviewSources();showPage('pageAdmin');
-  // FIX #4: Use querySelector scoped properly for both sidebar and mobile tabs
   var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
   aTab('tOverview', overviewSidebarBtn || document.querySelector('.sidebar-item'));
 }
@@ -745,12 +754,13 @@ async function loadRecords(url,isAdmin){
       var firstLine=(csv||'').trim().split('\n')[0].slice(0,200);
       throw new Error('No DOIs found in the sheet. Column headers detected: ['+firstLine+']. Make sure at least one column contains DOI values like 10.1234/xxxxx');
     }
-    LS.s('sl_url',csvUrl);LS.s('sl_rec',JSON.stringify(sheetRecords));sheetUrl=csvUrl;lastSync=new Date();
+    LS.s('sl_url',csvUrl);sheetUrl=csvUrl;lastSync=new Date();
+    // No record caching — always re-fetch from sheet on every load so changes are always live
     if(isAdmin){showAlert('sheetSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';}
     updMeta();
   }catch(e){
     if(isAdmin){document.getElementById('sheetSt').innerHTML='<div class="alert alert-error">\u2717 '+esc(e.message)+'</div><div class="card" style="margin-top:10px"><div class="card-title" style="margin-bottom:.5rem">Troubleshooting</div><ol style="font-size:12px;color:var(--text-secondary);padding-left:1.1rem;line-height:1.8"><li>Sheet must be set to <strong>Anyone with the link \u2192 Viewer</strong></li><li>Use <strong>File \u2192 Share \u2192 Publish to web \u2192 CSV</strong></li><li>If just published, wait 60 seconds and retry</li><li>Try <strong>Paste data</strong> or <strong>Upload CSV</strong> instead</li></ol></div>';}
-    var c=LS.g('sl_rec');if(c&&sheetRecords.length===0){try{sheetRecords=JSON.parse(c);updMeta();}catch(_){}}
+    // No fallback to cached records — if fetch fails show the error clearly
   }
 }
 function loadPasted(){
@@ -1075,38 +1085,39 @@ function hl(text,q){if(!q)return esc(text);var parts=esc(text).split(new RegExp(
 function showAlert(id,type,msg,loading){var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};var icon=loading?'<div class="spinner"></div>':{info:'\u2139',success:'\u2713',error:'\u2717',warn:'\u26A0'}[type];var el=document.getElementById(id);if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('pageAdminLogin').classList.contains('show'))doLogin();});
 (function(){
-  // --- clean up broken saved URLs ---
+  // --- clean up any broken saved URLs from old versions ---
   var savedUrl=LS.g('sl_url')||'';
-  var isBroken=savedUrl && (
-    savedUrl.indexOf('/d/e/pub')>=0 ||
-    savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0 ||
-    (savedUrl.indexOf('/d/e/')>=0 && savedUrl.indexOf('/d/e/2PACX')<0 && savedUrl.indexOf('export?format=csv')<0)
+  var isBroken=savedUrl&&(
+    savedUrl.indexOf('/d/e/pub')>=0||
+    savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0||
+    (savedUrl.indexOf('/d/e/')>=0&&savedUrl.indexOf('/d/e/2PACX')<0&&savedUrl.indexOf('export?format=csv')<0)
   );
-  if(isBroken){LS.d('sl_url');LS.d('sl_rec');LS.d('sl_meta');}
+  if(isBroken){LS.d('sl_url');LS.d('sl_meta');}
 
-  // --- restore cached records from localStorage (admin's own browser) ---
-  var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
+  // NOTE: We intentionally do NOT read sl_rec from localStorage here.
+  // Records are always fetched live from the Google Sheet so every page load
+  // picks up the latest data. Only metaCache (API-enriched titles/authors) is
+  // restored from cache since it doesn't change in the sheet.
   var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
 
   // --- read URL params ---
   var params;
   try{params=new URLSearchParams(window.location.search);}catch(_){params=null;}
 
-  // Priority 1: ?data= or ?dois= — full record payload encoded in URL
-  // This is the share link for paste/upload — works on ANY device, no localStorage needed.
-  var urlRecords=getUrlDois(); // reads ?data= and ?dois= params
+  // Priority 1: ?dois= — DOIs encoded directly in URL (paste/upload share link)
+  // These can't be re-fetched from a sheet, so they are read from the URL itself.
+  var urlRecords=getUrlDois();
   if(urlRecords&&urlRecords.length>0){
-    // Override whatever was in localStorage — the URL is the source of truth
     sheetRecords=urlRecords;
-    LS.d('sl_url'); // clear any saved sheet URL so we don't double-load
+    LS.d('sl_url');
     updMeta();
-    // Auto-navigate straight to search — skip the landing page entirely
     showPage('pageSearch');
     document.getElementById('nsNotice').style.display='none';
     return;
   }
 
-  // Priority 2: ?sheet= — Google Sheet CSV URL embedded in the share link
+  // Priority 2: ?sheet= — Google Sheet CSV URL in the share link.
+  // ALWAYS fetch fresh from the sheet — never use cached records.
   var urlSheet=null;
   try{
     if(params){
@@ -1117,10 +1128,8 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.get
   }catch(_){}
 
   if(urlSheet){
-    // Save it so the researcher's browser remembers it for next visit
-    LS.s('sl_url',urlSheet);
+    LS.s('sl_url',urlSheet); // remember which sheet this device uses
     sheetUrl=urlSheet;
-    // Pre-fetch in background then auto-navigate to search
     loadRecords(urlSheet,false).then(function(){
       updMeta();
       var ns=document.getElementById('nsNotice');if(ns)ns.style.display='none';
@@ -1130,13 +1139,14 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.get
     return;
   }
 
-  // Priority 3: localStorage has a saved sheet URL from a previous admin/researcher session
+  // Priority 3: no URL param — check if this device has a saved sheet URL.
+  // Still fetch fresh, never from cache.
   var localSheet=LS.g('sl_url');
-  if(localSheet&&sheetRecords.length===0){
+  if(localSheet){
     sheetUrl=localSheet;
     loadRecords(localSheet,false).then(function(){updMeta();});
   }
-  // No auto-redirect — stay on landing page so user picks their role
+  // Stay on landing page so user picks their role
 })();
 </script>
 </body>
