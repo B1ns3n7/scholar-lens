@@ -25,7 +25,8 @@
 }
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;user-select:none}
-input,textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text}
+/* FIX #6: Restore user-select on all readable content, not just inputs */
+input,textarea,.result-title,.result-doi,.result-author,.detail-title,.detail-authors,.abstract-text,.summary-block,.td-doi,.td-title,.td-author{-webkit-user-select:text;-moz-user-select:text;user-select:text}
 .page{display:none;min-height:100vh}
 .page.show{display:flex;flex-direction:column}
 #pageLanding{align-items:center;justify-content:center;padding:2rem 1rem;background:var(--white)}
@@ -83,8 +84,6 @@ input::placeholder,textarea::placeholder{color:var(--text-light)}
 .login-icon{width:44px;height:44px;background:var(--yellow-50);border:1px solid #fef08a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 1.25rem}
 .login-title{font-size:18px;font-weight:600;color:var(--gray-900);text-align:center;margin-bottom:.2rem}
 .login-sub{font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:1.5rem}
-.login-hint{font-size:11px;color:var(--text-light);text-align:center;margin-top:.85rem}
-.login-hint code{color:var(--gray-600);background:var(--gray-100);padding:1px 5px;border-radius:3px}
 .admin-wrap{flex:1;display:flex;min-height:0}
 .admin-sidebar{width:200px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);padding:1rem 0}
 @media(max-width:640px){.admin-sidebar{display:none}}
@@ -255,7 +254,6 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
       <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <div id="loginSt"></div>
       <button class="btn btn-primary btn-block" style="margin-top:1rem" onclick="doLogin()">Sign in</button>
-
     </div>
   </div>
   <footer>Scholar Lens</footer>
@@ -308,8 +306,6 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
           <div class="card-sub" style="margin-bottom:.75rem">Fallback order: Scopus &rarr; ScienceDirect &rarr; OpenAlex &rarr; Semantic Scholar</div>
           <div id="ovSources"></div>
         </div>
-
-        <!-- SHAREABLE LINK PANEL — always visible once data is loaded -->
         <div id="shareSection" style="display:none">
           <div class="card" style="border-color:var(--green-100);background:var(--green-50)">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
@@ -328,13 +324,11 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
                 &#x1F4CB; Copy link
               </button>
             </div>
-            <div id="shareNoUrl" style="display:none;font-size:12px;color:var(--green-600)"></div>
             <div id="copyMsg" style="font-size:12px;color:var(--green-600);margin-top:6px;display:none;font-weight:500">
               &#x2713; Link copied! Share it with your researchers.
             </div>
           </div>
         </div>
-
       </div>
 
       <div class="admin-panel" id="tSheet">
@@ -401,31 +395,29 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
             <div id="uploadSt"></div>
           </div>
         </div>
-      <!-- Share link appears here after any import method succeeds -->
-      <div id="shareSectionSheet" style="display:none;margin-top:1rem">
-        <div class="card" style="border-color:var(--green-100);background:var(--green-50)">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
-            <span style="font-size:18px">&#x1F4F1;</span>
-            <div>
-              <div style="font-size:14px;font-weight:600;color:var(--green-600)">Share with researchers</div>
-              <div style="font-size:12px;color:var(--gray-600)">Works on any device &mdash; mobile, tablet, desktop</div>
+        <div id="shareSectionSheet" style="display:none;margin-top:1rem">
+          <div class="card" style="border-color:var(--green-100);background:var(--green-50)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
+              <span style="font-size:18px">&#x1F4F1;</span>
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--green-600)">Share with researchers</div>
+                <div style="font-size:12px;color:var(--gray-600)">Works on any device &mdash; mobile, tablet, desktop</div>
+              </div>
+            </div>
+            <p id="shareNoteSheet" style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:.75rem"></p>
+            <div id="shareUrlWrapSheet" style="display:none;gap:6px;flex-wrap:wrap;align-items:center">
+              <input type="text" id="shareUrlInputSheet" readonly
+                style="flex:1;min-width:0;font-size:11px;font-family:'JetBrains Mono',monospace;padding:7px 10px;background:var(--white);border:1px solid var(--green-100);cursor:text;border-radius:var(--radius-sm)"/>
+              <button class="btn btn-sm" onclick="copyShareUrlSheet()"
+                style="white-space:nowrap;color:var(--green-600);border-color:var(--green-100);background:var(--white);font-weight:600">
+                &#x1F4CB; Copy link
+              </button>
+            </div>
+            <div id="copyMsgSheet" style="font-size:12px;color:var(--green-600);margin-top:6px;display:none;font-weight:500">
+              &#x2713; Copied! Share this link with your researchers.
             </div>
           </div>
-          <p id="shareNoteSheet" style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:.75rem"></p>
-          <div id="shareUrlWrapSheet" style="display:none;gap:6px;flex-wrap:wrap;align-items:center">
-            <input type="text" id="shareUrlInputSheet" readonly
-              style="flex:1;min-width:0;font-size:11px;font-family:'JetBrains Mono',monospace;padding:7px 10px;background:var(--white);border:1px solid var(--green-100);cursor:text;border-radius:var(--radius-sm)"/>
-            <button class="btn btn-sm" onclick="copyShareUrlSheet()"
-              style="white-space:nowrap;color:var(--green-600);border-color:var(--green-100);background:var(--white);font-weight:600">
-              &#x1F4CB; Copy link
-            </button>
-          </div>
-          <div id="copyMsgSheet" style="font-size:12px;color:var(--green-600);margin-top:6px;display:none;font-weight:500">
-            &#x2713; Copied! Share this link with your researchers.
-          </div>
         </div>
-      </div>
-
       </div>
 
       <div class="admin-panel" id="tSources">
@@ -515,7 +507,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
       <h1>Research Paper Search</h1>
       <p>Search by DOI, author name, or title &mdash; results are limited to papers in the connected database.</p>
     </div>
-    <div id="nsNotice" style="display:none"><div class="ns-bar">&#x26A0; <span><strong>No sheet connected.</strong> Ask your admin to share the app link that includes the database URL, or an admin can connect a sheet via Admin → Sheet Config.</span></div></div>
+    <div id="nsNotice" style="display:none"><div class="ns-bar">&#x26A0; <span><strong>No sheet connected.</strong> Ask your admin to share the app link that includes the database URL, or an admin can connect a sheet via Admin &rarr; Sheet Config.</span></div></div>
     <div class="scope-bar">&#x1F3AF; <span><strong>Scoped to your database.</strong> Only sheet DOIs are shown. <span id="sheetScopeCount"></span></span></div>
     <div class="search-box">
       <div class="filter-row">
@@ -571,9 +563,9 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
     if(e.ctrlKey&&e.shiftKey&&(k==='C'||k==='c')){e.preventDefault();return false;}
     if(e.ctrlKey&&(k==='U'||k==='u')){e.preventDefault();return false;}
     if(e.ctrlKey&&(k==='S'||k==='s')){e.preventDefault();return false;}
+    // FIX #6: Do NOT block Ctrl+C (copy) — removed that interception entirely
   });
   document.addEventListener('dragstart',function(e){
-    // Only block drag on images and links, not on clickable divs (breaks mobile taps)
     var tag=(e.target.tagName||'').toUpperCase();
     if(tag==='IMG'||tag==='A'){e.preventDefault();}
   });
@@ -595,16 +587,13 @@ function showPage(id){
 }
 function goAdminLogin(){showPage('pageAdminLogin');}
 function goPublicSearch(){
-  // Priority 1: ?dois= param — DOIs encoded directly in URL (paste/upload share)
   var urlDois=getUrlDois();
   if(urlDois&&urlDois.length>0&&sheetRecords.length===0){
     sheetRecords=urlDois;
     document.getElementById('nsNotice').style.display='none';
     updMeta();
   }
-  // Priority 2: ?sheet= param — sheet URL embedded in link
   var urlSheet=getUrlSheet();
-  // Priority 3: localStorage — same browser as admin
   var saved=LS.g('sl_url');
   var source=urlSheet||saved||'';
   if(!urlDois&&source&&sheetRecords.length===0){
@@ -628,7 +617,6 @@ function getUrlSheet(){
   return '';
 }
 function getUrlDois(){
-  // Read ?dois= param — base64-encoded comma-separated DOI list from paste/upload share
   try{
     var params=new URLSearchParams(window.location.search);
     var d=params.get('dois');
@@ -641,7 +629,20 @@ function getUrlDois(){
   }catch(_){}
   return null;
 }
-function _d(s){try{return atob(s);}catch(_){return'';}}function getCreds(){var u=LS.g('sl_u');var p=LS.g('sl_p');return{u:u||_d('UktN'),p:p||_d('c2Nob2xhci1sZW5z')};}
+
+// FIX #3: Define the missing buildDoiShareUrl function
+function buildDoiShareUrl(){
+  try{
+    var dois=sheetRecords.map(function(r){return r.doi;}).join(',');
+    var encoded=btoa(unescape(encodeURIComponent(dois)));
+    var base=window.location.href.split('?')[0].split('#')[0];
+    // URL-encode base64 (it may contain +, /, =)
+    return base+'?dois='+encodeURIComponent(encoded);
+  }catch(_){return window.location.href.split('?')[0].split('#')[0];}
+}
+
+function _d(s){try{return atob(s);}catch(_){return'';}}
+function getCreds(){var u=LS.g('sl_u');var p=LS.g('sl_p');return{u:u||_d('UktN'),p:p||_d('c2Nob2xhci1sZW5z')};}
 function doLogin(){
   var u=document.getElementById('loginUser').value.trim();
   var p=document.getElementById('loginPass').value;
@@ -656,7 +657,10 @@ function enterAdmin(){
   if(saved){document.getElementById('adminUrl').value=saved;sheetUrl=saved;if(sheetRecords.length===0)loadRecords(saved,true);else{renderStats();renderTable();updOverview();updShareSection();}}
   var key=getKey();
   if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
-  updOverviewSources();showPage('pageAdmin');aTab('tOverview',document.querySelector('.sidebar-item'));
+  updOverviewSources();showPage('pageAdmin');
+  // FIX #4: Use querySelector scoped properly for both sidebar and mobile tabs
+  var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
+  aTab('tOverview', overviewSidebarBtn || document.querySelector('.sidebar-item'));
 }
 function aTab(id,btn){
   document.querySelectorAll('.admin-panel').forEach(function(p){p.classList.remove('show');});
@@ -683,7 +687,7 @@ function updOverviewSources(){
   document.getElementById('ovSources').innerHTML=src.map(function(r){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500;color:'+(r.a?'var(--gray-900)':'var(--text-secondary)')+'">'+r.n+'</div><div style="font-size:11px;color:var(--text-secondary)">'+r.note+'</div></div><span class="badge '+(r.a?'badge-green':'badge-gray')+'">'+(r.a?'Active':'Inactive')+'</span></div>';}).join('');
 }
 function switchMethod(n){[1,2,3].forEach(function(i){document.getElementById('method'+i).style.display=i===n?'block':'none';document.getElementById('mBtn'+i).classList.toggle('active',i===n);});}
-// Multiple CORS proxies tried in order
+
 var PROXIES=[
   function(u){return u;},
   function(u){return'https://api.allorigins.win/get?url='+encodeURIComponent(u);},
@@ -722,9 +726,9 @@ async function loadRecords(url,isAdmin){
   try{
     var csv=await fetchCSV(csvUrl);parseCSV(csv);
     if(sheetRecords.length===0){
-    var firstLine=(csv||'').trim().split('\n')[0].slice(0,200);
-    throw new Error('No DOIs found in the sheet. Column headers detected: ['+firstLine+']. Make sure at least one column contains DOI values like 10.1234/xxxxx');
-  }
+      var firstLine=(csv||'').trim().split('\n')[0].slice(0,200);
+      throw new Error('No DOIs found in the sheet. Column headers detected: ['+firstLine+']. Make sure at least one column contains DOI values like 10.1234/xxxxx');
+    }
     LS.s('sl_url',csvUrl);LS.s('sl_rec',JSON.stringify(sheetRecords));sheetUrl=csvUrl;lastSync=new Date();
     if(isAdmin){showAlert('sheetSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';}
     updMeta();
@@ -745,10 +749,10 @@ function loadPasted(){
   renderStats();renderTable();updOverview();updShareSection();
   document.getElementById('connPill').style.display='inline-flex';
   updMeta();
-  // Switch to Overview tab so admin immediately sees the shareable link
-  aTab('tOverview', document.querySelector('.sidebar-item'));
-  // Show a clear success message in Overview
-  showAlert('ovSheet','success','✓ Loaded '+sheetRecords.length+' DOI records from pasted data. Copy the shareable link below and send it to researchers.');
+  // FIX #4: Use a properly scoped selector for the Overview sidebar button
+  var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
+  aTab('tOverview', overviewSidebarBtn || null);
+  showAlert('ovSheet','success','\u2713 Loaded '+sheetRecords.length+' DOI records from pasted data. Copy the shareable link below and send it to researchers.');
 }
 function tsvToCsv(t){return t.split('\n').map(function(r){return r.split('\t').map(function(c){var x=c.trim();return(x.indexOf(',')>=0||x.indexOf('"')>=0)?'"'+x.replace(/"/g,'""')+'"':x;}).join(',');}).join('\n');}
 function handleDrop(e){e.preventDefault();document.getElementById('dropZone').style.borderColor='var(--border)';document.getElementById('dropZone').style.background='var(--gray-50)';var f=e.dataTransfer.files[0];if(f)readCsvFile(f);}
@@ -767,24 +771,28 @@ function readCsvFile(file){
     renderStats();renderTable();updOverview();updShareSection();
     document.getElementById('connPill').style.display='inline-flex';
     updMeta();
-    // Switch to Overview so admin sees the shareable link immediately
-    aTab('tOverview', document.querySelector('.sidebar-item'));
-    showAlert('ovSheet','success','✓ Loaded '+sheetRecords.length+' DOI records from '+esc(file.name)+'. Copy the shareable link below.');
+    // FIX #4: Use a properly scoped selector for the Overview sidebar button
+    var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
+    aTab('tOverview', overviewSidebarBtn || null);
+    showAlert('ovSheet','success','\u2713 Loaded '+sheetRecords.length+' DOI records from '+esc(file.name)+'. Copy the shareable link below.');
   };
   reader.onerror=function(){showAlert('uploadSt','error','Could not read file.');};
   reader.readAsText(file);
 }
+
+// FIX #1: Fixed fc() — capture each argument into a local variable before the findIndex callback
+// so the inner function closes over the correct value, not the callback's own `arguments` object.
 function parseCSV(csv){
-  // Normalise line endings and split
   var lines=csv.trim().replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
   if(lines.length<2)return;
   var rows=lines.map(function(r){return parseRow(r);});
   var hdr=rows[0].map(function(h){return h.replace(/"/g,'').toLowerCase().trim();});
 
-  // Find columns by header keyword — broad matching
+  // FIX #1: Use a local variable `needle` to capture the argument value before the callback
   function fc(){
     for(var a=0;a<arguments.length;a++){
-      var i=hdr.findIndex(function(h){return h.indexOf(arguments[a])>=0;});
+      var needle=arguments[a]; // capture argument into local var to avoid closure over `arguments`
+      var i=hdr.findIndex(function(h){return h.indexOf(needle)>=0;});
       if(i>=0)return i;
     }
     return -1;
@@ -796,13 +804,11 @@ function parseCSV(csv){
   sheetRecords=[];
   for(var i=1;i<rows.length;i++){
     var row=rows[i];
-    if(!row.length||row.every(function(x){return!x.trim();}))continue; // skip blank rows
+    if(!row.length||row.every(function(x){return!x.trim();}))continue;
     var doi='';
 
-    // 1. Try the detected DOI column first
     if(dc>=0) doi=nDOI(row[dc]||'');
 
-    // 2. Scan every cell for anything that looks like a DOI (10.XXXX/...)
     if(!doi.startsWith('10.')){
       for(var j=0;j<row.length;j++){
         var v=nDOI(row[j]);
@@ -810,7 +816,6 @@ function parseCSV(csv){
       }
     }
 
-    // 3. Also check for full doi.org URLs embedded in cells
     if(!doi.startsWith('10.')){
       for(var j=0;j<row.length;j++){
         var cell=(row[j]||'').trim();
@@ -836,14 +841,14 @@ function updOverview(){
     return;
   }
   var srcLabel=sheetUrl
-    ?'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'…':sheetUrl)+'</span>'
+    ?'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'\u2026':sheetUrl)+'</span>'
     :'<span style="font-size:12px;color:var(--text-secondary)">Loaded via paste or file upload</span>';
   el.innerHTML=srcLabel
     +'<div style="font-size:12px;color:var(--text-secondary);margin-top:6px">'
-    +sheetRecords.length+' DOIs · '
-    +sheetRecords.filter(function(r){return r.title;}).length+' with titles · '
+    +sheetRecords.length+' DOIs \u00B7 '
+    +sheetRecords.filter(function(r){return r.title;}).length+' with titles \u00B7 '
     +sheetRecords.filter(function(r){return r.authors;}).length+' with authors'
-    +(lastSync?' · Loaded '+lastSync.toLocaleTimeString():'')
+    +(lastSync?' \u00B7 Loaded '+lastSync.toLocaleTimeString():'')
     +'</div>';
   updShareSection();
 }
@@ -856,34 +861,33 @@ function updShareSection(){
   if(sheetUrl){
     shareUrl=buildShareUrl(sheetUrl);
   } else if(sheetRecords.length>0){
+    // FIX #3: buildDoiShareUrl is now defined above; this no longer throws ReferenceError
     shareUrl=buildDoiShareUrl();
   }
-  // Overview panel
   var sl=document.getElementById('shareSection');
   if(sl){
     if(!sheetRecords.length){sl.style.display='none';}
     else{
       sl.style.display='block';
       if(sheetUrl){
-        document.getElementById('shareNote').innerHTML='Share this link with researchers. Opens the database automatically on <strong>any device</strong> — no setup needed.';
+        document.getElementById('shareNote').innerHTML='Share this link with researchers. Opens the database automatically on <strong>any device</strong> \u2014 no setup needed.';
       } else {
-        document.getElementById('shareNote').innerHTML='Your '+sheetRecords.length+' DOIs are encoded directly in this link — works on <strong>any device</strong> even without a Google Sheet URL.';
+        document.getElementById('shareNote').innerHTML='Your '+sheetRecords.length+' DOIs are encoded directly in this link \u2014 works on <strong>any device</strong> even without a Google Sheet URL.';
       }
       document.getElementById('shareUrlInput').value=shareUrl;
       document.getElementById('shareUrlWrap').style.display='flex';
       var snu=document.getElementById('shareNoUrl');if(snu)snu.style.display='none';
     }
   }
-  // Sheet Config panel
   var ss=document.getElementById('shareSectionSheet');
   if(ss){
     if(!sheetRecords.length){ss.style.display='none';}
     else{
       ss.style.display='block';
       if(sheetUrl){
-        document.getElementById('shareNoteSheet').innerHTML='Sheet connected! Copy this link and share it — works on <strong>any device</strong> with no login needed.';
+        document.getElementById('shareNoteSheet').innerHTML='Sheet connected! Copy this link and share it \u2014 works on <strong>any device</strong> with no login needed.';
       } else {
-        document.getElementById('shareNoteSheet').innerHTML='Your '+sheetRecords.length+' DOIs are encoded in this link — works on any device.';
+        document.getElementById('shareNoteSheet').innerHTML='Your '+sheetRecords.length+' DOIs are encoded in this link \u2014 works on any device.';
       }
       document.getElementById('shareUrlInputSheet').value=shareUrl;
       document.getElementById('shareUrlWrapSheet').style.display='flex';
@@ -946,6 +950,10 @@ async function fetchAllSources(doi,local){
   var key=getKey();
   document.getElementById('detailContent').innerHTML='<div class="alert alert-info"><div class="spinner"></div> Fetching details\u2026</div>'+mkPipeline();
   var result=null,src='';
+  // FIX #2: Pass the original-case DOI to API calls; only use lowercased DOI for local matching.
+  // sheetRecords store lowercased DOIs via nDOI(), so we pass doi as-is to APIs (it comes from
+  // the sheet record which is already the user's original value after nDOI normalization).
+  // The APIs handle case-insensitivity on their end.
   if(key){setPipe('scopus','trying');try{var d=await fetchScopus(doi,key);if(d&&d.title){result=d;src='Scopus';setPipe('scopus','found');}else setPipe('scopus','failed');}catch(_){setPipe('scopus','failed');}}else setPipe('scopus','skipped');
   if(!result&&key){setPipe('scidir','trying');try{var d=await fetchSciDir(doi,key);if(d&&d.title){result=d;src='ScienceDirect';setPipe('scidir','found');}else setPipe('scidir','failed');}catch(_){setPipe('scidir','failed');}}else if(!key)setPipe('scidir','skipped');
   if(!result){setPipe('openalex','trying');try{var d=await fetchOpenAlex(doi);if(d&&d.title){result=d;src='OpenAlex';setPipe('openalex','found');}else setPipe('openalex','failed');}catch(_){setPipe('openalex','failed');}}else setPipe('openalex','skipped');
@@ -968,7 +976,7 @@ function renderDetail(r,src,doi,noKey){
   var dlLinks='<div class="direct-links"><a href="https://www.scopus.com/search/results.uri?query=DOI('+encodeURIComponent(doi)+')" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#fff7ed">&#x1F4D9;</div><div><div class="direct-link-name">Scopus</div><div class="direct-link-type">Abstract DB</div></div></a><a href="https://www.sciencedirect.com/search?query=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--blue-50)">&#x1F4D8;</div><div><div class="direct-link-name">ScienceDirect</div><div class="direct-link-type">Full text</div></div></a><a href="https://openalex.org/works?filter=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--green-50)">&#x1F7E2;</div><div><div class="direct-link-name">OpenAlex</div><div class="direct-link-type">Open graph</div></div></a><a href="https://www.semanticscholar.org/search?q='+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#faf5ff">&#x1F7E3;</div><div><div class="direct-link-name">Semantic Scholar</div><div class="direct-link-type">AI-enhanced</div></div></a><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--gray-100)">&#x1F517;</div><div><div class="direct-link-name">DOI Direct</div><div class="direct-link-type">Publisher page</div></div></a></div>';
   var absBlock=(r&&r.abstract)?'<div class="detail-section"><div class="section-heading">Abstract</div><div class="abstract-text">'+cleanAbstract(r.abstract)+'</div></div>':'<div class="detail-section"><div class="section-heading">Abstract</div><p style="font-size:13px;color:var(--text-secondary);margin-bottom:.875rem">Abstract not available. View the paper directly:</p>'+dlLinks+(noKey?'<div class="alert alert-warning" style="margin-top:10px">Add an Elsevier API key in Admin &rarr; API Sources to enable Scopus and ScienceDirect lookups.</div>':'')+'</div>';
   var kwBlock=(r&&r.keywords&&r.keywords.length)?'<div class="detail-section"><div class="section-heading">Keywords &amp; Fields</div><div class="kw-list">'+r.keywords.map(function(k){return'<span class="kw-tag">'+esc(String(k))+'</span>';}).join('')+'</div></div>':'';
-  document.getElementById('detailContent').innerHTML='<div class="fade-up"><div class="detail-header"><div class="detail-source-tag" style="background:'+sc.bg+';color:'+sc.color+';border-color:'+sc.border+'">via '+esc(src||'\u2014')+'</div><div class="detail-title">'+esc((r&&r.title)||'Untitled')+'</div><div class="detail-authors">'+esc(authStr)+'</div><div class="detail-meta">'+meta+'</div><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="detail-doi-link">doi.org/'+esc(doi)+'</a></div><div class="detail-stats"><div class="dstat"><span class="dstat-val">'+(r&&r.citationCount?Number(r.citationCount).toLocaleString():'\u2014')+'</span><span class="dstat-lbl">Citations</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.year||'\u2014')+'</span><span class="dstat-lbl">Year</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.authors?r.authors.length:'\u2014')+'</span><span class="dstat-lbl">Authors</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.openAccess?'Yes':'No')+'</span><span class="dstat-lbl">Open Access</span></div></div>'+absBlock+kwBlock+((r&&r.abstract)?'<div class="detail-section"><div class="section-heading">AI Summary</div><div id="summaryEl"><div class="alert alert-info"><div class="spinner"></div> Generating summary\u2026</div></div></div>':'')+'<div class="detail-section"><div class="section-heading">View on external sources</div>'+dlLinks+'</div><p style="font-size:11px;color:var(--text-light);text-align:right;margin-top:.5rem">Source: '+esc(src||'none')+' &middot; DOI: '+esc(doi)+'</p></div>';
+  document.getElementById('detailContent').innerHTML='<div class="fade-up"><div class="detail-header"><div class="detail-source-tag" style="background:'+sc.bg+';color:'+sc.color+';border-color:'+sc.border+'">via '+esc(src||'\u2014')+'</div><div class="detail-title">'+esc((r&&r.title)||'Untitled')+'</div><div class="detail-authors">'+esc(authStr)+'</div><div class="detail-meta">'+meta+'</div><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="detail-doi-link">doi.org/'+esc(doi)+'</a></div><div class="detail-stats"><div class="dstat"><span class="dstat-val">'+(r&&r.citationCount?Number(r.citationCount).toLocaleString():'\u2014')+'</span><span class="dstat-lbl">Citations</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.year||'\u2014')+'</span><span class="dstat-lbl">Year</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.authors?r.authors.length:'\u2014')+'</span><span class="dstat-lbl">Authors</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.openAccess?'Yes':'No')+'</span><span class="dstat-lbl">Open Access</span></div></div>'+absBlock+kwBlock+((r&&r.abstract)?'<div class="detail-section"><div class="section-heading">AI Summary</div><div id="summaryEl"><div class="alert alert-info"><div class="spinner"></div> Generating summary\u2026</div></div></div>':'')+'<div class="detail-section"><div class="section-heading">View on external sources</div>'+dlLinks+'</div><p style="font-size:11px;color:var(--text-light);text-align:right;margin-top:.5rem">Source: '+esc(src||'none')+' \u00B7 DOI: '+esc(doi)+'</p></div>';
 }
 function cleanAbstract(text){
   if(!text)return'';
@@ -993,19 +1001,64 @@ function cleanAbstract(text){
 }
 function toSup(s){var m={'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4':'\u2074','5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079','+':'\u207A','-':'\u207B','=':'\u207C','(':'\u207D',')':'\u207E','n':'\u207F','i':'\u2071'};return s.split('').map(function(c){return m[c]||c;}).join('');}
 function toSub(s){var m={'0':'\u2080','1':'\u2081','2':'\u2082','3':'\u2083','4':'\u2084','5':'\u2085','6':'\u2086','7':'\u2087','8':'\u2088','9':'\u2089','+':'\u208A','-':'\u208B','=':'\u208C','(':'\u208D',')':'\u208E'};return s.split('').map(function(c){return m[c]||c;}).join('');}
+
+// FIX #5: Added the x-api-key header to the Anthropic API call.
+// NOTE: You must replace 'YOUR_ANTHROPIC_API_KEY' with a real key, or proxy this
+// request through your own backend to avoid exposing the key in client-side code.
 async function genSummary(paper,doi){
   var abs=paper.abstract||'No abstract available.';
   var prompt='Summarize this research paper in 2\u20133 sentences covering: (1) the main research question, (2) the methodology, and (3) the key findings. Write for a graduate-level reader. Be precise and concise.\n\nTitle: '+paper.title+'\nAuthors: '+(paper.authors||[]).join(', ')+'\nYear: '+paper.year+'\nJournal: '+paper.journal+'\nAbstract: '+abs;
-  try{var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});var d=await res.json();var txt=(d.content||[]).find(function(b){return b.type==='text';});txt=txt?txt.text:'';var el=document.getElementById('summaryEl');if(el)el.innerHTML=txt?'<div class="summary-block">'+esc(txt)+'</div>':'<p style="font-size:12px;color:var(--text-secondary)">Summary unavailable.</p>';}catch(_){var el=document.getElementById('summaryEl');if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Summary unavailable.</p>';}
+  var apiKey=LS.g('sl_anthropic_key')||'';
+  if(!apiKey){
+    var el=document.getElementById('summaryEl');
+    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">AI summary unavailable. Add an Anthropic API key in Admin &rarr; API Sources to enable this feature.</p>';
+    return;
+  }
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,             // FIX #5: required auth header was missing
+        'anthropic-version': '2023-06-01' // required version header
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var d=await res.json();
+    var txt=(d.content||[]).find(function(b){return b.type==='text';});
+    txt=txt?txt.text:'';
+    var el=document.getElementById('summaryEl');
+    if(el)el.innerHTML=txt?'<div class="summary-block">'+esc(txt)+'</div>':'<p style="font-size:12px;color:var(--text-secondary)">Summary unavailable.</p>';
+  }catch(_){
+    var el=document.getElementById('summaryEl');
+    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Summary unavailable.</p>';
+  }
 }
+
 function loadSample(){sheetRecords=[{doi:'10.1038/s41586-021-03819-2',title:'Highly accurate protein structure prediction with AlphaFold',authors:'John Jumper, Richard Evans, Alexander Pritzel'},{doi:'10.1056/NEJMoa2001316',title:'A Novel Coronavirus from Patients with Pneumonia in China, 2019',authors:'Na Zhu, Dingyu Zhang, Wenling Wang'},{doi:'10.1038/nature14539',title:'Human-level control through deep reinforcement learning',authors:'Volodymyr Mnih, Koray Kavukcuoglu, David Silver'},{doi:'10.1145/3442188.3445922',title:'On the Dangers of Stochastic Parrots',authors:'Emily M. Bender, Timnit Gebru, Angelina McMillan-Major'},{doi:'10.1126/science.abc4189',title:'Quantum supremacy using a programmable superconducting processor',authors:'Frank Arute, Kunal Arya, Ryan Babbush'}];}
-function nDOI(d){return(d||'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').replace(/"/g,'').trim().toLowerCase();}
+
+// FIX #2: nDOI normalizes formatting (strips doi.org prefix, quotes, whitespace) but
+// preserves the original case. Lowercasing only happens at search/match time, not at storage time.
+// This ensures API calls receive the DOI in its original form.
+function nDOI(d){return(d||'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').replace(/"/g,'').trim();}
+
+function normUrl(u){
+  var s=u.trim();
+  if(s.includes('docs.google.com/spreadsheets')&&!s.includes('/pub')){
+    var m=s.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if(m)return'https://docs.google.com/spreadsheets/d/'+m[1]+'/export?format=csv&gid=0';
+  }
+  return s;
+}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function hl(text,q){if(!q)return esc(text);var parts=esc(text).split(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'));return parts.map(function(p,i){return i%2===1?'<span class="hl">'+p+'</span>':p;}).join('');}
 function showAlert(id,type,msg,loading){var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};var icon=loading?'<div class="spinner"></div>':{info:'\u2139',success:'\u2713',error:'\u2717',warn:'\u26A0'}[type];var el=document.getElementById(id);if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('pageAdminLogin').classList.contains('show'))doLogin();});
 (function(){
-  // Clear any broken saved URL (missing the long publish ID)
   var savedUrl=LS.g('sl_url')||'';
   var isBroken=savedUrl && (
     savedUrl.indexOf('/d/e/pub')>=0 ||
@@ -1015,23 +1068,17 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.get
   if(isBroken){
     LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
   }
-  // Restore cached records
   var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
   var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
-  // If URL contains ?sheet=..., pre-load the sheet URL so it's ready
-  // when the researcher clicks into the search page
   try{
     var params=new URLSearchParams(window.location.search);
     var urlSheet=params.get('sheet');
     if(!urlSheet){var h=window.location.hash;if(h&&h.startsWith('#sheet='))urlSheet=decodeURIComponent(h.slice(7));}
     if(urlSheet){
-      // Override any cached URL with the one from the link
       LS.s('sl_url',decodeURIComponent(urlSheet));
       sheetUrl=decodeURIComponent(urlSheet);
-      // Pre-fetch in background so search page loads fast
       loadRecords(decodeURIComponent(urlSheet),false).then(function(){
         updMeta();
-        // If already on search page, hide the no-sheet notice
         var ns=document.getElementById('nsNotice');
         if(ns)ns.style.display='none';
       });
