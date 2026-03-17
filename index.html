@@ -491,7 +491,11 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
         </div>
         <div class="card" style="max-width:380px;margin-top:0">
           <p style="font-size:12px;color:var(--text-secondary);margin-bottom:.75rem">Credentials and API keys are stored in your browser only.</p>
-          <button class="btn btn-sm" style="color:var(--red-600);border-color:#fecaca" onclick="resetCreds()">Reset credentials</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-sm" style="color:var(--red-600);border-color:#fecaca" onclick="resetCreds()">Reset credentials</button>
+            <button class="btn btn-sm" style="color:var(--red-600);border-color:#fecaca" onclick="clearAllData()">Clear all saved data</button>
+          </div>
+          <div id="clearMsg"></div>
         </div>
       </div>
 
@@ -805,6 +809,14 @@ function copyShareUrl(){
 function renderTable(){var wrap=document.getElementById('recordsTbl');if(!sheetRecords.length){wrap.innerHTML='<div class="alert alert-warning">\u26A0 No records.</div>';return;}var rows=sheetRecords.slice(0,200).map(function(r){return'<tr><td class="td-doi">'+esc(r.doi)+'</td><td class="td-title" title="'+esc(r.title)+'">'+esc(r.title||'\u2014')+'</td><td class="td-author" title="'+esc(r.authors)+'">'+esc(r.authors||'\u2014')+'</td></tr>';}).join('');var more=sheetRecords.length>200?'<tr><td colspan="3" style="text-align:center;padding:10px;font-size:11px;color:var(--text-secondary)">Showing 200 of '+sheetRecords.length+'</td></tr>':'';wrap.innerHTML='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">'+sheetRecords.length+' records</div><div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>DOI</th><th>Title</th><th>Authors</th></tr></thead><tbody>'+rows+more+'</tbody></table></div></div>';}
 function changeCreds(){var u=document.getElementById('newU').value.trim();var p1=document.getElementById('newP1').value;var p2=document.getElementById('newP2').value;if(!u||!p1||!p2){showAlert('pwSt','error','All fields required.');return;}if(p1!==p2){showAlert('pwSt','error','Passwords do not match.');return;}if(p1.length<6){showAlert('pwSt','error','Password must be at least 6 characters.');return;}LS.s('sl_u',u);LS.s('sl_p',p1);showAlert('pwSt','success','Credentials updated.');document.getElementById('newU').value='';document.getElementById('newP1').value='';document.getElementById('newP2').value='';}
 function resetCreds(){LS.d('sl_u');LS.d('sl_p');showAlert('pwSt','success','Credentials reset to defaults.');}
+function clearAllData(){
+  LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
+  sheetRecords=[]; metaCache={}; sheetUrl='';
+  showAlert('clearMsg','success','All saved data cleared. Go to Sheet Config and reload your sheet.');
+  renderStats(); renderTable(); updOverview();
+  document.getElementById('connPill').style.display='none';
+  updMeta();
+}
 function updMeta(){var n=sheetRecords.length;document.getElementById('sMeta').textContent=n+' record'+(n!==1?'s':'');var sc=document.getElementById('sheetScopeCount');if(sc)sc.textContent=n>0?n+' record'+(n!==1?'s':'')+' loaded.':'';}
 function setST(type,el){searchType=type;document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');var ph={all:'Search by DOI, author name, or title\u2026',doi:'Enter a DOI \u2014 e.g. 10.1038/s41586\u2026',author:'Author first name, last name, or full name\u2026',title:'Keywords from the research title\u2026'};document.getElementById('pubInput').placeholder=ph[type];onSearchInput();}
 function onSearchInput(){clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,260);}
@@ -883,10 +895,13 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.get
 (function(){
   // Clear any broken saved URL (missing the long publish ID)
   var savedUrl=LS.g('sl_url')||'';
-  if(savedUrl && savedUrl.indexOf('/d/e/pub')>=0){
-    // Broken — /d/e/ immediately followed by /pub with no ID
+  var isBroken=savedUrl && (
+    savedUrl.indexOf('/d/e/pub')>=0 ||
+    savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0 ||
+    (savedUrl.indexOf('/d/e/')>=0 && savedUrl.indexOf('/d/e/2PACX')<0 && savedUrl.indexOf('export?format=csv')<0)
+  );
+  if(isBroken){
     LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
-    savedUrl='';
   }
   // Restore cached records
   var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
