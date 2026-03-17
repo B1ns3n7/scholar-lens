@@ -673,7 +673,10 @@ async function loadRecords(url,isAdmin){
   if(isAdmin)showAlert('sheetSt','info','Connecting\u2026',true);
   try{
     var csv=await fetchCSV(csvUrl);parseCSV(csv);
-    if(sheetRecords.length===0)throw new Error('No DOIs found. Ensure a column contains values like 10.xxxx/yyyy');
+    if(sheetRecords.length===0){
+    var firstLine=(csv||'').trim().split('\n')[0].slice(0,200);
+    throw new Error('No DOIs found in the sheet. Column headers detected: ['+firstLine+']. Make sure at least one column contains DOI values like 10.1234/xxxxx');
+  }
     LS.s('sl_url',csvUrl);LS.s('sl_rec',JSON.stringify(sheetRecords));sheetUrl=csvUrl;lastSync=new Date();
     if(isAdmin){showAlert('sheetSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';}
     updMeta();
@@ -703,18 +706,55 @@ function readCsvFile(file){
   reader.readAsText(file);
 }
 function parseCSV(csv){
-  var lines=csv.trim().split('\n');if(lines.length<2)return;
+  // Normalise line endings and split
+  var lines=csv.trim().replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  if(lines.length<2)return;
   var rows=lines.map(function(r){return parseRow(r);});
   var hdr=rows[0].map(function(h){return h.replace(/"/g,'').toLowerCase().trim();});
-  function fc(){for(var a=0;a<arguments.length;a++){var i=hdr.findIndex(function(h){return h.indexOf(arguments[a])>=0;});if(i>=0)return i;}return -1;}
-  var dc=fc('doi','identifier'),tc=fc('title','paper','article','research','name'),ac=fc('author','writer','researcher');
+
+  // Find columns by header keyword — broad matching
+  function fc(){
+    for(var a=0;a<arguments.length;a++){
+      var i=hdr.findIndex(function(h){return h.indexOf(arguments[a])>=0;});
+      if(i>=0)return i;
+    }
+    return -1;
+  }
+  var dc=fc('doi','identifier','link','url','handle'),
+      tc=fc('title','paper','article','research','study','name','subject'),
+      ac=fc('author','writer','researcher','creator','contributor');
+
   sheetRecords=[];
   for(var i=1;i<rows.length;i++){
-    var row=rows[i];var doi='';
-    if(dc>=0)doi=nDOI(row[dc]||'');
-    if(!doi.startsWith('10.')){for(var j=0;j<row.length;j++){var v=nDOI(row[j]);if(v.startsWith('10.')){doi=v;break;}}}
+    var row=rows[i];
+    if(!row.length||row.every(function(x){return!x.trim();}))continue; // skip blank rows
+    var doi='';
+
+    // 1. Try the detected DOI column first
+    if(dc>=0) doi=nDOI(row[dc]||'');
+
+    // 2. Scan every cell for anything that looks like a DOI (10.XXXX/...)
+    if(!doi.startsWith('10.')){
+      for(var j=0;j<row.length;j++){
+        var v=nDOI(row[j]);
+        if(v.startsWith('10.')&&v.indexOf('/')>=0){doi=v;break;}
+      }
+    }
+
+    // 3. Also check for full doi.org URLs embedded in cells
+    if(!doi.startsWith('10.')){
+      for(var j=0;j<row.length;j++){
+        var cell=(row[j]||'').trim();
+        var m=cell.match(/10\.\d{4,}[\/\S]+/);
+        if(m){doi=nDOI(m[0]);break;}
+      }
+    }
+
     if(!doi.startsWith('10.'))continue;
-    sheetRecords.push({doi:doi,title:(tc>=0?(row[tc]||'').replace(/"/g,'').trim():''),authors:(ac>=0?(row[ac]||'').replace(/"/g,'').trim():'')});
+
+    var title=(tc>=0?(row[tc]||'').replace(/"/g,'').trim():'');
+    var authors=(ac>=0?(row[ac]||'').replace(/"/g,'').trim():'');
+    sheetRecords.push({doi:doi,title:title,authors:authors});
   }
 }
 function parseRow(r){var res=[],cur='',inQ=false;for(var i=0;i<r.length;i++){var c=r[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur.trim());cur='';continue;}cur+=c;}res.push(cur.trim());return res;}
