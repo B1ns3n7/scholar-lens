@@ -595,18 +595,25 @@ function showPage(id){
 }
 function goAdminLogin(){showPage('pageAdminLogin');}
 function goPublicSearch(){
-  // Priority 1: URL param ?sheet=... (works on any device, set by admin share link)
+  // Priority 1: ?dois= param — DOIs encoded directly in URL (paste/upload share)
+  var urlDois=getUrlDois();
+  if(urlDois&&urlDois.length>0&&sheetRecords.length===0){
+    sheetRecords=urlDois;
+    document.getElementById('nsNotice').style.display='none';
+    updMeta();
+  }
+  // Priority 2: ?sheet= param — sheet URL embedded in link
   var urlSheet=getUrlSheet();
-  // Priority 2: localStorage (same browser/device as admin)
+  // Priority 3: localStorage — same browser as admin
   var saved=LS.g('sl_url');
   var source=urlSheet||saved||'';
-  if(source&&sheetRecords.length===0){
+  if(!urlDois&&source&&sheetRecords.length===0){
     sheetUrl=source;
     loadRecords(source,false).then(function(){
       document.getElementById('nsNotice').style.display='none';updMeta();
     });
   }
-  if(!source&&sheetRecords.length===0){loadSample();document.getElementById('nsNotice').style.display='flex';}
+  if(!urlDois&&!source&&sheetRecords.length===0){loadSample();document.getElementById('nsNotice').style.display='flex';}
   var cm=LS.g('sl_meta');if(cm){try{metaCache=JSON.parse(cm);}catch(_){}}
   updMeta();showPage('pageSearch');
 }
@@ -615,11 +622,24 @@ function getUrlSheet(){
     var params=new URLSearchParams(window.location.search);
     var s=params.get('sheet');
     if(s)return decodeURIComponent(s);
-    // Also check hash fragment for compatibility
     var hash=window.location.hash;
     if(hash&&hash.startsWith('#sheet=')){return decodeURIComponent(hash.slice(7));}
   }catch(_){}
   return '';
+}
+function getUrlDois(){
+  // Read ?dois= param — base64-encoded comma-separated DOI list from paste/upload share
+  try{
+    var params=new URLSearchParams(window.location.search);
+    var d=params.get('dois');
+    if(!d)return null;
+    var decoded=decodeURIComponent(escape(atob(d)));
+    var dois=decoded.split(',').map(function(x){return x.trim();}).filter(function(x){return x.startsWith('10.');});
+    if(dois.length>0){
+      return dois.map(function(doi){return{doi:doi,title:'',authors:''};});
+    }
+  }catch(_){}
+  return null;
 }
 function _d(s){try{return atob(s);}catch(_){return'';}}function getCreds(){var u=LS.g('sl_u');var p=LS.g('sl_p');return{u:u||_d('UktN'),p:p||_d('c2Nob2xhci1sZW5z')};}
 function doLogin(){
@@ -663,9 +683,37 @@ function updOverviewSources(){
   document.getElementById('ovSources').innerHTML=src.map(function(r){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500;color:'+(r.a?'var(--gray-900)':'var(--text-secondary)')+'">'+r.n+'</div><div style="font-size:11px;color:var(--text-secondary)">'+r.note+'</div></div><span class="badge '+(r.a?'badge-green':'badge-gray')+'">'+(r.a?'Active':'Inactive')+'</span></div>';}).join('');
 }
 function switchMethod(n){[1,2,3].forEach(function(i){document.getElementById('method'+i).style.display=i===n?'block':'none';document.getElementById('mBtn'+i).classList.toggle('active',i===n);});}
-var PROXIES=[function(u){return u;},function(u){return'https://api.allorigins.win/get?url='+encodeURIComponent(u);},function(u){return'https://corsproxy.io/?'+encodeURIComponent(u);}];
-function normUrl(url){var m=url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);if(m){var g=(url.match(/[#&?]gid=(\d+)/)||[])[1]||'0';return'https://docs.google.com/spreadsheets/d/'+m[1]+'/pub?gid='+g+'&single=true&output=csv';}return url;}
-async function fetchCSV(u){for(var i=0;i<PROXIES.length;i++){var p=PROXIES[i](u);try{var r=await fetch(p,{signal:AbortSignal.timeout(8000)});if(!r.ok)continue;if(p.includes('allorigins.win')){var j=await r.json();var t=j.contents;if(t&&t.includes(','))return t;continue;}var t=await r.text();if(t&&(t.includes(',')||t.includes('\n')))return t;}catch(_){continue;}}throw new Error('Could not connect to the sheet. Try Paste or Upload CSV instead.');}
+// Multiple CORS proxies tried in order
+var PROXIES=[
+  function(u){return u;},
+  function(u){return'https://api.allorigins.win/get?url='+encodeURIComponent(u);},
+  function(u){return'https://corsproxy.io/?'+encodeURIComponent(u);},
+  function(u){return'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u);},
+  function(u){return'https://thingproxy.freeboard.io/fetch/'+u;},
+];
+function isHtml(t){var s=(t||'').trim().toLowerCase();return s.startsWith('<!doctype')||s.startsWith('<html')||s.startsWith('<head');}
+function looksLikeCsv(t){if(!t||t.length<10||isHtml(t))return false;return(t.includes(',')||t.includes('\t'))&&t.includes('\n');}
+async function fetchCSV(u){
+  var htmlCount=0;
+  for(var i=0;i<PROXIES.length;i++){
+    var p=PROXIES[i](u);
+    try{
+      var r=await fetch(p,{signal:AbortSignal.timeout(10000)});
+      if(!r.ok)continue;
+      if(p.includes('allorigins.win')){
+        var j=await r.json();var t=j.contents||'';
+        if(isHtml(t)){htmlCount++;continue;}
+        if(looksLikeCsv(t))return t;
+        continue;
+      }
+      var t=await r.text();
+      if(isHtml(t)){htmlCount++;continue;}
+      if(looksLikeCsv(t))return t;
+    }catch(_){continue;}
+  }
+  if(htmlCount>0)throw new Error('Google returned a sign-in page instead of CSV. Make sure the sheet sharing is set to "Anyone with the link \u2192 Viewer" (not just published to web).');
+  throw new Error('Could not fetch the sheet. Please use Paste data or Upload CSV instead.');
+}
 async function saveLoad(){var raw=document.getElementById('adminUrl').value.trim();if(!raw){showAlert('sheetSt','error','Please enter a URL.');return;}var url=normUrl(raw);document.getElementById('adminUrl').value=url;await loadRecords(url,true);}
 async function refreshSheet(){if(!sheetUrl){showAlert('sheetSt','warn','No sheet URL.');return;}metaCache={};LS.d('sl_meta');await loadRecords(sheetUrl,true);}
 async function loadRecords(url,isAdmin){
@@ -685,7 +733,23 @@ async function loadRecords(url,isAdmin){
     var c=LS.g('sl_rec');if(c&&sheetRecords.length===0){try{sheetRecords=JSON.parse(c);updMeta();}catch(_){}}
   }
 }
-function loadPasted(){var raw=document.getElementById('pasteArea').value.trim();if(!raw){showAlert('pasteSt','error','Nothing pasted yet.');return;}parseCSV(tsvToCsv(raw));if(sheetRecords.length===0){showAlert('pasteSt','error','No DOIs found.');return;}LS.s('sl_rec',JSON.stringify(sheetRecords));LS.d('sl_url');sheetUrl='';lastSync=new Date();showAlert('pasteSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';updMeta();}
+function loadPasted(){
+  var raw=document.getElementById('pasteArea').value.trim();
+  if(!raw){showAlert('pasteSt','error','Nothing pasted yet.');return;}
+  parseCSV(tsvToCsv(raw));
+  if(sheetRecords.length===0){showAlert('pasteSt','error','No DOIs found. Make sure your sheet has DOI values like 10.xxxx/yyyy');return;}
+  LS.s('sl_rec',JSON.stringify(sheetRecords));
+  LS.d('sl_url');
+  sheetUrl='';
+  lastSync=new Date();
+  renderStats();renderTable();updOverview();updShareSection();
+  document.getElementById('connPill').style.display='inline-flex';
+  updMeta();
+  // Switch to Overview tab so admin immediately sees the shareable link
+  aTab('tOverview', document.querySelector('.sidebar-item'));
+  // Show a clear success message in Overview
+  showAlert('ovSheet','success','✓ Loaded '+sheetRecords.length+' DOI records from pasted data. Copy the shareable link below and send it to researchers.');
+}
 function tsvToCsv(t){return t.split('\n').map(function(r){return r.split('\t').map(function(c){var x=c.trim();return(x.indexOf(',')>=0||x.indexOf('"')>=0)?'"'+x.replace(/"/g,'""')+'"':x;}).join(',');}).join('\n');}
 function handleDrop(e){e.preventDefault();document.getElementById('dropZone').style.borderColor='var(--border)';document.getElementById('dropZone').style.background='var(--gray-50)';var f=e.dataTransfer.files[0];if(f)readCsvFile(f);}
 function loadFile(i){var f=i.files[0];if(f)readCsvFile(f);}
@@ -700,7 +764,12 @@ function readCsvFile(file){
     LS.s('sl_rec',JSON.stringify(sheetRecords));LS.d('sl_url');sheetUrl='';lastSync=new Date();
     document.getElementById('dropZone').innerHTML='<div style="font-size:20px;margin-bottom:.4rem">\u2705</div><div style="font-size:13px;font-weight:500;color:var(--green-600)">'+esc(file.name)+'</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">'+sheetRecords.length+' records \u2014 click to replace</div>';
     showAlert('uploadSt','success','\u2713 Loaded '+sheetRecords.length+' records from '+esc(file.name));
-    renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';updMeta();
+    renderStats();renderTable();updOverview();updShareSection();
+    document.getElementById('connPill').style.display='inline-flex';
+    updMeta();
+    // Switch to Overview so admin sees the shareable link immediately
+    aTab('tOverview', document.querySelector('.sidebar-item'));
+    showAlert('ovSheet','success','✓ Loaded '+sheetRecords.length+' DOI records from '+esc(file.name)+'. Copy the shareable link below.');
   };
   reader.onerror=function(){showAlert('uploadSt','error','Could not read file.');};
   reader.readAsText(file);
@@ -783,38 +852,41 @@ function buildShareUrl(csvUrl){
   return base+'?sheet='+encodeURIComponent(csvUrl);
 }
 function updShareSection(){
-  // ── Overview tab share panel ──────────────────────
+  var shareUrl='';
+  if(sheetUrl){
+    shareUrl=buildShareUrl(sheetUrl);
+  } else if(sheetRecords.length>0){
+    shareUrl=buildDoiShareUrl();
+  }
+  // Overview panel
   var sl=document.getElementById('shareSection');
   if(sl){
     if(!sheetRecords.length){sl.style.display='none';}
     else{
       sl.style.display='block';
       if(sheetUrl){
-        document.getElementById('shareNote').innerHTML='Share this link with researchers. Opens the database automatically on <strong>any device</strong> — mobile, tablet, desktop — no setup needed.';
-        document.getElementById('shareUrlInput').value=buildShareUrl(sheetUrl);
-        document.getElementById('shareUrlWrap').style.display='flex';
-        var snu=document.getElementById('shareNoUrl');if(snu)snu.style.display='none';
+        document.getElementById('shareNote').innerHTML='Share this link with researchers. Opens the database automatically on <strong>any device</strong> — no setup needed.';
       } else {
-        document.getElementById('shareNote').innerHTML='Data loaded via <strong>paste or file upload</strong>. Use <strong>Sheet Config → URL</strong> to connect via a Google Sheets URL, then copy the shareable link here.';
-        document.getElementById('shareUrlWrap').style.display='none';
-        var snu=document.getElementById('shareNoUrl');if(snu)snu.style.display='block';
+        document.getElementById('shareNote').innerHTML='Your '+sheetRecords.length+' DOIs are encoded directly in this link — works on <strong>any device</strong> even without a Google Sheet URL.';
       }
+      document.getElementById('shareUrlInput').value=shareUrl;
+      document.getElementById('shareUrlWrap').style.display='flex';
+      var snu=document.getElementById('shareNoUrl');if(snu)snu.style.display='none';
     }
   }
-  // ── Sheet Config tab share panel ──────────────────
+  // Sheet Config panel
   var ss=document.getElementById('shareSectionSheet');
   if(ss){
     if(!sheetRecords.length){ss.style.display='none';}
     else{
       ss.style.display='block';
       if(sheetUrl){
-        document.getElementById('shareNoteSheet').innerHTML='Sheet connected! Copy the link below and share it with researchers — works on <strong>any device, any browser</strong> with no login or setup needed.';
-        document.getElementById('shareUrlInputSheet').value=buildShareUrl(sheetUrl);
-        document.getElementById('shareUrlWrapSheet').style.display='flex';
+        document.getElementById('shareNoteSheet').innerHTML='Sheet connected! Copy this link and share it — works on <strong>any device</strong> with no login needed.';
       } else {
-        document.getElementById('shareNoteSheet').innerHTML='Data was loaded via paste or file upload. To enable mobile sharing, use the <strong>URL method</strong> above to connect via a Google Sheets link — the shareable link will appear here.';
-        document.getElementById('shareUrlWrapSheet').style.display='none';
+        document.getElementById('shareNoteSheet').innerHTML='Your '+sheetRecords.length+' DOIs are encoded in this link — works on any device.';
       }
+      document.getElementById('shareUrlInputSheet').value=shareUrl;
+      document.getElementById('shareUrlWrapSheet').style.display='flex';
     }
   }
 }
