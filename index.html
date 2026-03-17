@@ -1037,7 +1037,7 @@ async function genSummary(paper,doi){
   var apiKey=LS.g('sl_anthropic_key')||'';
   if(!apiKey){
     var el=document.getElementById('summaryEl');
-    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">AI summary unavailable. Add an Anthropic API key in Admin &rarr; API Sources to enable this feature.</p>';
+    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)"></p>';
     return;
   }
   try{
