@@ -486,7 +486,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
               <div class="field" style="margin-bottom:.4rem">
                 <label>Worker URL</label>
                 <div class="input-row">
-                  <input type="text" id="key-proxy" placeholder="https://scholar-lens-proxy.YOUR-NAME.workers.dev"/>
+                  <input type="text" id="key-proxy" placeholder="https://scholar-lens-proxy.vincent-s-rivera.workers.dev"/>
                   <button class="btn btn-sm" onclick="saveProxyUrl()">Save</button>
                 </div>
               </div>
@@ -605,6 +605,8 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
   });
 })();
 
+// Worker proxy URL — hardcoded so all devices work without admin setup
+var PROXY_URL='https://scholar-lens-proxy.vincent-s-rivera.workers.dev';
 var sheetRecords=[],metaCache={},sheetUrl='',lastSync=null,searchType='all';
 var searchTimer=null,enrichTimer=null;
 var LS={
@@ -612,6 +614,11 @@ var LS={
   s:function(k,v){try{localStorage.setItem(k,v);}catch(e){}},
   d:function(k){try{localStorage.removeItem(k);}catch(e){}}
 };
+// Returns the active proxy URL — localStorage override wins, otherwise use hardcoded default
+function getProxyUrl(){
+  var saved=(LS.g('sl_proxy_url')||'').trim().replace(/\/+$/,'');
+  return saved||PROXY_URL;
+}
 function getKey(){return LS.g('sl_elsevier_key')||'';}
 
 function showPage(id){
@@ -717,7 +724,7 @@ function enterAdmin(){
   }
   var key=getKey();
   if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
-  var pUrl=LS.g('sl_proxy_url')||'';
+  var pUrl=getProxyUrl();
   if(pUrl){document.getElementById('key-proxy').value=pUrl;updProxyStatus(true);}else{updProxyStatus(false);}
   updOverviewSources();showPage('pageAdmin');
   var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
@@ -779,7 +786,7 @@ function updSourceStatus(h){
 }
 function updOverviewSources(){
   var key=getKey();
-  var pUrl=LS.g('sl_proxy_url')||'';
+  var pUrl=getProxyUrl();
   var active=(key?2:0)+2+(pUrl?2:0);
   document.getElementById('stSources').textContent=active+'/6';
   var src=[
@@ -1121,7 +1128,7 @@ function toSub(s){var m={'0':'\u2080','1':'\u2081','2':'\u2082','3':'\u2083','4'
 async function genSummary(paper,doi){
   var el=document.getElementById('summaryEl');
   if(!el)return;
-  var proxyUrl=(LS.g('sl_proxy_url')||'').replace(/\/+$/,'');
+  var proxyUrl=getProxyUrl();
   if(!proxyUrl){
     el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">AI summary unavailable. Ask your admin to configure the Worker proxy URL in Admin \u2192 API Sources.</p>';
     return;
@@ -1212,7 +1219,7 @@ async function genSDG(paper,doi,local){
   }
 
   // Priority 2: Worker proxy — calls Groq server-side, no key needed on client
-  var proxyUrl=(LS.g('sl_proxy_url')||'').replace(/\/+$/,'');
+  var proxyUrl=getProxyUrl();
   if(!proxyUrl){
     el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG analysis unavailable. Ask your admin to configure the Worker proxy URL in Admin \u2192 API Sources, or add an SDG column to your sheet.</p>';
     return;
