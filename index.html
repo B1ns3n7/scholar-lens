@@ -1229,14 +1229,24 @@ async function genSDG(paper,doi,local){
     return;
   }
 
+  // Only proceed if we have an abstract — SDG analysis is abstract-only
+  if(!paper.abstract){
+    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG alignment requires an abstract. No abstract was found for this paper via the connected sources.</p>';
+    return;
+  }
   try{
     var res=await fetch(proxyUrl+'/sdg',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({title:paper.title||'',abstract:paper.abstract||paper.title||''})
+      body:JSON.stringify({abstract:paper.abstract})
     });
     var d=await res.json();
     if(!res.ok)throw new Error(d.error||'Proxy error');
+    // Worker returns no_abstract:true if abstract was empty after trim
+    if(d.no_abstract){
+      el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG alignment requires an abstract. No abstract was found for this paper.</p>';
+      return;
+    }
     var sdgs=(d.sdgs||[]).filter(function(s){return s&&s.n>=1&&s.n<=17;});
     renderSDGCards(sdgs,false);
   }catch(e){
