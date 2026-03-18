@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="wiAI summary unavailable. Add an Anthropic API key in Admin &rarr; API Sources to enable this feature.dth=device-width, initial-scale=1.0"/>
-<title>Scholar Lens</title> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Scholar Lens</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -196,6 +196,13 @@ tbody tr:hover td{background:var(--gray-50)}
 .summary-block{background:var(--blue-50);border-left:3px solid var(--blue-500);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.875rem 1rem;font-size:13px;line-height:1.7;color:var(--gray-700)}
 .kw-list{display:flex;flex-wrap:wrap;gap:5px}
 .kw-tag{font-size:11px;padding:3px 9px;border-radius:4px;background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200)}
+.sdg-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.sdg-card{display:flex;gap:10px;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow);flex:1;min-width:200px}
+.sdg-badge{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;line-height:1.1;text-align:center}
+.sdg-info{flex:1;min-width:0}
+.sdg-name{font-size:12px;font-weight:600;color:var(--gray-900);margin-bottom:3px;line-height:1.3}
+.sdg-reason{font-size:11px;color:var(--text-secondary);line-height:1.5}
+.sdg-sheet-tag{display:inline-flex;align-items:center;font-size:10px;color:var(--green-600);background:var(--green-50);border:1px solid var(--green-100);border-radius:3px;padding:1px 5px;margin-left:5px;vertical-align:middle}
 .pipeline{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:1rem}
 .pipe-step{font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid var(--border);background:var(--white);color:var(--text-secondary);transition:all .2s}
 .pipe-step.trying{background:var(--yellow-50);border-color:#fef08a;color:var(--yellow-600)}
@@ -294,7 +301,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
           <div class="stat-box"><span class="stat-val" id="stTotal">0</span><span class="stat-lbl">Total DOIs</span></div>
           <div class="stat-box"><span class="stat-val" id="stTitles">0</span><span class="stat-lbl">With titles</span></div>
           <div class="stat-box"><span class="stat-val" id="stAuthors">0</span><span class="stat-lbl">With authors</span></div>
-          <div class="stat-box"><span class="stat-val" id="stSources">0/4</span><span class="stat-lbl">Sources active</span></div>
+          <div class="stat-box"><span class="stat-val" id="stSources">0/6</span><span class="stat-lbl">Sources active</span></div>
         </div>
         <div class="card">
           <div class="card-title">Data source</div>
@@ -461,6 +468,30 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
             <div style="font-size:11px;background:var(--green-50);color:var(--green-600);padding:7px 9px;border-radius:4px;border:1px solid var(--green-100)">&#x2713; Always active &mdash; no setup required</div>
           </div>
         </div>
+        <div style="margin-top:1.25rem">
+          <div class="card-title" style="margin-bottom:.25rem">&#x1F916; AI Features</div>
+          <div class="card-sub" style="margin-bottom:.875rem">Two separate AI providers — each handles a different feature.</div>
+          <div class="source-grid">
+            <div class="source-card">
+              <div class="source-card-head"><div class="source-card-name">&#x26A1; Groq (SDG Analysis)</div><span class="badge badge-gray" id="st-groq">No key</span></div>
+              <div class="source-card-desc">Ultra-fast LLaMA 3.3 70B for SDG alignment analysis. Free tier available at <a href="https://console.groq.com" target="_blank" style="color:var(--blue-600)">console.groq.com</a>.</div>
+              <div class="field" style="margin-bottom:.4rem">
+                <label>Groq API Key</label>
+                <div class="input-row"><input type="text" id="key-groq" placeholder="gsk_&hellip;"/><button class="btn btn-sm" onclick="saveGroqKey()">Save</button></div>
+              </div>
+              <div id="groqSaveMsg"></div>
+            </div>
+            <div class="source-card">
+              <div class="source-card-head"><div class="source-card-name">&#x1F916; Anthropic (AI Summary)</div><span class="badge badge-gray" id="st-anthropic">No key</span></div>
+              <div class="source-card-desc">Claude for nuanced AI paper summaries. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue-600)">console.anthropic.com</a>.</div>
+              <div class="field" style="margin-bottom:.4rem">
+                <label>Anthropic API Key</label>
+                <div class="input-row"><input type="text" id="key-anthropic" placeholder="sk-ant-&hellip;"/><button class="btn btn-sm" onclick="saveAnthropicKey()">Save</button></div>
+              </div>
+              <div id="anthropicSaveMsg"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="admin-panel" id="tRecords">
@@ -549,7 +580,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
       <div class="empty-state"><span class="empty-icon">&#x1F4C4;</span><div class="empty-title">Loading&hellip;</div></div>
     </div>
   </div>
- <!---- <footer>Scholar Lens &middot; Scopus &middot; ScienceDirect &middot; OpenAlex &middot; Semantic Scholar </footer> --->
+  <footer>Scholar Lens &middot; Scopus &middot; ScienceDirect &middot; OpenAlex &middot; Semantic Scholar &middot; AI by Claude</footer>
 </div>
 
 <script>
@@ -683,6 +714,10 @@ function enterAdmin(){
   }
   var key=getKey();
   if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
+  var aKey=LS.g('sl_anthropic_key')||'';
+  if(aKey){document.getElementById('key-anthropic').value=aKey;updAnthropicStatus(true);}else{updAnthropicStatus(false);}
+  var gKey=LS.g('sl_groq_key')||'';
+  if(gKey){document.getElementById('key-groq').value=gKey;updGroqStatus(true);}else{updGroqStatus(false);}
   updOverviewSources();showPage('pageAdmin');
   var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
   aTab('tOverview', overviewSidebarBtn || document.querySelector('.sidebar-item'));
@@ -699,6 +734,26 @@ function saveKey(){
   LS.s('sl_elsevier_key',key);updSourceStatus(true);updOverviewSources();
   showAlert('srcSaveMsg','success','Elsevier API key saved. Scopus and ScienceDirect are now active.');
 }
+function saveAnthropicKey(){
+  var key=document.getElementById('key-anthropic').value.trim();
+  if(!key){showAlert('anthropicSaveMsg','error','Please enter an API key.');return;}
+  LS.s('sl_anthropic_key',key);updAnthropicStatus(true);updOverviewSources();
+  showAlert('anthropicSaveMsg','success','Anthropic API key saved. AI Summary is now active.');
+}
+function updAnthropicStatus(h){
+  var el=document.getElementById('st-anthropic');
+  if(el){el.className='badge '+(h?'badge-green':'badge-gray');el.textContent=h?'Active':'No key';}
+}
+function saveGroqKey(){
+  var key=document.getElementById('key-groq').value.trim();
+  if(!key){showAlert('groqSaveMsg','error','Please enter an API key.');return;}
+  LS.s('sl_groq_key',key);updGroqStatus(true);updOverviewSources();
+  showAlert('groqSaveMsg','success','Groq API key saved. SDG Alignment is now active.');
+}
+function updGroqStatus(h){
+  var el=document.getElementById('st-groq');
+  if(el){el.className='badge '+(h?'badge-green':'badge-gray');el.textContent=h?'Active':'No key';}
+}
 function updSourceStatus(h){
   document.getElementById('st-scopus').className='badge '+(h?'badge-green':'badge-gray');
   document.getElementById('st-scopus').textContent=h?'Active':'No key';
@@ -707,8 +762,18 @@ function updSourceStatus(h){
 }
 function updOverviewSources(){
   var key=getKey();
-  document.getElementById('stSources').textContent=(key?4:2)+'/4';
-  var src=[{n:'Scopus',a:!!key,note:key?'API key configured':'Add key in API Sources'},{n:'ScienceDirect',a:!!key,note:key?'Uses Elsevier key':'Add key in API Sources'},{n:'OpenAlex',a:true,note:'Free \u2014 always active'},{n:'Semantic Scholar',a:true,note:'Free \u2014 always active'}];
+  var aKey=LS.g('sl_anthropic_key')||'';
+  var gKey=LS.g('sl_groq_key')||'';
+  var active=(key?2:0)+2+(aKey?1:0)+(gKey?1:0);
+  document.getElementById('stSources').textContent=active+'/6';
+  var src=[
+    {n:'Scopus',a:!!key,note:key?'API key configured':'Add key in API Sources'},
+    {n:'ScienceDirect',a:!!key,note:key?'Uses Elsevier key':'Add key in API Sources'},
+    {n:'OpenAlex',a:true,note:'Free \u2014 always active'},
+    {n:'Semantic Scholar',a:true,note:'Free \u2014 always active'},
+    {n:'Groq / LLaMA 3.3 (SDG Analysis)',a:!!gKey,note:gKey?'API key configured':'Add key in API Sources'},
+    {n:'Claude / Anthropic (AI Summary)',a:!!aKey,note:aKey?'API key configured':'Add key in API Sources'}
+  ];
   document.getElementById('ovSources').innerHTML=src.map(function(r){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500;color:'+(r.a?'var(--gray-900)':'var(--text-secondary)')+'">'+r.n+'</div><div style="font-size:11px;color:var(--text-secondary)">'+r.note+'</div></div><span class="badge '+(r.a?'badge-green':'badge-gray')+'">'+(r.a?'Active':'Inactive')+'</span></div>';}).join('');
 }
 function switchMethod(n){[1,2,3].forEach(function(i){document.getElementById('method'+i).style.display=i===n?'block':'none';document.getElementById('mBtn'+i).classList.toggle('active',i===n);});}
@@ -825,7 +890,8 @@ function parseCSV(csv){
   }
   var dc=fc('doi','identifier','link','url','handle'),
       tc=fc('title','paper','article','research','study','name','subject'),
-      ac=fc('author','writer','researcher','creator','contributor');
+      ac=fc('author','writer','researcher','creator','contributor'),
+      sc=fc('sdg','sustainable development','goal','un goal');
 
   sheetRecords=[];
   for(var i=1;i<rows.length;i++){
@@ -854,7 +920,8 @@ function parseCSV(csv){
 
     var title=(tc>=0?(row[tc]||'').replace(/"/g,'').trim():'');
     var authors=(ac>=0?(row[ac]||'').replace(/"/g,'').trim():'');
-    sheetRecords.push({doi:doi,title:title,authors:authors});
+    var sdgRaw=(sc>=0?(row[sc]||'').replace(/"/g,'').trim():'');
+    sheetRecords.push({doi:doi,title:title,authors:authors,sdg:sdgRaw});
   }
 }
 function parseRow(r){var res=[],cur='',inQ=false;for(var i=0;i<r.length;i++){var c=r[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur.trim());cur='';continue;}cur+=c;}res.push(cur.trim());return res;}
@@ -986,8 +1053,12 @@ async function fetchAllSources(doi,local){
   if(!result){setPipe('semantic','trying');try{var d=await fetchSemantic(doi);if(d&&d.title){result=d;src='Semantic Scholar';setPipe('semantic','found');}else setPipe('semantic','failed');}catch(_){setPipe('semantic','failed');}}else setPipe('semantic','skipped');
   if(local){result=result||{};result.title=result.title||(local.title||'');result.authors=(result.authors&&result.authors.length)?result.authors:(local.authors?local.authors.split(/[,;]/).map(function(s){return s.trim();}): []);if(!src&&(result.title||result.authors.length))src='Sheet (local)';}
   if(result&&result.title){metaCache[doi]={title:result.title,authors:result.authors||[]};try{LS.s('sl_meta',JSON.stringify(metaCache));}catch(_){}}
+  // Carry sheet SDG into result so renderDetail can use it
+  if(local&&local.sdg&&!(result&&result.sdgFromSheet))result=(result||{});
+  if(local&&local.sdg){result.sdgFromSheet=local.sdg;}
   renderDetail(result,src,doi,!key);
   if(result&&result.abstract)genSummary(result,doi);
+  genSDG(result,doi,local);
 }
 async function fetchScopus(doi,key){var r=await fetch('https://api.elsevier.com/content/abstract/doi/'+encodeURIComponent(doi)+'?apiKey='+key+'&httpAccept=application%2Fjson');if(!r.ok)return null;var d=await r.json();var core=d['abstracts-retrieval-response'];if(!core)return null;var bib=core.coredata||{};var authors=[];var ra=bib['dc:creator']||(core.authors&&core.authors.author)||[];if(!Array.isArray(ra))ra=[ra];ra.forEach(function(a){var n=a['ce:indexed-name']||a.$;if(n)authors.push(n);});var kws=core.idxterms&&core.idxterms.mainterm||[];var keywords=[];if(!Array.isArray(kws))kws=[kws];kws.forEach(function(k){if(k.$)keywords.push(k.$);});return{title:bib['dc:title']||'',authors:authors.slice(0,8),year:(bib['prism:coverDate']||'').slice(0,4),journal:bib['prism:publicationName']||'',abstract:bib['dc:description']||null,citationCount:parseInt(bib['citedby-count'])||0,keywords:keywords.slice(0,12),openAccess:bib.openaccess==='1',type:bib.subtypeDescription||'Article'};}
 async function fetchSciDir(doi,key){var r=await fetch('https://api.elsevier.com/content/article/doi/'+encodeURIComponent(doi)+'?apiKey='+key+'&httpAccept=application%2Fjson');if(!r.ok)return null;var d=await r.json();var core=d['full-text-retrieval-response'];if(!core)return null;var bib=core.coredata||{};var authors=[];var ra=bib['dc:creator']||[];if(!Array.isArray(ra))ra=[ra];ra.forEach(function(a){if(a.$)authors.push(a.$);});return{title:bib['dc:title']||'',authors:authors.slice(0,8),year:(bib['prism:coverDate']||'').slice(0,4),journal:bib['prism:publicationName']||'',abstract:bib['dc:description']||null,citationCount:0,keywords:[],openAccess:bib.openaccess==='1',type:'Article'};}
@@ -1002,7 +1073,7 @@ function renderDetail(r,src,doi,noKey){
   var dlLinks='<div class="direct-links"><a href="https://www.scopus.com/search/results.uri?query=DOI('+encodeURIComponent(doi)+')" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#fff7ed">&#x1F4D9;</div><div><div class="direct-link-name">Scopus</div><div class="direct-link-type">Abstract DB</div></div></a><a href="https://www.sciencedirect.com/search?query=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--blue-50)">&#x1F4D8;</div><div><div class="direct-link-name">ScienceDirect</div><div class="direct-link-type">Full text</div></div></a><a href="https://openalex.org/works?filter=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--green-50)">&#x1F7E2;</div><div><div class="direct-link-name">OpenAlex</div><div class="direct-link-type">Open graph</div></div></a><a href="https://www.semanticscholar.org/search?q='+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#faf5ff">&#x1F7E3;</div><div><div class="direct-link-name">Semantic Scholar</div><div class="direct-link-type">AI-enhanced</div></div></a><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--gray-100)">&#x1F517;</div><div><div class="direct-link-name">DOI Direct</div><div class="direct-link-type">Publisher page</div></div></a></div>';
   var absBlock=(r&&r.abstract)?'<div class="detail-section"><div class="section-heading">Abstract</div><div class="abstract-text">'+cleanAbstract(r.abstract)+'</div></div>':'<div class="detail-section"><div class="section-heading">Abstract</div><p style="font-size:13px;color:var(--text-secondary);margin-bottom:.875rem">Abstract not available. View the paper directly:</p>'+dlLinks+(noKey?'<div class="alert alert-warning" style="margin-top:10px">Add an Elsevier API key in Admin &rarr; API Sources to enable Scopus and ScienceDirect lookups.</div>':'')+'</div>';
   var kwBlock=(r&&r.keywords&&r.keywords.length)?'<div class="detail-section"><div class="section-heading">Keywords &amp; Fields</div><div class="kw-list">'+r.keywords.map(function(k){return'<span class="kw-tag">'+esc(String(k))+'</span>';}).join('')+'</div></div>':'';
-  document.getElementById('detailContent').innerHTML='<div class="fade-up"><div class="detail-header"><div class="detail-source-tag" style="background:'+sc.bg+';color:'+sc.color+';border-color:'+sc.border+'">via '+esc(src||'\u2014')+'</div><div class="detail-title">'+esc((r&&r.title)||'Untitled')+'</div><div class="detail-authors">'+esc(authStr)+'</div><div class="detail-meta">'+meta+'</div><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="detail-doi-link">doi.org/'+esc(doi)+'</a></div><div class="detail-stats"><div class="dstat"><span class="dstat-val">'+(r&&r.citationCount?Number(r.citationCount).toLocaleString():'\u2014')+'</span><span class="dstat-lbl">Citations</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.year||'\u2014')+'</span><span class="dstat-lbl">Year</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.authors?r.authors.length:'\u2014')+'</span><span class="dstat-lbl">Authors</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.openAccess?'Yes':'No')+'</span><span class="dstat-lbl">Open Access</span></div></div>'+absBlock+kwBlock+((r&&r.abstract)?'<div id="summaryEl"><div class="alert alert-info"><div class="spinner"></div> Generating summary\u2026</div></div></div>':'')+'<div class="detail-section"><div class="section-heading">View on external sources</div>'+dlLinks+'</div><p style="font-size:11px;color:var(--text-light);text-align:right;margin-top:.5rem">Source: '+esc(src||'none')+' \u00B7 DOI: '+esc(doi)+'</p></div>';
+  document.getElementById('detailContent').innerHTML='<div class="fade-up"><div class="detail-header"><div class="detail-source-tag" style="background:'+sc.bg+';color:'+sc.color+';border-color:'+sc.border+'">via '+esc(src||'\u2014')+'</div><div class="detail-title">'+esc((r&&r.title)||'Untitled')+'</div><div class="detail-authors">'+esc(authStr)+'</div><div class="detail-meta">'+meta+'</div><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="detail-doi-link">doi.org/'+esc(doi)+'</a></div><div class="detail-stats"><div class="dstat"><span class="dstat-val">'+(r&&r.citationCount?Number(r.citationCount).toLocaleString():'\u2014')+'</span><span class="dstat-lbl">Citations</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.year||'\u2014')+'</span><span class="dstat-lbl">Year</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.authors?r.authors.length:'\u2014')+'</span><span class="dstat-lbl">Authors</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.openAccess?'Yes':'No')+'</span><span class="dstat-lbl">Open Access</span></div></div>'+absBlock+kwBlock+'<div class="detail-section"><div class="section-heading">SDG Alignment</div><div id="sdgEl"><div class="alert alert-info"><div class="spinner"></div> Identifying applicable SDGs\u2026</div></div></div>'+((r&&r.abstract)?'<div class="detail-section"><div class="section-heading">AI Summary</div><div id="summaryEl"><div class="alert alert-info"><div class="spinner"></div> Generating summary\u2026</div></div></div>':'')+'<div class="detail-section"><div class="section-heading">View on external sources</div>'+dlLinks+'</div><p style="font-size:11px;color:var(--text-light);text-align:right;margin-top:.5rem">Source: '+esc(src||'none')+' \u00B7 DOI: '+esc(doi)+'</p></div>';
 }
 function cleanAbstract(text){
   if(!text)return'';
@@ -1037,7 +1108,7 @@ async function genSummary(paper,doi){
   var apiKey=LS.g('sl_anthropic_key')||'';
   if(!apiKey){
     var el=document.getElementById('summaryEl');
-    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)"></p>';
+    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">AI summary unavailable. Add an Anthropic API key in Admin &rarr; API Sources to enable this feature.</p>';
     return;
   }
   try{
@@ -1062,6 +1133,119 @@ async function genSummary(paper,doi){
   }catch(_){
     var el=document.getElementById('summaryEl');
     if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Summary unavailable.</p>';
+  }
+}
+
+
+var SDG_META=[
+  {n:1,name:'No Poverty',color:'#E5243B'},
+  {n:2,name:'Zero Hunger',color:'#DDA63A'},
+  {n:3,name:'Good Health and Well-being',color:'#4C9F38'},
+  {n:4,name:'Quality Education',color:'#C5192D'},
+  {n:5,name:'Gender Equality',color:'#FF3A21'},
+  {n:6,name:'Clean Water and Sanitation',color:'#26BDE2'},
+  {n:7,name:'Affordable and Clean Energy',color:'#FCC30B'},
+  {n:8,name:'Decent Work and Economic Growth',color:'#A21942'},
+  {n:9,name:'Industry, Innovation and Infrastructure',color:'#FD6925'},
+  {n:10,name:'Reduced Inequalities',color:'#DD1367'},
+  {n:11,name:'Sustainable Cities and Communities',color:'#FD9D24'},
+  {n:12,name:'Responsible Consumption and Production',color:'#BF8B2E'},
+  {n:13,name:'Climate Action',color:'#3F7E44'},
+  {n:14,name:'Life Below Water',color:'#0A97D9'},
+  {n:15,name:'Life on Land',color:'#56C02B'},
+  {n:16,name:'Peace, Justice and Strong Institutions',color:'#00689D'},
+  {n:17,name:'Partnerships for the Goals',color:'#19486A'}
+];
+
+function parseSheetSDGs(raw){
+  // Accept: "SDG 1", "SDG1", "1", "1,3,7", "SDG 1; SDG 3", "Goal 1" etc.
+  if(!raw)return[];
+  var nums=[];
+  var matches=raw.match(/\d+/g)||[];
+  matches.forEach(function(m){var n=parseInt(m);if(n>=1&&n<=17)nums.push(n);});
+  return nums.filter(function(v,i,a){return a.indexOf(v)===i;});
+}
+
+function renderSDGCards(sdgs,fromSheet){
+  if(!sdgs||!sdgs.length){
+    var el=document.getElementById('sdgEl');
+    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">No applicable SDGs identified.</p>';
+    return;
+  }
+  var cards=sdgs.map(function(s){
+    var meta=SDG_META[s.n-1];
+    var sheetTag=fromSheet?'<span class="sdg-sheet-tag">&#x1F4CB; from sheet</span>':'';
+    return'<div class="sdg-card">'
+      +'<div class="sdg-badge" style="background:'+meta.color+'">SDG<br>'+s.n+'</div>'
+      +'<div class="sdg-info">'
+      +'<div class="sdg-name">'+esc(meta.name)+sheetTag+'</div>'
+      +(s.reason?'<div class="sdg-reason">'+esc(s.reason)+'</div>':'')
+      +'</div></div>';
+  }).join('');
+  var el=document.getElementById('sdgEl');
+  if(el)el.innerHTML='<div class="sdg-grid">'+cards+'</div>';
+}
+
+async function genSDG(paper,doi,local){
+  var el=document.getElementById('sdgEl');
+  if(!el)return;
+
+  // Priority 1: sheet has SDG data — parse and display immediately, no AI needed
+  var sheetSDGRaw=(local&&local.sdg)||((paper&&paper.sdgFromSheet)||'');
+  if(sheetSDGRaw){
+    var nums=parseSheetSDGs(sheetSDGRaw);
+    if(nums.length>0){
+      var sdgs=nums.map(function(n){return{n:n,reason:''};});
+      renderSDGCards(sdgs,true);
+      return;
+    }
+  }
+
+  // Priority 2: Groq AI analysis — fast LLaMA 3.3 70B
+  var groqKey=LS.g('sl_groq_key')||'';
+  if(!groqKey){
+    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG analysis unavailable. Add a Groq API key in Admin → API Sources to enable this, or add an SDG column to your sheet.</p>';
+    return;
+  }
+  if(!(paper&&(paper.abstract||paper.title))){
+    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Not enough information to determine SDG alignment.</p>';
+    return;
+  }
+
+  var sdgList=SDG_META.map(function(s){return'SDG '+s.n+': '+s.name;}).join('\n');
+  var systemPrompt='You are an expert in the UN Sustainable Development Goals (SDGs). Your task is to analyze research papers and identify applicable SDGs. Always respond with ONLY a valid JSON array — no markdown, no explanation, no text outside the array.';
+  var userPrompt='Analyze this research paper and identify ALL applicable SDGs.\n\nRespond with ONLY a JSON array. Each item must have:\n- "n": SDG number (integer 1-17)\n- "reason": one concise sentence (max 20 words) explaining why this SDG applies\n\nIf no SDG applies, return [].\n\nSDGs:\n'+sdgList+'\n\nTitle: '+(paper.title||'')+'\nAbstract: '+(paper.abstract||paper.title||'');
+
+  try{
+    var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+groqKey
+      },
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        temperature:0.1,
+        max_tokens:800,
+        response_format:{type:'json_object'},
+        messages:[
+          {role:'system',content:systemPrompt},
+          {role:'user',content:userPrompt}
+        ]
+      })
+    });
+    var d=await res.json();
+    if(!res.ok){throw new Error((d.error&&d.error.message)||'Groq error '+res.status);}
+    var txt=((d.choices||[])[0]&&d.choices[0].message&&d.choices[0].message.content)||'';
+    txt=txt.trim().replace(/^```json/,'').replace(/^```/,'').replace(/```$/,'').trim();
+    // Groq with json_object mode returns an object — handle both {sdgs:[...]} and direct array
+    var parsed=JSON.parse(txt);
+    var sdgs=Array.isArray(parsed)?parsed:(parsed.sdgs||parsed.results||parsed.goals||Object.values(parsed)[0]||[]);
+    if(!Array.isArray(sdgs))throw new Error('unexpected shape');
+    sdgs=sdgs.filter(function(s){return s&&s.n>=1&&s.n<=17;});
+    renderSDGCards(sdgs,false);
+  }catch(e){
+    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Could not determine SDG alignment. Check your Groq API key in Admin → API Sources.</p>';
   }
 }
 
