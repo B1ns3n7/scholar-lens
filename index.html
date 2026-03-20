@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<meta http-equiv="Pragma" content="no-cache"/>
-<meta http-equiv="Expires" content="0"/>
 <title>Scholar Lens</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -28,8 +25,7 @@
 }
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;user-select:none}
-/* FIX #6: Restore user-select on all readable content, not just inputs */
-input,textarea,.result-title,.result-doi,.result-author,.detail-title,.detail-authors,.abstract-text,.summary-block,.td-doi,.td-title,.td-author{-webkit-user-select:text;-moz-user-select:text;user-select:text}
+input,textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text}
 .page{display:none;min-height:100vh}
 .page.show{display:flex;flex-direction:column}
 #pageLanding{align-items:center;justify-content:center;padding:2rem 1rem;background:var(--white)}
@@ -87,6 +83,8 @@ input::placeholder,textarea::placeholder{color:var(--text-light)}
 .login-icon{width:44px;height:44px;background:var(--yellow-50);border:1px solid #fef08a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 1.25rem}
 .login-title{font-size:18px;font-weight:600;color:var(--gray-900);text-align:center;margin-bottom:.2rem}
 .login-sub{font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:1.5rem}
+.login-hint{font-size:11px;color:var(--text-light);text-align:center;margin-top:.85rem}
+.login-hint code{color:var(--gray-600);background:var(--gray-100);padding:1px 5px;border-radius:3px}
 .admin-wrap{flex:1;display:flex;min-height:0}
 .admin-sidebar{width:200px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);padding:1rem 0}
 @media(max-width:640px){.admin-sidebar{display:none}}
@@ -196,16 +194,9 @@ tbody tr:hover td{background:var(--gray-50)}
 .section-heading{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.65rem;display:flex;align-items:center;gap:6px}
 .section-heading::after{content:'';flex:1;height:1px;background:var(--border)}
 .abstract-text{font-size:13px;line-height:1.75;color:var(--gray-700)}
-.summary-block{background:var(--blue-50);border-left:3px solid var(--blue-500);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.875rem 1rem;font-size:13px;line-height:1.7;color:var(--gray-700)}
+
 .kw-list{display:flex;flex-wrap:wrap;gap:5px}
 .kw-tag{font-size:11px;padding:3px 9px;border-radius:4px;background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200)}
-.sdg-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
-.sdg-card{display:flex;gap:10px;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow);flex:1;min-width:200px}
-.sdg-badge{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;line-height:1.1;text-align:center}
-.sdg-info{flex:1;min-width:0}
-.sdg-name{font-size:12px;font-weight:600;color:var(--gray-900);margin-bottom:3px;line-height:1.3}
-.sdg-reason{font-size:11px;color:var(--text-secondary);line-height:1.5}
-.sdg-sheet-tag{display:inline-flex;align-items:center;font-size:10px;color:var(--green-600);background:var(--green-50);border:1px solid var(--green-100);border-radius:3px;padding:1px 5px;margin-left:5px;vertical-align:middle}
 .pipeline{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:1rem}
 .pipe-step{font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid var(--border);background:var(--white);color:var(--text-secondary);transition:all .2s}
 .pipe-step.trying{background:var(--yellow-50);border-color:#fef08a;color:var(--yellow-600)}
@@ -264,6 +255,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
       <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <div id="loginSt"></div>
       <button class="btn btn-primary btn-block" style="margin-top:1rem" onclick="doLogin()">Sign in</button>
+
     </div>
   </div>
   <footer>Scholar Lens</footer>
@@ -304,7 +296,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
           <div class="stat-box"><span class="stat-val" id="stTotal">0</span><span class="stat-lbl">Total DOIs</span></div>
           <div class="stat-box"><span class="stat-val" id="stTitles">0</span><span class="stat-lbl">With titles</span></div>
           <div class="stat-box"><span class="stat-val" id="stAuthors">0</span><span class="stat-lbl">With authors</span></div>
-          <div class="stat-box"><span class="stat-val" id="stSources">0/6</span><span class="stat-lbl">Sources active</span></div>
+          <div class="stat-box"><span class="stat-val" id="stSources">0/4</span><span class="stat-lbl">Sources active</span></div>
         </div>
         <div class="card">
           <div class="card-title">Data source</div>
@@ -316,29 +308,10 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
           <div class="card-sub" style="margin-bottom:.75rem">Fallback order: Scopus &rarr; ScienceDirect &rarr; OpenAlex &rarr; Semantic Scholar</div>
           <div id="ovSources"></div>
         </div>
-        <div id="shareSection" style="display:none">
-          <div class="card" style="border-color:var(--green-100);background:var(--green-50)">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
-              <span style="font-size:18px">&#x1F4F1;</span>
-              <div>
-                <div style="font-size:14px;font-weight:600;color:var(--green-600)">Share with researchers</div>
-                <div style="font-size:12px;color:var(--gray-600)">Give everyone access on any device</div>
-              </div>
-            </div>
-            <p id="shareNote" style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:.75rem"></p>
-            <div id="shareUrlWrap" style="display:none;gap:6px;flex-wrap:wrap;align-items:center">
-              <input type="text" id="shareUrlInput" readonly
-                style="flex:1;min-width:0;font-size:11px;font-family:'JetBrains Mono',monospace;padding:7px 10px;background:var(--white);border:1px solid var(--green-100);cursor:text;border-radius:var(--radius-sm)"/>
-              <button class="btn btn-sm" onclick="copyShareUrl()"
-                style="white-space:nowrap;color:var(--green-600);border-color:var(--green-100);background:var(--white);font-weight:600">
-                &#x1F4CB; Copy link
-              </button>
-            </div>
-            <div id="copyMsg" style="font-size:12px;color:var(--green-600);margin-top:6px;display:none;font-weight:500">
-              &#x2713; Link copied! Share it with your researchers.
-            </div>
-          </div>
-        </div>
+
+        <!-- Share panel — rendered by updShareSection() -->
+        <div id="shareSection" style="display:none"></div>
+
       </div>
 
       <div class="admin-panel" id="tSheet">
@@ -405,29 +378,10 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
             <div id="uploadSt"></div>
           </div>
         </div>
-        <div id="shareSectionSheet" style="display:none;margin-top:1rem">
-          <div class="card" style="border-color:var(--green-100);background:var(--green-50)">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
-              <span style="font-size:18px">&#x1F4F1;</span>
-              <div>
-                <div style="font-size:14px;font-weight:600;color:var(--green-600)">Share with researchers</div>
-                <div style="font-size:12px;color:var(--gray-600)">Works on any device &mdash; mobile, tablet, desktop</div>
-              </div>
-            </div>
-            <p id="shareNoteSheet" style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:.75rem"></p>
-            <div id="shareUrlWrapSheet" style="display:none;gap:6px;flex-wrap:wrap;align-items:center">
-              <input type="text" id="shareUrlInputSheet" readonly
-                style="flex:1;min-width:0;font-size:11px;font-family:'JetBrains Mono',monospace;padding:7px 10px;background:var(--white);border:1px solid var(--green-100);cursor:text;border-radius:var(--radius-sm)"/>
-              <button class="btn btn-sm" onclick="copyShareUrlSheet()"
-                style="white-space:nowrap;color:var(--green-600);border-color:var(--green-100);background:var(--white);font-weight:600">
-                &#x1F4CB; Copy link
-              </button>
-            </div>
-            <div id="copyMsgSheet" style="font-size:12px;color:var(--green-600);margin-top:6px;display:none;font-weight:500">
-              &#x2713; Copied! Share this link with your researchers.
-            </div>
-          </div>
-        </div>
+      <!-- Share link appears here after any import method succeeds -->
+      <!-- Sheet Config share panel — rendered by updShareSection() -->
+      <div id="shareSectionSheet" style="display:none"></div>
+
       </div>
 
       <div class="admin-panel" id="tSources">
@@ -469,30 +423,6 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
             <div class="source-card-head"><div class="source-card-name">Semantic Scholar</div><span class="badge badge-green">Active</span></div>
             <div class="source-card-desc">AI-powered research database &mdash; 220M+ papers. No API key needed.</div>
             <div style="font-size:11px;background:var(--green-50);color:var(--green-600);padding:7px 9px;border-radius:4px;border:1px solid var(--green-100)">&#x2713; Always active &mdash; no setup required</div>
-          </div>
-        </div>
-        <div style="margin-top:1.25rem">
-          <div class="card-title" style="margin-bottom:.25rem">&#x1F916; AI Features (Cloudflare Worker Proxy)</div>
-          <div class="card-sub" style="margin-bottom:.875rem">API keys are stored securely on your Worker — researchers never need to configure anything.</div>
-          <div class="source-grid" style="grid-template-columns:1fr">
-            <div class="source-card">
-              <div class="source-card-head"><div class="source-card-name">&#x26A1; Worker Proxy URL</div><span class="badge badge-gray" id="st-proxy">Not configured</span></div>
-              <div class="source-card-desc">
-                Your Cloudflare Worker handles both SDG analysis (Groq) and AI summaries (Anthropic). 
-                Keys are stored as Worker secrets — never exposed to researchers.
-                <br><br>
-                <strong>Don't have a Worker yet?</strong> Download <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px;font-size:11px">scholar-lens-worker.js</code> from the same place you got this file, then follow the setup guide inside it.
-              </div>
-              <div class="field" style="margin-bottom:.4rem">
-                <label>Worker URL</label>
-                <div class="input-row">
-                  <input type="text" id="key-proxy" placeholder="https://scholar-lens-proxy.YOUR-NAME.workers.dev"/>
-                  <button class="btn btn-sm" onclick="saveProxyUrl()">Save</button>
-                </div>
-              </div>
-              <div id="proxySaveMsg"></div>
-              <div id="proxyPingResult" style="margin-top:6px"></div>
-            </div>
           </div>
         </div>
       </div>
@@ -541,7 +471,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
       <h1>Research Paper Search</h1>
       <p>Search by DOI, author name, or title &mdash; results are limited to papers in the connected database.</p>
     </div>
-    <div id="nsNotice" style="display:none"><div class="ns-bar">&#x26A0; <span><strong>No sheet connected.</strong> Ask your admin to share the app link that includes the database URL, or an admin can connect a sheet via Admin &rarr; Sheet Config.</span></div></div>
+    <div id="nsNotice" style="display:none"><div class="ns-bar">&#x26A0; <span><strong>No sheet connected.</strong> Ask your admin to share the app link that includes the database URL, or an admin can connect a sheet via Admin → Sheet Config.</span></div></div>
     <div class="scope-bar">&#x1F3AF; <span><strong>Scoped to your database.</strong> Only sheet DOIs are shown. <span id="sheetScopeCount"></span></span></div>
     <div class="search-box">
       <div class="filter-row">
@@ -597,9 +527,9 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
     if(e.ctrlKey&&e.shiftKey&&(k==='C'||k==='c')){e.preventDefault();return false;}
     if(e.ctrlKey&&(k==='U'||k==='u')){e.preventDefault();return false;}
     if(e.ctrlKey&&(k==='S'||k==='s')){e.preventDefault();return false;}
-    // FIX #6: Do NOT block Ctrl+C (copy) — removed that interception entirely
   });
   document.addEventListener('dragstart',function(e){
+    // Only block drag on images and links, not on clickable divs (breaks mobile taps)
     var tag=(e.target.tagName||'').toUpperCase();
     if(tag==='IMG'||tag==='A'){e.preventDefault();}
   });
@@ -621,27 +551,25 @@ function showPage(id){
 }
 function goAdminLogin(){showPage('pageAdminLogin');}
 function goPublicSearch(){
-  // Always reset records so we never serve stale cached data
-  sheetRecords=[];
+  // Priority 1: ?dois= param — DOIs encoded directly in URL (paste/upload share)
   var urlDois=getUrlDois();
-  if(urlDois&&urlDois.length>0){
+  if(urlDois&&urlDois.length>0&&sheetRecords.length===0){
     sheetRecords=urlDois;
     document.getElementById('nsNotice').style.display='none';
     updMeta();
-  } else {
-    var urlSheet=getUrlSheet();
-    var saved=LS.g('sl_url');
-    var source=urlSheet||saved||'';
-    if(source){
-      sheetUrl=source;
-      loadRecords(source,false).then(function(){
-        document.getElementById('nsNotice').style.display='none';updMeta();
-      });
-    } else {
-      loadSample();
-      document.getElementById('nsNotice').style.display='flex';
-    }
   }
+  // Priority 2: ?sheet= param — sheet URL embedded in link
+  var urlSheet=getUrlSheet();
+  // Priority 3: localStorage — same browser as admin
+  var saved=LS.g('sl_url');
+  var source=urlSheet||saved||'';
+  if(!urlDois&&source&&sheetRecords.length===0){
+    sheetUrl=source;
+    loadRecords(source,false).then(function(){
+      document.getElementById('nsNotice').style.display='none';updMeta();
+    });
+  }
+  if(!urlDois&&!source&&sheetRecords.length===0){loadSample();document.getElementById('nsNotice').style.display='flex';}
   var cm=LS.g('sl_meta');if(cm){try{metaCache=JSON.parse(cm);}catch(_){}}
   updMeta();showPage('pageSearch');
 }
@@ -656,48 +584,20 @@ function getUrlSheet(){
   return '';
 }
 function getUrlDois(){
+  // Read ?dois= param — base64-encoded comma-separated DOI list from paste/upload share
   try{
     var params=new URLSearchParams(window.location.search);
-
-    // New format: ?data= encodes full records (doi\x1Ftitle\x1Fauthors joined by \x1E)
-    var d=params.get('data');
-    if(d){
-      var decoded=decodeURIComponent(escape(atob(decodeURIComponent(d))));
-      var records=decoded.split('\x1E').map(function(row){
-        var parts=row.split('\x1F');
-        return{doi:(parts[0]||'').trim(),title:(parts[1]||'').trim(),authors:(parts[2]||'').trim()};
-      }).filter(function(r){return r.doi.startsWith('10.');});
-      if(records.length>0)return records;
-    }
-
-    // Legacy format: ?dois= encodes only DOI list (comma-separated, base64)
-    var legacy=params.get('dois');
-    if(legacy){
-      var decoded=decodeURIComponent(escape(atob(decodeURIComponent(legacy))));
-      var dois=decoded.split(',').map(function(x){return x.trim();}).filter(function(x){return x.startsWith('10.');});
-      if(dois.length>0)return dois.map(function(doi){return{doi:doi,title:'',authors:''};});
+    var d=params.get('dois');
+    if(!d)return null;
+    var decoded=decodeURIComponent(escape(atob(d)));
+    var dois=decoded.split(',').map(function(x){return x.trim();}).filter(function(x){return x.startsWith('10.');});
+    if(dois.length>0){
+      return dois.map(function(doi){return{doi:doi,title:'',authors:''};});
     }
   }catch(_){}
   return null;
 }
-
-// FIX #3 (enhanced): buildDoiShareUrl encodes full records (doi|title|authors) so
-// other devices receive titles and authors immediately without waiting for API enrichment.
-// Format per record: "doi\x1Ftitle\x1Fauthors" — joined by \x1E (record separator).
-// The whole payload is UTF-8 → base64 encoded.
-function buildDoiShareUrl(){
-  try{
-    var payload=sheetRecords.map(function(r){
-      return [r.doi,r.title||'',r.authors||''].join('\x1F');
-    }).join('\x1E');
-    var encoded=btoa(unescape(encodeURIComponent(payload)));
-    var base=window.location.href.split('?')[0].split('#')[0];
-    return base+'?data='+encodeURIComponent(encoded);
-  }catch(_){return window.location.href.split('?')[0].split('#')[0];}
-}
-
-function _d(s){try{return atob(s);}catch(_){return'';}}
-function getCreds(){var u=LS.g('sl_u');var p=LS.g('sl_p');return{u:u||_d('UktN'),p:p||_d('c2Nob2xhci1sZW5z')};}
+function _d(s){try{return atob(s);}catch(_){return'';}}function getCreds(){var u=LS.g('sl_u');var p=LS.g('sl_p');return{u:u||_d('UktN'),p:p||_d('c2Nob2xhci1sZW5z')};}
 function doLogin(){
   var u=document.getElementById('loginUser').value.trim();
   var p=document.getElementById('loginPass').value;
@@ -709,19 +609,10 @@ function doLogin(){
 function adminLogout(){document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';showPage('pageLanding');}
 function enterAdmin(){
   var saved=LS.g('sl_url');
-  if(saved){
-    document.getElementById('adminUrl').value=saved;
-    sheetUrl=saved;
-    // Always re-fetch — never trust in-memory records which may be stale
-    loadRecords(saved,true);
-  }
+  if(saved){document.getElementById('adminUrl').value=saved;sheetUrl=saved;if(sheetRecords.length===0)loadRecords(saved,true);else{renderStats();renderTable();updOverview();updShareSection();}}
   var key=getKey();
   if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
-  var pUrl=LS.g('sl_proxy_url')||'';
-  if(pUrl){document.getElementById('key-proxy').value=pUrl;updProxyStatus(true);}else{updProxyStatus(false);}
-  updOverviewSources();showPage('pageAdmin');
-  var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
-  aTab('tOverview', overviewSidebarBtn || document.querySelector('.sidebar-item'));
+  updOverviewSources();showPage('pageAdmin');aTab('tOverview',document.querySelector('.sidebar-item'));
 }
 function aTab(id,btn){
   document.querySelectorAll('.admin-panel').forEach(function(p){p.classList.remove('show');});
@@ -735,42 +626,6 @@ function saveKey(){
   LS.s('sl_elsevier_key',key);updSourceStatus(true);updOverviewSources();
   showAlert('srcSaveMsg','success','Elsevier API key saved. Scopus and ScienceDirect are now active.');
 }
-async function saveProxyUrl(){
-  var url=(document.getElementById('key-proxy').value||'').trim().replace(/\/+$/,'');
-  if(!url){showAlert('proxySaveMsg','error','Please enter your Worker URL.');return;}
-  if(!url.startsWith('https://')){showAlert('proxySaveMsg','error','URL must start with https://');return;}
-  showAlert('proxySaveMsg','info','Testing connection…',true);
-  try{
-    var r=await fetch(url+'/ping',{method:'GET',headers:{'Accept':'application/json'}});
-    // Accept any 2xx response — parse JSON if possible for key status details
-    if(r.ok){
-      LS.s('sl_proxy_url',url);
-      updProxyStatus(true);
-      updOverviewSources();
-      var details='Worker connected!';
-      try{
-        var d=await r.json();
-        var parts=[];
-        if(d.groq===true)parts.push('Groq ✓');
-        else if(d.groq===false)parts.push('Groq ✗ — add GROQ_API_KEY to Worker secrets');
-        if(d.anthropic===true)parts.push('Anthropic ✓');
-        else if(d.anthropic===false)parts.push('Anthropic ✗ — add ANTHROPIC_API_KEY to Worker secrets');
-        if(parts.length)details='Worker connected! '+parts.join(' · ');
-      }catch(_){}
-      showAlert('proxySaveMsg','success',details);
-      document.getElementById('proxyPingResult').innerHTML='';
-    }else{
-      // Non-2xx — show the actual status so user can diagnose
-      showAlert('proxySaveMsg','error','Worker returned HTTP '+r.status+'. Make sure the worker.js code is deployed correctly — click Edit code in Cloudflare and re-paste the file.');
-    }
-  }catch(e){
-    showAlert('proxySaveMsg','error','Could not reach Worker. Check the URL is correct and the Worker is deployed. Error: '+e.message);
-  }
-}
-function updProxyStatus(h){
-  var el=document.getElementById('st-proxy');
-  if(el){el.className='badge '+(h?'badge-green':'badge-gray');el.textContent=h?'Connected':'Not configured';}
-}
 function updSourceStatus(h){
   document.getElementById('st-scopus').className='badge '+(h?'badge-green':'badge-gray');
   document.getElementById('st-scopus').textContent=h?'Active':'No key';
@@ -779,21 +634,12 @@ function updSourceStatus(h){
 }
 function updOverviewSources(){
   var key=getKey();
-  var pUrl=LS.g('sl_proxy_url')||'';
-  var active=(key?2:0)+2+(pUrl?2:0);
-  document.getElementById('stSources').textContent=active+'/6';
-  var src=[
-    {n:'Scopus',a:!!key,note:key?'API key configured':'Add key in API Sources'},
-    {n:'ScienceDirect',a:!!key,note:key?'Uses Elsevier key':'Add key in API Sources'},
-    {n:'OpenAlex',a:true,note:'Free \u2014 always active'},
-    {n:'Semantic Scholar',a:true,note:'Free \u2014 always active'},
-    {n:'Groq / LLaMA 3.3 (SDG Analysis)',a:!!pUrl,note:pUrl?'Via Worker proxy':'Configure Worker URL in API Sources'},
-    {n:'Claude / Anthropic (AI Summary)',a:!!pUrl,note:pUrl?'Via Worker proxy':'Configure Worker URL in API Sources'}
-  ];
+  document.getElementById('stSources').textContent=(key?4:2)+'/4';
+  var src=[{n:'Scopus',a:!!key,note:key?'API key configured':'Add key in API Sources'},{n:'ScienceDirect',a:!!key,note:key?'Uses Elsevier key':'Add key in API Sources'},{n:'OpenAlex',a:true,note:'Free \u2014 always active'},{n:'Semantic Scholar',a:true,note:'Free \u2014 always active'}];
   document.getElementById('ovSources').innerHTML=src.map(function(r){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500;color:'+(r.a?'var(--gray-900)':'var(--text-secondary)')+'">'+r.n+'</div><div style="font-size:11px;color:var(--text-secondary)">'+r.note+'</div></div><span class="badge '+(r.a?'badge-green':'badge-gray')+'">'+(r.a?'Active':'Inactive')+'</span></div>';}).join('');
 }
 function switchMethod(n){[1,2,3].forEach(function(i){document.getElementById('method'+i).style.display=i===n?'block':'none';document.getElementById('mBtn'+i).classList.toggle('active',i===n);});}
-
+// Multiple CORS proxies tried in order
 var PROXIES=[
   function(u){return u;},
   function(u){return'https://api.allorigins.win/get?url='+encodeURIComponent(u);},
@@ -832,34 +678,46 @@ async function loadRecords(url,isAdmin){
   try{
     var csv=await fetchCSV(csvUrl);parseCSV(csv);
     if(sheetRecords.length===0){
-      var firstLine=(csv||'').trim().split('\n')[0].slice(0,200);
-      throw new Error('No DOIs found in the sheet. Column headers detected: ['+firstLine+']. Make sure at least one column contains DOI values like 10.1234/xxxxx');
-    }
-    LS.s('sl_url',csvUrl);sheetUrl=csvUrl;lastSync=new Date();
-    // No record caching — always re-fetch from sheet on every load so changes are always live
+    var firstLine=(csv||'').trim().split('\n')[0].slice(0,200);
+    throw new Error('No DOIs found in the sheet. Column headers detected: ['+firstLine+']. Make sure at least one column contains DOI values like 10.1234/xxxxx');
+  }
+    LS.s('sl_url',csvUrl);LS.s('sl_rec',JSON.stringify(sheetRecords));sheetUrl=csvUrl;lastSync=new Date();
     if(isAdmin){showAlert('sheetSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';}
     updMeta();
   }catch(e){
     if(isAdmin){document.getElementById('sheetSt').innerHTML='<div class="alert alert-error">\u2717 '+esc(e.message)+'</div><div class="card" style="margin-top:10px"><div class="card-title" style="margin-bottom:.5rem">Troubleshooting</div><ol style="font-size:12px;color:var(--text-secondary);padding-left:1.1rem;line-height:1.8"><li>Sheet must be set to <strong>Anyone with the link \u2192 Viewer</strong></li><li>Use <strong>File \u2192 Share \u2192 Publish to web \u2192 CSV</strong></li><li>If just published, wait 60 seconds and retry</li><li>Try <strong>Paste data</strong> or <strong>Upload CSV</strong> instead</li></ol></div>';}
-    // No fallback to cached records — if fetch fails show the error clearly
+    var c=LS.g('sl_rec');if(c&&sheetRecords.length===0){try{sheetRecords=JSON.parse(c);updMeta();}catch(_){}}
   }
 }
 function loadPasted(){
   var raw=document.getElementById('pasteArea').value.trim();
   if(!raw){showAlert('pasteSt','error','Nothing pasted yet.');return;}
   parseCSV(tsvToCsv(raw));
-  if(sheetRecords.length===0){showAlert('pasteSt','error','No DOIs found. Make sure your sheet has DOI values like 10.xxxx/yyyy');return;}
+  if(sheetRecords.length===0){
+    showAlert('pasteSt','error','No DOIs found. Make sure your sheet contains DOI values like 10.xxxx/yyyy');
+    return;
+  }
   LS.s('sl_rec',JSON.stringify(sheetRecords));
   LS.d('sl_url');
   sheetUrl='';
   lastSync=new Date();
-  renderStats();renderTable();updOverview();updShareSection();
-  document.getElementById('connPill').style.display='inline-flex';
+  // Update stats and metadata
+  renderStats();
+  renderTable();
   updMeta();
-  // FIX #4: Use a properly scoped selector for the Overview sidebar button
-  var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
-  aTab('tOverview', overviewSidebarBtn || null);
-  showAlert('ovSheet','success','\u2713 Loaded '+sheetRecords.length+' DOI records from pasted data. Copy the shareable link below and send it to researchers.');
+  document.getElementById('connPill').style.display='inline-flex';
+  // Switch to Overview tab
+  var firstTab=document.querySelector('.sidebar-item');
+  aTab('tOverview', firstTab);
+  // Update overview content
+  updOverview();
+  // Force the share section visible with a small delay so DOM is settled
+  setTimeout(function(){
+    updShareSection();
+    // Scroll the share section into view
+    var sl=document.getElementById('shareSection');
+    if(sl){sl.style.display='block';sl.scrollIntoView({behavior:'smooth',block:'center'});}
+  }, 100);
 }
 function tsvToCsv(t){return t.split('\n').map(function(r){return r.split('\t').map(function(c){var x=c.trim();return(x.indexOf(',')>=0||x.indexOf('"')>=0)?'"'+x.replace(/"/g,'""')+'"':x;}).join(',');}).join('\n');}
 function handleDrop(e){e.preventDefault();document.getElementById('dropZone').style.borderColor='var(--border)';document.getElementById('dropZone').style.background='var(--gray-50)';var f=e.dataTransfer.files[0];if(f)readCsvFile(f);}
@@ -878,45 +736,42 @@ function readCsvFile(file){
     renderStats();renderTable();updOverview();updShareSection();
     document.getElementById('connPill').style.display='inline-flex';
     updMeta();
-    // FIX #4: Use a properly scoped selector for the Overview sidebar button
-    var overviewSidebarBtn=document.querySelector('.admin-sidebar .sidebar-item[onclick*="tOverview"]');
-    aTab('tOverview', overviewSidebarBtn || null);
-    showAlert('ovSheet','success','\u2713 Loaded '+sheetRecords.length+' DOI records from '+esc(file.name)+'. Copy the shareable link below.');
+    // Switch to Overview so admin sees the shareable link immediately
+    aTab('tOverview', document.querySelector('.sidebar-item'));
+    showAlert('ovSheet','success','✓ Loaded '+sheetRecords.length+' DOI records from '+esc(file.name)+'. Copy the shareable link below.');
   };
   reader.onerror=function(){showAlert('uploadSt','error','Could not read file.');};
   reader.readAsText(file);
 }
-
-// FIX #1: Fixed fc() — capture each argument into a local variable before the findIndex callback
-// so the inner function closes over the correct value, not the callback's own `arguments` object.
 function parseCSV(csv){
+  // Normalise line endings and split
   var lines=csv.trim().replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
   if(lines.length<2)return;
   var rows=lines.map(function(r){return parseRow(r);});
   var hdr=rows[0].map(function(h){return h.replace(/"/g,'').toLowerCase().trim();});
 
-  // FIX #1: Use a local variable `needle` to capture the argument value before the callback
+  // Find columns by header keyword — broad matching
   function fc(){
     for(var a=0;a<arguments.length;a++){
-      var needle=arguments[a]; // capture argument into local var to avoid closure over `arguments`
-      var i=hdr.findIndex(function(h){return h.indexOf(needle)>=0;});
+      var i=hdr.findIndex(function(h){return h.indexOf(arguments[a])>=0;});
       if(i>=0)return i;
     }
     return -1;
   }
   var dc=fc('doi','identifier','link','url','handle'),
       tc=fc('title','paper','article','research','study','name','subject'),
-      ac=fc('author','writer','researcher','creator','contributor'),
-      sc=fc('sdg','sustainable development','goal','un goal');
+      ac=fc('author','writer','researcher','creator','contributor');
 
   sheetRecords=[];
   for(var i=1;i<rows.length;i++){
     var row=rows[i];
-    if(!row.length||row.every(function(x){return!x.trim();}))continue;
+    if(!row.length||row.every(function(x){return!x.trim();}))continue; // skip blank rows
     var doi='';
 
+    // 1. Try the detected DOI column first
     if(dc>=0) doi=nDOI(row[dc]||'');
 
+    // 2. Scan every cell for anything that looks like a DOI (10.XXXX/...)
     if(!doi.startsWith('10.')){
       for(var j=0;j<row.length;j++){
         var v=nDOI(row[j]);
@@ -924,6 +779,7 @@ function parseCSV(csv){
       }
     }
 
+    // 3. Also check for full doi.org URLs embedded in cells
     if(!doi.startsWith('10.')){
       for(var j=0;j<row.length;j++){
         var cell=(row[j]||'').trim();
@@ -936,8 +792,7 @@ function parseCSV(csv){
 
     var title=(tc>=0?(row[tc]||'').replace(/"/g,'').trim():'');
     var authors=(ac>=0?(row[ac]||'').replace(/"/g,'').trim():'');
-    var sdgRaw=(sc>=0?(row[sc]||'').replace(/"/g,'').trim():'');
-    sheetRecords.push({doi:doi,title:title,authors:authors,sdg:sdgRaw});
+    sheetRecords.push({doi:doi,title:title,authors:authors});
   }
 }
 function parseRow(r){var res=[],cur='',inQ=false;for(var i=0;i<r.length;i++){var c=r[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur.trim());cur='';continue;}cur+=c;}res.push(cur.trim());return res;}
@@ -950,14 +805,14 @@ function updOverview(){
     return;
   }
   var srcLabel=sheetUrl
-    ?'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'\u2026':sheetUrl)+'</span>'
+    ?'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'…':sheetUrl)+'</span>'
     :'<span style="font-size:12px;color:var(--text-secondary)">Loaded via paste or file upload</span>';
   el.innerHTML=srcLabel
     +'<div style="font-size:12px;color:var(--text-secondary);margin-top:6px">'
-    +sheetRecords.length+' DOIs \u00B7 '
-    +sheetRecords.filter(function(r){return r.title;}).length+' with titles \u00B7 '
+    +sheetRecords.length+' DOIs · '
+    +sheetRecords.filter(function(r){return r.title;}).length+' with titles · '
     +sheetRecords.filter(function(r){return r.authors;}).length+' with authors'
-    +(lastSync?' \u00B7 Loaded '+lastSync.toLocaleTimeString():'')
+    +(lastSync?' · Loaded '+lastSync.toLocaleTimeString():'')
     +'</div>';
   updShareSection();
 }
@@ -965,43 +820,52 @@ function buildShareUrl(csvUrl){
   var base=window.location.href.split('?')[0].split('#')[0];
   return base+'?sheet='+encodeURIComponent(csvUrl);
 }
+function buildDoiShareUrl(){
+  var dois=sheetRecords.map(function(r){return r.doi;}).join(',');
+  try{
+    var encoded=btoa(unescape(encodeURIComponent(dois)));
+    var base=window.location.href.split('?')[0].split('#')[0];
+    return base+'?dois='+encoded;
+  }catch(_){
+    var base=window.location.href.split('?')[0].split('#')[0];
+    return base+'?dois='+encodeURIComponent(dois);
+  }
+}
 function updShareSection(){
-  var shareUrl='';
-  if(sheetUrl){
-    shareUrl=buildShareUrl(sheetUrl);
-  } else if(sheetRecords.length>0){
-    // FIX #3: buildDoiShareUrl is now defined above; this no longer throws ReferenceError
-    shareUrl=buildDoiShareUrl();
+  if(!sheetRecords.length) return;
+
+  var shareUrl = sheetUrl ? buildShareUrl(sheetUrl) : buildDoiShareUrl();
+  var note = sheetUrl
+    ? 'Share this link with researchers. Opens on <strong>any device</strong> — mobile, tablet, or desktop — with no login needed.'
+    : 'Your <strong>'+sheetRecords.length+' DOIs</strong> are encoded in this link. Works on <strong>any device</strong> — no Google Sheet URL required.';
+
+  // Card HTML rendered fresh — no hidden element toggling
+  function makeCard(inputId, btnFn, msgId){
+    return '<div class="card" style="border:1.5px solid var(--green-100);background:var(--green-50);margin-top:0">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:.6rem">'
+      +'<span style="font-size:20px">&#x1F4F1;</span>'
+      +'<div><div style="font-size:14px;font-weight:600;color:var(--green-600)">Share with researchers</div>'
+      +'<div style="font-size:11px;color:var(--gray-500)">Works on any device \u2014 mobile, tablet, desktop</div></div></div>'
+      +'<p style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:.75rem">'+note+'</p>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.5rem">'
+      +'<input id="'+inputId+'" type="text" readonly value="'+shareUrl+'" '
+      +'style="-webkit-user-select:text;user-select:text;flex:1;min-width:0;font-size:11px;'
+      +'font-family:\'JetBrains Mono\',monospace;padding:7px 10px;background:var(--white);'
+      +'border:1px solid var(--green-100);border-radius:var(--radius-sm);cursor:text"/>'
+      +'<button onclick="'+btnFn+'()" class="btn btn-sm" '
+      +'style="touch-action:manipulation;white-space:nowrap;color:var(--green-600);'
+      +'border-color:var(--green-100);background:var(--white);font-weight:600">'
+      +'&#x1F4CB; Copy link</button></div>'
+      +'<div id="'+msgId+'" style="font-size:12px;color:var(--green-600);display:none;font-weight:500">'
+      +'\u2713 Link copied! Share it with your researchers.</div>'
+      +'</div>';
   }
-  var sl=document.getElementById('shareSection');
-  if(sl){
-    if(!sheetRecords.length){sl.style.display='none';}
-    else{
-      sl.style.display='block';
-      if(sheetUrl){
-        document.getElementById('shareNote').innerHTML='Share this link with researchers. Opens the database automatically on <strong>any device</strong> \u2014 no setup needed.';
-      } else {
-        document.getElementById('shareNote').innerHTML='Your '+sheetRecords.length+' DOIs are encoded directly in this link \u2014 works on <strong>any device</strong> even without a Google Sheet URL.';
-      }
-      document.getElementById('shareUrlInput').value=shareUrl;
-      document.getElementById('shareUrlWrap').style.display='flex';
-      var snu=document.getElementById('shareNoUrl');if(snu)snu.style.display='none';
-    }
-  }
-  var ss=document.getElementById('shareSectionSheet');
-  if(ss){
-    if(!sheetRecords.length){ss.style.display='none';}
-    else{
-      ss.style.display='block';
-      if(sheetUrl){
-        document.getElementById('shareNoteSheet').innerHTML='Sheet connected! Copy this link and share it \u2014 works on <strong>any device</strong> with no login needed.';
-      } else {
-        document.getElementById('shareNoteSheet').innerHTML='Your '+sheetRecords.length+' DOIs are encoded in this link \u2014 works on any device.';
-      }
-      document.getElementById('shareUrlInputSheet').value=shareUrl;
-      document.getElementById('shareUrlWrapSheet').style.display='flex';
-    }
-  }
+
+  var sl = document.getElementById('shareSection');
+  if(sl){ sl.style.display='block'; sl.innerHTML=makeCard('shareUrlInput','copyShareUrl','copyMsg'); }
+
+  var ss = document.getElementById('shareSectionSheet');
+  if(ss){ ss.style.display='block'; ss.innerHTML=makeCard('shareUrlInputSheet','copyShareUrlSheet','copyMsgSheet'); }
 }
 function copyShareUrlSheet(){
   var el=document.getElementById('shareUrlInputSheet');
@@ -1035,7 +899,7 @@ function renderTable(){var wrap=document.getElementById('recordsTbl');if(!sheetR
 function changeCreds(){var u=document.getElementById('newU').value.trim();var p1=document.getElementById('newP1').value;var p2=document.getElementById('newP2').value;if(!u||!p1||!p2){showAlert('pwSt','error','All fields required.');return;}if(p1!==p2){showAlert('pwSt','error','Passwords do not match.');return;}if(p1.length<6){showAlert('pwSt','error','Password must be at least 6 characters.');return;}LS.s('sl_u',u);LS.s('sl_p',p1);showAlert('pwSt','success','Credentials updated.');document.getElementById('newU').value='';document.getElementById('newP1').value='';document.getElementById('newP2').value='';}
 function resetCreds(){LS.d('sl_u');LS.d('sl_p');showAlert('pwSt','success','Credentials reset to defaults.');}
 function clearAllData(){
-  LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta'); LS.d('sl_groq_key'); LS.d('sl_anthropic_key');
+  LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
   sheetRecords=[]; metaCache={}; sheetUrl='';
   showAlert('clearMsg','success','All saved data cleared. Go to Sheet Config and reload your sheet.');
   renderStats(); renderTable(); updOverview();
@@ -1059,22 +923,14 @@ async function fetchAllSources(doi,local){
   var key=getKey();
   document.getElementById('detailContent').innerHTML='<div class="alert alert-info"><div class="spinner"></div> Fetching details\u2026</div>'+mkPipeline();
   var result=null,src='';
-  // FIX #2: Pass the original-case DOI to API calls; only use lowercased DOI for local matching.
-  // sheetRecords store lowercased DOIs via nDOI(), so we pass doi as-is to APIs (it comes from
-  // the sheet record which is already the user's original value after nDOI normalization).
-  // The APIs handle case-insensitivity on their end.
   if(key){setPipe('scopus','trying');try{var d=await fetchScopus(doi,key);if(d&&d.title){result=d;src='Scopus';setPipe('scopus','found');}else setPipe('scopus','failed');}catch(_){setPipe('scopus','failed');}}else setPipe('scopus','skipped');
   if(!result&&key){setPipe('scidir','trying');try{var d=await fetchSciDir(doi,key);if(d&&d.title){result=d;src='ScienceDirect';setPipe('scidir','found');}else setPipe('scidir','failed');}catch(_){setPipe('scidir','failed');}}else if(!key)setPipe('scidir','skipped');
   if(!result){setPipe('openalex','trying');try{var d=await fetchOpenAlex(doi);if(d&&d.title){result=d;src='OpenAlex';setPipe('openalex','found');}else setPipe('openalex','failed');}catch(_){setPipe('openalex','failed');}}else setPipe('openalex','skipped');
   if(!result){setPipe('semantic','trying');try{var d=await fetchSemantic(doi);if(d&&d.title){result=d;src='Semantic Scholar';setPipe('semantic','found');}else setPipe('semantic','failed');}catch(_){setPipe('semantic','failed');}}else setPipe('semantic','skipped');
   if(local){result=result||{};result.title=result.title||(local.title||'');result.authors=(result.authors&&result.authors.length)?result.authors:(local.authors?local.authors.split(/[,;]/).map(function(s){return s.trim();}): []);if(!src&&(result.title||result.authors.length))src='Sheet (local)';}
   if(result&&result.title){metaCache[doi]={title:result.title,authors:result.authors||[]};try{LS.s('sl_meta',JSON.stringify(metaCache));}catch(_){}}
-  // Carry sheet SDG into result so renderDetail can use it
-  if(local&&local.sdg&&!(result&&result.sdgFromSheet))result=(result||{});
-  if(local&&local.sdg){result.sdgFromSheet=local.sdg;}
   renderDetail(result,src,doi,!key);
-  if(result&&result.abstract)genSummary(result,doi);
-  genSDG(result,doi,local);
+
 }
 async function fetchScopus(doi,key){var r=await fetch('https://api.elsevier.com/content/abstract/doi/'+encodeURIComponent(doi)+'?apiKey='+key+'&httpAccept=application%2Fjson');if(!r.ok)return null;var d=await r.json();var core=d['abstracts-retrieval-response'];if(!core)return null;var bib=core.coredata||{};var authors=[];var ra=bib['dc:creator']||(core.authors&&core.authors.author)||[];if(!Array.isArray(ra))ra=[ra];ra.forEach(function(a){var n=a['ce:indexed-name']||a.$;if(n)authors.push(n);});var kws=core.idxterms&&core.idxterms.mainterm||[];var keywords=[];if(!Array.isArray(kws))kws=[kws];kws.forEach(function(k){if(k.$)keywords.push(k.$);});return{title:bib['dc:title']||'',authors:authors.slice(0,8),year:(bib['prism:coverDate']||'').slice(0,4),journal:bib['prism:publicationName']||'',abstract:bib['dc:description']||null,citationCount:parseInt(bib['citedby-count'])||0,keywords:keywords.slice(0,12),openAccess:bib.openaccess==='1',type:bib.subtypeDescription||'Article'};}
 async function fetchSciDir(doi,key){var r=await fetch('https://api.elsevier.com/content/article/doi/'+encodeURIComponent(doi)+'?apiKey='+key+'&httpAccept=application%2Fjson');if(!r.ok)return null;var d=await r.json();var core=d['full-text-retrieval-response'];if(!core)return null;var bib=core.coredata||{};var authors=[];var ra=bib['dc:creator']||[];if(!Array.isArray(ra))ra=[ra];ra.forEach(function(a){if(a.$)authors.push(a.$);});return{title:bib['dc:title']||'',authors:authors.slice(0,8),year:(bib['prism:coverDate']||'').slice(0,4),journal:bib['prism:publicationName']||'',abstract:bib['dc:description']||null,citationCount:0,keywords:[],openAccess:bib.openaccess==='1',type:'Article'};}
@@ -1089,7 +945,7 @@ function renderDetail(r,src,doi,noKey){
   var dlLinks='<div class="direct-links"><a href="https://www.scopus.com/search/results.uri?query=DOI('+encodeURIComponent(doi)+')" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#fff7ed">&#x1F4D9;</div><div><div class="direct-link-name">Scopus</div><div class="direct-link-type">Abstract DB</div></div></a><a href="https://www.sciencedirect.com/search?query=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--blue-50)">&#x1F4D8;</div><div><div class="direct-link-name">ScienceDirect</div><div class="direct-link-type">Full text</div></div></a><a href="https://openalex.org/works?filter=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--green-50)">&#x1F7E2;</div><div><div class="direct-link-name">OpenAlex</div><div class="direct-link-type">Open graph</div></div></a><a href="https://www.semanticscholar.org/search?q='+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#faf5ff">&#x1F7E3;</div><div><div class="direct-link-name">Semantic Scholar</div><div class="direct-link-type">AI-enhanced</div></div></a><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--gray-100)">&#x1F517;</div><div><div class="direct-link-name">DOI Direct</div><div class="direct-link-type">Publisher page</div></div></a></div>';
   var absBlock=(r&&r.abstract)?'<div class="detail-section"><div class="section-heading">Abstract</div><div class="abstract-text">'+cleanAbstract(r.abstract)+'</div></div>':'<div class="detail-section"><div class="section-heading">Abstract</div><p style="font-size:13px;color:var(--text-secondary);margin-bottom:.875rem">Abstract not available. View the paper directly:</p>'+dlLinks+(noKey?'<div class="alert alert-warning" style="margin-top:10px">Add an Elsevier API key in Admin &rarr; API Sources to enable Scopus and ScienceDirect lookups.</div>':'')+'</div>';
   var kwBlock=(r&&r.keywords&&r.keywords.length)?'<div class="detail-section"><div class="section-heading">Keywords &amp; Fields</div><div class="kw-list">'+r.keywords.map(function(k){return'<span class="kw-tag">'+esc(String(k))+'</span>';}).join('')+'</div></div>':'';
-  document.getElementById('detailContent').innerHTML='<div class="fade-up"><div class="detail-header"><div class="detail-source-tag" style="background:'+sc.bg+';color:'+sc.color+';border-color:'+sc.border+'">via '+esc(src||'\u2014')+'</div><div class="detail-title">'+esc((r&&r.title)||'Untitled')+'</div><div class="detail-authors">'+esc(authStr)+'</div><div class="detail-meta">'+meta+'</div><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="detail-doi-link">doi.org/'+esc(doi)+'</a></div><div class="detail-stats"><div class="dstat"><span class="dstat-val">'+(r&&r.citationCount?Number(r.citationCount).toLocaleString():'\u2014')+'</span><span class="dstat-lbl">Citations</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.year||'\u2014')+'</span><span class="dstat-lbl">Year</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.authors?r.authors.length:'\u2014')+'</span><span class="dstat-lbl">Authors</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.openAccess?'Yes':'No')+'</span><span class="dstat-lbl">Open Access</span></div></div>'+absBlock+kwBlock+'<div class="detail-section"><div class="section-heading">SDG Alignment</div><div id="sdgEl"><div class="alert alert-info"><div class="spinner"></div> Identifying applicable SDGs\u2026</div></div></div>'+((r&&r.abstract)?'<div class="detail-section"><div class="section-heading">AI Summary</div><div id="summaryEl"><div class="alert alert-info"><div class="spinner"></div> Generating summary\u2026</div></div></div>':'')+'<div class="detail-section"><div class="section-heading">View on external sources</div>'+dlLinks+'</div><p style="font-size:11px;color:var(--text-light);text-align:right;margin-top:.5rem">Source: '+esc(src||'none')+' \u00B7 DOI: '+esc(doi)+'</p></div>';
+  document.getElementById('detailContent').innerHTML='<div class="fade-up"><div class="detail-header"><div class="detail-source-tag" style="background:'+sc.bg+';color:'+sc.color+';border-color:'+sc.border+'">via '+esc(src||'\u2014')+'</div><div class="detail-title">'+esc((r&&r.title)||'Untitled')+'</div><div class="detail-authors">'+esc(authStr)+'</div><div class="detail-meta">'+meta+'</div><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="detail-doi-link">doi.org/'+esc(doi)+'</a></div><div class="detail-stats"><div class="dstat"><span class="dstat-val">'+(r&&r.citationCount?Number(r.citationCount).toLocaleString():'\u2014')+'</span><span class="dstat-lbl">Citations</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.year||'\u2014')+'</span><span class="dstat-lbl">Year</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.authors?r.authors.length:'\u2014')+'</span><span class="dstat-lbl">Authors</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.openAccess?'Yes':'No')+'</span><span class="dstat-lbl">Open Access</span></div></div>'+absBlock+kwBlock+'<div class="detail-section"><div class="section-heading">View on external sources</div>'+dlLinks+'</div><p style="font-size:11px;color:var(--text-light);text-align:right;margin-top:.5rem">Source: '+esc(src||'none')+' &middot; DOI: '+esc(doi)+'</p></div>';
 }
 function cleanAbstract(text){
   if(!text)return'';
@@ -1114,211 +970,45 @@ function cleanAbstract(text){
 }
 function toSup(s){var m={'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4':'\u2074','5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079','+':'\u207A','-':'\u207B','=':'\u207C','(':'\u207D',')':'\u207E','n':'\u207F','i':'\u2071'};return s.split('').map(function(c){return m[c]||c;}).join('');}
 function toSub(s){var m={'0':'\u2080','1':'\u2081','2':'\u2082','3':'\u2083','4':'\u2084','5':'\u2085','6':'\u2086','7':'\u2087','8':'\u2088','9':'\u2089','+':'\u208A','-':'\u208B','=':'\u208C','(':'\u208D',')':'\u208E'};return s.split('').map(function(c){return m[c]||c;}).join('');}
-
-// FIX #5: Added the x-api-key header to the Anthropic API call.
-// NOTE: You must replace 'YOUR_ANTHROPIC_API_KEY' with a real key, or proxy this
-// request through your own backend to avoid exposing the key in client-side code.
-async function genSummary(paper,doi){
-  var el=document.getElementById('summaryEl');
-  if(!el)return;
-  var proxyUrl=(LS.g('sl_proxy_url')||'').replace(/\/+$/,'');
-  if(!proxyUrl){
-    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">AI summary unavailable. Ask your admin to configure the Worker proxy URL in Admin \u2192 API Sources.</p>';
-    return;
-  }
-  try{
-    var res=await fetch(proxyUrl+'/summary',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        title:paper.title||'',
-        abstract:paper.abstract||'',
-        authors:paper.authors||[],
-        year:paper.year||'',
-        journal:paper.journal||''
-      })
-    });
-    var d=await res.json();
-    if(!res.ok)throw new Error(d.error||'Proxy error');
-    el.innerHTML=d.summary?'<div class="summary-block">'+esc(d.summary)+'</div>':'<p style="font-size:12px;color:var(--text-secondary)">Summary unavailable.</p>';
-  }catch(e){
-    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Summary unavailable. Check the Worker proxy in Admin \u2192 API Sources.</p>';
-  }
-}
-
-
-var SDG_META=[
-  {n:1,name:'No Poverty',color:'#E5243B'},
-  {n:2,name:'Zero Hunger',color:'#DDA63A'},
-  {n:3,name:'Good Health and Well-being',color:'#4C9F38'},
-  {n:4,name:'Quality Education',color:'#C5192D'},
-  {n:5,name:'Gender Equality',color:'#FF3A21'},
-  {n:6,name:'Clean Water and Sanitation',color:'#26BDE2'},
-  {n:7,name:'Affordable and Clean Energy',color:'#FCC30B'},
-  {n:8,name:'Decent Work and Economic Growth',color:'#A21942'},
-  {n:9,name:'Industry, Innovation and Infrastructure',color:'#FD6925'},
-  {n:10,name:'Reduced Inequalities',color:'#DD1367'},
-  {n:11,name:'Sustainable Cities and Communities',color:'#FD9D24'},
-  {n:12,name:'Responsible Consumption and Production',color:'#BF8B2E'},
-  {n:13,name:'Climate Action',color:'#3F7E44'},
-  {n:14,name:'Life Below Water',color:'#0A97D9'},
-  {n:15,name:'Life on Land',color:'#56C02B'},
-  {n:16,name:'Peace, Justice and Strong Institutions',color:'#00689D'},
-  {n:17,name:'Partnerships for the Goals',color:'#19486A'}
-];
-
-function parseSheetSDGs(raw){
-  // Accept: "SDG 1", "SDG1", "1", "1,3,7", "SDG 1; SDG 3", "Goal 1" etc.
-  if(!raw)return[];
-  var nums=[];
-  var matches=raw.match(/\d+/g)||[];
-  matches.forEach(function(m){var n=parseInt(m);if(n>=1&&n<=17)nums.push(n);});
-  return nums.filter(function(v,i,a){return a.indexOf(v)===i;});
-}
-
-function renderSDGCards(sdgs,fromSheet){
-  if(!sdgs||!sdgs.length){
-    var el=document.getElementById('sdgEl');
-    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">No applicable SDGs identified.</p>';
-    return;
-  }
-  var cards=sdgs.map(function(s){
-    var meta=SDG_META[s.n-1];
-    var sheetTag=fromSheet?'<span class="sdg-sheet-tag">&#x1F4CB; from sheet</span>':'';
-    return'<div class="sdg-card">'
-      +'<div class="sdg-badge" style="background:'+meta.color+'">SDG<br>'+s.n+'</div>'
-      +'<div class="sdg-info">'
-      +'<div class="sdg-name">'+esc(meta.name)+sheetTag+'</div>'
-      +(s.reason?'<div class="sdg-reason">'+esc(s.reason)+'</div>':'')
-      +'</div></div>';
-  }).join('');
-  var el=document.getElementById('sdgEl');
-  if(el)el.innerHTML='<div class="sdg-grid">'+cards+'</div>';
-}
-
-async function genSDG(paper,doi,local){
-  var el=document.getElementById('sdgEl');
-  if(!el)return;
-
-  // Priority 1: sheet has SDG data — parse and display immediately, no AI needed
-  var sheetSDGRaw=(local&&local.sdg)||((paper&&paper.sdgFromSheet)||'');
-  if(sheetSDGRaw){
-    var nums=parseSheetSDGs(sheetSDGRaw);
-    if(nums.length>0){
-      var sdgs=nums.map(function(n){return{n:n,reason:''};});
-      renderSDGCards(sdgs,true);
-      return;
-    }
-  }
-
-  // Priority 2: Worker proxy — calls Groq server-side, no key needed on client
-  var proxyUrl=(LS.g('sl_proxy_url')||'').replace(/\/+$/,'');
-  if(!proxyUrl){
-    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG analysis unavailable. Ask your admin to configure the Worker proxy URL in Admin \u2192 API Sources, or add an SDG column to your sheet.</p>';
-    return;
-  }
-  if(!(paper&&(paper.abstract||paper.title))){
-    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Not enough information to determine SDG alignment.</p>';
-    return;
-  }
-
-  try{
-    var res=await fetch(proxyUrl+'/sdg',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({title:paper.title||'',abstract:paper.abstract||paper.title||''})
-    });
-    var d=await res.json();
-    if(!res.ok)throw new Error(d.error||'Proxy error');
-    var sdgs=(d.sdgs||[]).filter(function(s){return s&&s.n>=1&&s.n<=17;});
-    renderSDGCards(sdgs,false);
-  }catch(e){
-    if(el)el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Could not determine SDG alignment. Check the Worker proxy in Admin \u2192 API Sources.</p>';
-  }
-}
-
 function loadSample(){sheetRecords=[{doi:'10.1038/s41586-021-03819-2',title:'Highly accurate protein structure prediction with AlphaFold',authors:'John Jumper, Richard Evans, Alexander Pritzel'},{doi:'10.1056/NEJMoa2001316',title:'A Novel Coronavirus from Patients with Pneumonia in China, 2019',authors:'Na Zhu, Dingyu Zhang, Wenling Wang'},{doi:'10.1038/nature14539',title:'Human-level control through deep reinforcement learning',authors:'Volodymyr Mnih, Koray Kavukcuoglu, David Silver'},{doi:'10.1145/3442188.3445922',title:'On the Dangers of Stochastic Parrots',authors:'Emily M. Bender, Timnit Gebru, Angelina McMillan-Major'},{doi:'10.1126/science.abc4189',title:'Quantum supremacy using a programmable superconducting processor',authors:'Frank Arute, Kunal Arya, Ryan Babbush'}];}
-
-// FIX #2: nDOI normalizes formatting (strips doi.org prefix, quotes, whitespace) but
-// preserves the original case. Lowercasing only happens at search/match time, not at storage time.
-// This ensures API calls receive the DOI in its original form.
-function nDOI(d){return(d||'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').replace(/"/g,'').trim();}
-
-function normUrl(u){
-  var s=u.trim();
-  if(s.includes('docs.google.com/spreadsheets')&&!s.includes('/pub')){
-    var m=s.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if(m)return'https://docs.google.com/spreadsheets/d/'+m[1]+'/export?format=csv&gid=0';
-  }
-  return s;
-}
+function nDOI(d){return(d||'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').replace(/"/g,'').trim().toLowerCase();}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function hl(text,q){if(!q)return esc(text);var parts=esc(text).split(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'));return parts.map(function(p,i){return i%2===1?'<span class="hl">'+p+'</span>':p;}).join('');}
 function showAlert(id,type,msg,loading){var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};var icon=loading?'<div class="spinner"></div>':{info:'\u2139',success:'\u2713',error:'\u2717',warn:'\u26A0'}[type];var el=document.getElementById(id);if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('pageAdminLogin').classList.contains('show'))doLogin();});
 (function(){
-  // --- clean up any broken saved URLs from old versions ---
+  // Clear any broken saved URL (missing the long publish ID)
   var savedUrl=LS.g('sl_url')||'';
-  var isBroken=savedUrl&&(
-    savedUrl.indexOf('/d/e/pub')>=0||
-    savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0||
-    (savedUrl.indexOf('/d/e/')>=0&&savedUrl.indexOf('/d/e/2PACX')<0&&savedUrl.indexOf('export?format=csv')<0)
+  var isBroken=savedUrl && (
+    savedUrl.indexOf('/d/e/pub')>=0 ||
+    savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0 ||
+    (savedUrl.indexOf('/d/e/')>=0 && savedUrl.indexOf('/d/e/2PACX')<0 && savedUrl.indexOf('export?format=csv')<0)
   );
-  if(isBroken){LS.d('sl_url');LS.d('sl_meta');}
-
-  // NOTE: We intentionally do NOT read sl_rec from localStorage here.
-  // Records are always fetched live from the Google Sheet so every page load
-  // picks up the latest data. Only metaCache (API-enriched titles/authors) is
-  // restored from cache since it doesn't change in the sheet.
-  var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
-
-  // --- read URL params ---
-  var params;
-  try{params=new URLSearchParams(window.location.search);}catch(_){params=null;}
-
-  // Priority 1: ?dois= — DOIs encoded directly in URL (paste/upload share link)
-  // These can't be re-fetched from a sheet, so they are read from the URL itself.
-  var urlRecords=getUrlDois();
-  if(urlRecords&&urlRecords.length>0){
-    sheetRecords=urlRecords;
-    LS.d('sl_url');
-    updMeta();
-    showPage('pageSearch');
-    document.getElementById('nsNotice').style.display='none';
-    return;
+  if(isBroken){
+    LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
   }
-
-  // Priority 2: ?sheet= — Google Sheet CSV URL in the share link.
-  // ALWAYS fetch fresh from the sheet — never use cached records.
-  var urlSheet=null;
+  // Restore cached records
+  var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
+  var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
+  // If URL contains ?sheet=..., pre-load the sheet URL so it's ready
+  // when the researcher clicks into the search page
   try{
-    if(params){
-      urlSheet=params.get('sheet');
-      if(!urlSheet){var h=window.location.hash;if(h&&h.startsWith('#sheet='))urlSheet=decodeURIComponent(h.slice(7));}
-      if(urlSheet)urlSheet=decodeURIComponent(urlSheet);
+    var params=new URLSearchParams(window.location.search);
+    var urlSheet=params.get('sheet');
+    if(!urlSheet){var h=window.location.hash;if(h&&h.startsWith('#sheet='))urlSheet=decodeURIComponent(h.slice(7));}
+    if(urlSheet){
+      // Override any cached URL with the one from the link
+      LS.s('sl_url',decodeURIComponent(urlSheet));
+      sheetUrl=decodeURIComponent(urlSheet);
+      // Pre-fetch in background so search page loads fast
+      loadRecords(decodeURIComponent(urlSheet),false).then(function(){
+        updMeta();
+        // If already on search page, hide the no-sheet notice
+        var ns=document.getElementById('nsNotice');
+        if(ns)ns.style.display='none';
+      });
     }
   }catch(_){}
-
-  if(urlSheet){
-    LS.s('sl_url',urlSheet); // remember which sheet this device uses
-    sheetUrl=urlSheet;
-    loadRecords(urlSheet,false).then(function(){
-      updMeta();
-      var ns=document.getElementById('nsNotice');if(ns)ns.style.display='none';
-    });
-    showPage('pageSearch');
-    document.getElementById('nsNotice').style.display='none';
-    return;
-  }
-
-  // Priority 3: no URL param — check if this device has a saved sheet URL.
-  // Still fetch fresh, never from cache.
-  var localSheet=LS.g('sl_url');
-  if(localSheet){
-    sheetUrl=localSheet;
-    loadRecords(localSheet,false).then(function(){updMeta();});
-  }
-  // Stay on landing page so user picks their role
 })();
 </script>
 </body>
