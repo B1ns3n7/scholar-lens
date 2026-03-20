@@ -758,18 +758,19 @@ function parseCSV(csv){
   var rows=lines.map(function(r){return parseRow(r);});
   var hdr=rows[0].map(function(h){return h.replace(/"/g,'').toLowerCase().trim();});
 
-  // Find columns by header keyword — broad matching
+  // Find columns by header keyword — captures needle to avoid closure bug
   function fc(){
     for(var a=0;a<arguments.length;a++){
-      var i=hdr.findIndex(function(h){return h.indexOf(arguments[a])>=0;});
+      var needle=arguments[a];
+      var i=hdr.findIndex(function(h){return h.indexOf(needle)>=0;});
       if(i>=0)return i;
     }
     return -1;
   }
-  var dc=fc('doi','identifier','link','url','handle'),
-      tc=fc('title','paper','article','research','study','name','subject'),
+  var dc=fc('doi','identifier'),
+      tc=fc('title','paper','article','research','study'),
       ac=fc('author','writer','researcher','creator','contributor'),
-      sc=fc('sdg','sustainable development','goal','un goal');
+      sc=fc('sdg','sustainable development goal');
 
   sheetRecords=[];
   for(var i=1;i<rows.length;i++){
@@ -1004,8 +1005,25 @@ var SDG_META=[
 function parseSheetSDGs(raw){
   if(!raw)return[];
   var nums=[];
-  var matches=raw.match(/\d+/g)||[];
-  matches.forEach(function(m){var n=parseInt(m);if(n>=1&&n<=17)nums.push(n);});
+  var s=raw.trim();
+
+  // Pattern 1: explicit "SDG N" or "Goal N" mentions
+  var explicit=s.match(/(?:SDG|goal)\s*(\d{1,2})/gi)||[];
+  explicit.forEach(function(m){
+    var n=parseInt(m.match(/\d+/)[0]);
+    if(n>=1&&n<=17)nums.push(n);
+  });
+  if(nums.length>0) return nums.filter(function(v,i,a){return a.indexOf(v)===i;});
+
+  // Pattern 2: plain number list like "3", "3,7,13", "3; 7; 13"
+  // Only if the entire cell looks like a short number list (no long text)
+  if(s.length<=30){
+    var parts=s.split(/[,;\s]+/);
+    parts.forEach(function(p){
+      var n=parseInt(p.trim());
+      if(!isNaN(n)&&n>=1&&n<=17)nums.push(n);
+    });
+  }
   return nums.filter(function(v,i,a){return a.indexOf(v)===i;});
 }
 function renderSDGCards(sdgs,fromSheet){
