@@ -435,19 +435,19 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
         </div>
         <div class="card" style="margin-top:1rem">
           <div class="card-title" style="margin-bottom:.25rem">&#x1F916; AI Features (SDG Alignment)</div>
-          <div class="card-sub" style="margin-bottom:.875rem">Used to automatically identify SDG alignment for papers using Claude AI. Get a free API key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue-600)">console.anthropic.com</a>.</div>
+          <div class="card-sub" style="margin-bottom:.875rem">Uses Groq AI (free) to automatically identify SDG alignment for papers. Get a free API key at <a href="https://console.groq.com" target="_blank" style="color:var(--blue-600)">console.groq.com</a>.</div>
           <div class="source-grid" style="grid-template-columns:1fr">
             <div class="source-card">
-              <div class="source-card-head"><div class="source-card-name">&#x1F9E0; Anthropic API Key</div><span class="badge badge-gray" id="st-anthropic">No key</span></div>
-              <div class="source-card-desc">Powers AI-based SDG alignment detection. Key is stored in your browser only &mdash; never sent anywhere except directly to Anthropic.</div>
+              <div class="source-card-head"><div class="source-card-name">&#x26A1; Groq API Key</div><span class="badge badge-gray" id="st-groq">No key</span></div>
+              <div class="source-card-desc">Powers AI-based SDG alignment detection using Groq's free LLaMA model. Key is stored in your browser only. Get a free key (no credit card needed) at <a href="https://console.groq.com" target="_blank" style="color:var(--blue-600)">console.groq.com</a>.</div>
               <div class="field" style="margin-bottom:.4rem">
-                <label>Anthropic API Key</label>
+                <label>Groq API Key</label>
                 <div class="input-row">
-                  <input type="password" id="key-anthropic" placeholder="sk-ant-…"/>
-                  <button class="btn btn-sm" onclick="saveAnthropicKey()">Save</button>
+                  <input type="password" id="key-groq" placeholder="gsk_…"/>
+                  <button class="btn btn-sm" onclick="saveGroqKey()">Save</button>
                 </div>
               </div>
-              <div id="anthropicSaveMsg"></div>
+              <div id="groqSaveMsg"></div>
             </div>
           </div>
         </div>
@@ -638,8 +638,8 @@ function enterAdmin(){
   if(saved){document.getElementById('adminUrl').value=saved;sheetUrl=saved;if(sheetRecords.length===0)loadRecords(saved,true);else{renderStats();renderTable();updOverview();updShareSection();}}
   var key=getKey();
   if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
-  var aKey=LS.g('sl_anthropic_key')||'';
-  if(aKey){document.getElementById('key-anthropic').value=aKey;updAnthropicStatus(true);}else{updAnthropicStatus(false);}
+  var gKey=LS.g('sl_groq_key')||'';
+  if(gKey){document.getElementById('key-groq').value=gKey;updGroqStatus(true);}else{updGroqStatus(false);}
   updOverviewSources();showPage('pageAdmin');aTab('tOverview',document.querySelector('.sidebar-item'));
 }
 function aTab(id,btn){
@@ -648,17 +648,17 @@ function aTab(id,btn){
   document.getElementById(id).classList.add('show');
   if(btn)btn.classList.add('active');
 }
-function saveAnthropicKey(){
-  var key=document.getElementById('key-anthropic').value.trim();
-  if(!key){showAlert('anthropicSaveMsg','error','Please enter an API key.');return;}
-  if(!key.startsWith('sk-ant-')){showAlert('anthropicSaveMsg','warn','Key should start with sk-ant- — double-check it is correct.');return;}
-  LS.s('sl_anthropic_key',key);
-  updAnthropicStatus(true);
+function saveGroqKey(){
+  var key=document.getElementById('key-groq').value.trim();
+  if(!key){showAlert('groqSaveMsg','error','Please enter an API key.');return;}
+  if(!key.startsWith('gsk_')){showAlert('groqSaveMsg','warn','Groq keys usually start with gsk_ — double-check it is correct.');return;}
+  LS.s('sl_groq_key',key);
+  updGroqStatus(true);
   updOverviewSources();
-  showAlert('anthropicSaveMsg','success','Anthropic API key saved. SDG AI analysis is now active on all devices.');
+  showAlert('groqSaveMsg','success','Groq API key saved. SDG AI analysis is now active on all devices.');
 }
-function updAnthropicStatus(h){
-  var el=document.getElementById('st-anthropic');
+function updGroqStatus(h){
+  var el=document.getElementById('st-groq');
   if(el){el.className='badge '+(h?'badge-green':'badge-gray');el.textContent=h?'Active':'No key';}
 }
 function saveKey(){
@@ -675,15 +675,15 @@ function updSourceStatus(h){
 }
 function updOverviewSources(){
   var key=getKey();
-  var aKey=LS.g('sl_anthropic_key')||'';
-  var active=(key?2:0)+2+(aKey?1:0);
+  var gKey=LS.g('sl_groq_key')||'';
+  var active=(key?2:0)+2+(gKey?1:0);
   document.getElementById('stSources').textContent=active+'/5';
   var src=[
     {n:'Scopus',a:!!key,note:key?'API key configured':'Add key in API Sources'},
     {n:'ScienceDirect',a:!!key,note:key?'Uses Elsevier key':'Add key in API Sources'},
     {n:'OpenAlex',a:true,note:'Free — always active'},
     {n:'Semantic Scholar',a:true,note:'Free — always active'},
-    {n:'Claude AI (SDG Analysis)',a:!!aKey,note:aKey?'Anthropic key active':'Add Anthropic key in API Sources'},
+    {n:'Groq AI (SDG Analysis)',a:!!gKey,note:gKey?'Groq key active':'Add Groq key in API Sources'},
   ];
   document.getElementById('ovSources').innerHTML=src.map(function(r){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500;color:'+(r.a?'var(--gray-900)':'var(--text-secondary)')+'">'+r.n+'</div><div style="font-size:11px;color:var(--text-secondary)">'+r.note+'</div></div><span class="badge '+(r.a?'badge-green':'badge-gray')+'">'+(r.a?'Active':'Inactive')+'</span></div>';}).join('');
 }
@@ -1115,31 +1115,43 @@ async function genSDG(paper,doi,local){
     var prompt='You are an expert in the UN Sustainable Development Goals (SDGs). Analyse this research paper and identify which SDGs it aligns with.\n\nTitle: '+titleText+'\nAbstract: '+(abstractText||'Not available')+'\n\nThe 17 SDGs are: '+sdgList+'\n\nRespond ONLY with a valid JSON array. Each item must have: n (integer 1-17) and reason (one sentence max 15 words). Example: [{"n":3,"reason":"Addresses health outcomes."},{"n":4,"reason":"Improves educational access."}]. Return ONLY the JSON array, no markdown, no backticks.';
 
   try{
-    var anthropicKey=LS.g('sl_anthropic_key')||_d('c2stYW50LWFwaTAzLWxQLWhUVWFzb205VXlpWmNGOU1JdVZuZ0t4eEVSWUdjX2xpVV9kMmFlTVo3aUlLNDRYVXhBd00ydllUSTFIdElxRURaUHdYOGhWalpZekRSYWxFa1BBLXdLRW9Td0FB');
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
+    var groqKey=LS.g('sl_groq_key')||'';
+    if(!groqKey){
+      el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG AI analysis requires a Groq API key. Go to <strong>Admin → API Sources</strong> to add your free Groq key from <a href="https://console.groq.com" target="_blank" style="color:var(--blue-600)">console.groq.com</a>.</p>';
+      return;
+    }
+    var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'x-api-key':anthropicKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
+        'Authorization':'Bearer '+groqKey
       },
       body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:400,
-        messages:[{role:'user',content:prompt}]
+        model:'llama-3.3-70b-versatile',
+        max_tokens:600,
+        temperature:0.1,
+        messages:[
+          {role:'system',content:'You are an expert in the UN Sustainable Development Goals (SDGs). Always respond with only a valid JSON array, no markdown, no explanation.'},
+          {role:'user',content:prompt}
+        ]
       })
     });
     var d=await res.json();
-    var txt=((d.content||[]).find(function(b){return b.type==='text';})||{}).text||'';
-    // Strip any accidental markdown fences
-    txt=txt.replace(/```json|```/g,'').trim();
-    var sdgs=JSON.parse(txt);
-    if(!Array.isArray(sdgs)||!sdgs.length) throw new Error('empty');
+    if(!res.ok){
+      var errMsg=(d.error&&d.error.message)||('HTTP '+res.status);
+      throw new Error('Groq API error: '+errMsg);
+    }
+    var txt=((d.choices||[])[0]||{}).message&&d.choices[0].message.content||'';
+    // Extract JSON array from response
+    var jsonMatch=txt.match(/\[[\s\S]*?\]/);
+    if(!jsonMatch) throw new Error('No JSON in response: '+txt.slice(0,100));
+    var sdgs=JSON.parse(jsonMatch[0]);
+    if(!Array.isArray(sdgs)||!sdgs.length) throw new Error('Empty SDG array');
     sdgs=sdgs.filter(function(s){return s&&s.n>=1&&s.n<=17;});
+    if(!sdgs.length) throw new Error('No valid SDGs in range 1-17');
     renderSDGCards(sdgs,false);
   }catch(e){
-    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Could not determine SDG alignment for this paper.</p>';
+    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG analysis failed: '+esc(e.message||'Unknown error')+'</p>';
   }
 }
 
