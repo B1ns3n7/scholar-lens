@@ -433,6 +433,24 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
             <div style="font-size:11px;background:var(--green-50);color:var(--green-600);padding:7px 9px;border-radius:4px;border:1px solid var(--green-100)">&#x2713; Always active &mdash; no setup required</div>
           </div>
         </div>
+        <div class="card" style="margin-top:1rem">
+          <div class="card-title" style="margin-bottom:.25rem">&#x1F916; AI Features (SDG Alignment)</div>
+          <div class="card-sub" style="margin-bottom:.875rem">Used to automatically identify SDG alignment for papers using Claude AI. Get a free API key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue-600)">console.anthropic.com</a>.</div>
+          <div class="source-grid" style="grid-template-columns:1fr">
+            <div class="source-card">
+              <div class="source-card-head"><div class="source-card-name">&#x1F9E0; Anthropic API Key</div><span class="badge badge-gray" id="st-anthropic">No key</span></div>
+              <div class="source-card-desc">Powers AI-based SDG alignment detection. Key is stored in your browser only &mdash; never sent anywhere except directly to Anthropic.</div>
+              <div class="field" style="margin-bottom:.4rem">
+                <label>Anthropic API Key</label>
+                <div class="input-row">
+                  <input type="password" id="key-anthropic" placeholder="sk-ant-…"/>
+                  <button class="btn btn-sm" onclick="saveAnthropicKey()">Save</button>
+                </div>
+              </div>
+              <div id="anthropicSaveMsg"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="admin-panel" id="tRecords">
@@ -620,6 +638,8 @@ function enterAdmin(){
   if(saved){document.getElementById('adminUrl').value=saved;sheetUrl=saved;if(sheetRecords.length===0)loadRecords(saved,true);else{renderStats();renderTable();updOverview();updShareSection();}}
   var key=getKey();
   if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
+  var aKey=LS.g('sl_anthropic_key')||'';
+  if(aKey){document.getElementById('key-anthropic').value=aKey;updAnthropicStatus(true);}else{updAnthropicStatus(false);}
   updOverviewSources();showPage('pageAdmin');aTab('tOverview',document.querySelector('.sidebar-item'));
 }
 function aTab(id,btn){
@@ -627,6 +647,19 @@ function aTab(id,btn){
   document.querySelectorAll('.sidebar-item,.mobile-tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById(id).classList.add('show');
   if(btn)btn.classList.add('active');
+}
+function saveAnthropicKey(){
+  var key=document.getElementById('key-anthropic').value.trim();
+  if(!key){showAlert('anthropicSaveMsg','error','Please enter an API key.');return;}
+  if(!key.startsWith('sk-ant-')){showAlert('anthropicSaveMsg','warn','Key should start with sk-ant- — double-check it is correct.');return;}
+  LS.s('sl_anthropic_key',key);
+  updAnthropicStatus(true);
+  updOverviewSources();
+  showAlert('anthropicSaveMsg','success','Anthropic API key saved. SDG AI analysis is now active on all devices.');
+}
+function updAnthropicStatus(h){
+  var el=document.getElementById('st-anthropic');
+  if(el){el.className='badge '+(h?'badge-green':'badge-gray');el.textContent=h?'Active':'No key';}
 }
 function saveKey(){
   var key=document.getElementById('key-scopus').value.trim();
@@ -642,8 +675,16 @@ function updSourceStatus(h){
 }
 function updOverviewSources(){
   var key=getKey();
-  document.getElementById('stSources').textContent=(key?4:2)+'/4';
-  var src=[{n:'Scopus',a:!!key,note:key?'API key configured':'Add key in API Sources'},{n:'ScienceDirect',a:!!key,note:key?'Uses Elsevier key':'Add key in API Sources'},{n:'OpenAlex',a:true,note:'Free \u2014 always active'},{n:'Semantic Scholar',a:true,note:'Free \u2014 always active'}];
+  var aKey=LS.g('sl_anthropic_key')||'';
+  var active=(key?2:0)+2+(aKey?1:0);
+  document.getElementById('stSources').textContent=active+'/5';
+  var src=[
+    {n:'Scopus',a:!!key,note:key?'API key configured':'Add key in API Sources'},
+    {n:'ScienceDirect',a:!!key,note:key?'Uses Elsevier key':'Add key in API Sources'},
+    {n:'OpenAlex',a:true,note:'Free — always active'},
+    {n:'Semantic Scholar',a:true,note:'Free — always active'},
+    {n:'Claude AI (SDG Analysis)',a:!!aKey,note:aKey?'Anthropic key active':'Add Anthropic key in API Sources'},
+  ];
   document.getElementById('ovSources').innerHTML=src.map(function(r){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500;color:'+(r.a?'var(--gray-900)':'var(--text-secondary)')+'">'+r.n+'</div><div style="font-size:11px;color:var(--text-secondary)">'+r.note+'</div></div><span class="badge '+(r.a?'badge-green':'badge-gray')+'">'+(r.a?'Active':'Inactive')+'</span></div>';}).join('');
 }
 function switchMethod(n){[1,2,3].forEach(function(i){document.getElementById('method'+i).style.display=i===n?'block':'none';document.getElementById('mBtn'+i).classList.toggle('active',i===n);});}
@@ -910,7 +951,7 @@ function renderTable(){var wrap=document.getElementById('recordsTbl');if(!sheetR
 function changeCreds(){var u=document.getElementById('newU').value.trim();var p1=document.getElementById('newP1').value;var p2=document.getElementById('newP2').value;if(!u||!p1||!p2){showAlert('pwSt','error','All fields required.');return;}if(p1!==p2){showAlert('pwSt','error','Passwords do not match.');return;}if(p1.length<6){showAlert('pwSt','error','Password must be at least 6 characters.');return;}LS.s('sl_u',u);LS.s('sl_p',p1);showAlert('pwSt','success','Credentials updated.');document.getElementById('newU').value='';document.getElementById('newP1').value='';document.getElementById('newP2').value='';}
 function resetCreds(){LS.d('sl_u');LS.d('sl_p');showAlert('pwSt','success','Credentials reset to defaults.');}
 function clearAllData(){
-  LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
+  LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta'); LS.d('sl_anthropic_key');
   sheetRecords=[]; metaCache={}; sheetUrl='';
   showAlert('clearMsg','success','All saved data cleared. Go to Sheet Config and reload your sheet.');
   renderStats(); renderTable(); updOverview();
@@ -1045,10 +1086,11 @@ function renderSDGCards(sdgs,fromSheet){
   }).join('');
   el.innerHTML='<div class="sdg-grid">'+cards+'</div>';
 }
-function genSDG(paper,doi,local){
+async function genSDG(paper,doi,local){
   var el=document.getElementById('sdgEl');
   if(!el)return;
-  // Priority 1: use SDG column from sheet if present
+
+  // Priority 1: SDG column in sheet — instant, no AI needed
   var sheetSDGRaw=(local&&local.sdg)||((paper&&paper.sdgFromSheet)||'');
   if(sheetSDGRaw){
     var nums=parseSheetSDGs(sheetSDGRaw);
@@ -1057,8 +1099,48 @@ function genSDG(paper,doi,local){
       return;
     }
   }
-  // No sheet SDG data — show helpful instructions
-  el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG data not available. Add an <strong>SDG</strong> column to your Google Sheet with values like <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px">SDG 3</code> or <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px">3,7,13</code> to display SDG alignment here.</p>';
+
+  // Priority 2: AI analysis via Anthropic API
+  var titleText=(paper&&paper.title)||'';
+  var abstractText=(paper&&paper.abstract)||'';
+  if(!titleText&&!abstractText){
+    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Not enough information to determine SDG alignment.</p>';
+    return;
+  }
+
+  el.innerHTML='<div class="alert alert-info"><div class="spinner"></div> Analysing SDG alignment with AI…</div>';
+
+  var sdgList='SDG 1: No Poverty | SDG 2: Zero Hunger | SDG 3: Good Health and Well-being | SDG 4: Quality Education | SDG 5: Gender Equality | SDG 6: Clean Water and Sanitation | SDG 7: Affordable and Clean Energy | SDG 8: Decent Work and Economic Growth | SDG 9: Industry Innovation and Infrastructure | SDG 10: Reduced Inequalities | SDG 11: Sustainable Cities and Communities | SDG 12: Responsible Consumption and Production | SDG 13: Climate Action | SDG 14: Life Below Water | SDG 15: Life on Land | SDG 16: Peace Justice and Strong Institutions | SDG 17: Partnerships for the Goals';
+
+    var prompt='You are an expert in the UN Sustainable Development Goals (SDGs). Analyse this research paper and identify which SDGs it aligns with.\n\nTitle: '+titleText+'\nAbstract: '+(abstractText||'Not available')+'\n\nThe 17 SDGs are: '+sdgList+'\n\nRespond ONLY with a valid JSON array. Each item must have: n (integer 1-17) and reason (one sentence max 15 words). Example: [{"n":3,"reason":"Addresses health outcomes."},{"n":4,"reason":"Improves educational access."}]. Return ONLY the JSON array, no markdown, no backticks.';
+
+  try{
+    var anthropicKey=LS.g('sl_anthropic_key')||_d('c2stYW50LWFwaTAzLWxQLWhUVWFzb205VXlpWmNGOU1JdVZuZ0t4eEVSWUdjX2xpVV9kMmFlTVo3aUlLNDRYVXhBd00ydllUSTFIdElxRURaUHdYOGhWalpZekRSYWxFa1BBLXdLRW9Td0FB');
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':anthropicKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:400,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var d=await res.json();
+    var txt=((d.content||[]).find(function(b){return b.type==='text';})||{}).text||'';
+    // Strip any accidental markdown fences
+    txt=txt.replace(/```json|```/g,'').trim();
+    var sdgs=JSON.parse(txt);
+    if(!Array.isArray(sdgs)||!sdgs.length) throw new Error('empty');
+    sdgs=sdgs.filter(function(s){return s&&s.n>=1&&s.n<=17;});
+    renderSDGCards(sdgs,false);
+  }catch(e){
+    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Could not determine SDG alignment for this paper.</p>';
+  }
 }
 
 function loadSample(){sheetRecords=[{doi:'10.1038/s41586-021-03819-2',title:'Highly accurate protein structure prediction with AlphaFold',authors:'John Jumper, Richard Evans, Alexander Pritzel'},{doi:'10.1056/NEJMoa2001316',title:'A Novel Coronavirus from Patients with Pneumonia in China, 2019',authors:'Na Zhu, Dingyu Zhang, Wenling Wang'},{doi:'10.1038/nature14539',title:'Human-level control through deep reinforcement learning',authors:'Volodymyr Mnih, Koray Kavukcuoglu, David Silver'},{doi:'10.1145/3442188.3445922',title:'On the Dangers of Stochastic Parrots',authors:'Emily M. Bender, Timnit Gebru, Angelina McMillan-Major'},{doi:'10.1126/science.abc4189',title:'Quantum supremacy using a programmable superconducting processor',authors:'Frank Arute, Kunal Arya, Ryan Babbush'}];}
