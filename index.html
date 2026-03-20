@@ -972,6 +972,24 @@ function toSup(s){var m={'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4'
 function toSub(s){var m={'0':'\u2080','1':'\u2081','2':'\u2082','3':'\u2083','4':'\u2084','5':'\u2085','6':'\u2086','7':'\u2087','8':'\u2088','9':'\u2089','+':'\u208A','-':'\u208B','=':'\u208C','(':'\u208D',')':'\u208E'};return s.split('').map(function(c){return m[c]||c;}).join('');}
 function loadSample(){sheetRecords=[{doi:'10.1038/s41586-021-03819-2',title:'Highly accurate protein structure prediction with AlphaFold',authors:'John Jumper, Richard Evans, Alexander Pritzel'},{doi:'10.1056/NEJMoa2001316',title:'A Novel Coronavirus from Patients with Pneumonia in China, 2019',authors:'Na Zhu, Dingyu Zhang, Wenling Wang'},{doi:'10.1038/nature14539',title:'Human-level control through deep reinforcement learning',authors:'Volodymyr Mnih, Koray Kavukcuoglu, David Silver'},{doi:'10.1145/3442188.3445922',title:'On the Dangers of Stochastic Parrots',authors:'Emily M. Bender, Timnit Gebru, Angelina McMillan-Major'},{doi:'10.1126/science.abc4189',title:'Quantum supremacy using a programmable superconducting processor',authors:'Frank Arute, Kunal Arya, Ryan Babbush'}];}
 function nDOI(d){return(d||'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').replace(/"/g,'').trim().toLowerCase();}
+function normUrl(url){
+  var s=(url||'').trim();
+  // Already a proper CSV export URL — pass through unchanged
+  if(s.indexOf('output=csv')>=0) return s;
+  // Published URL: /spreadsheets/d/e/LONGID/pub
+  var pub=s.match(/\/spreadsheets\/d\/e\/([a-zA-Z0-9_-]+)\/pub/);
+  if(pub){
+    var g=(s.match(/[#&?]gid=(\d+)/)||[])[1]||'0';
+    return'https://docs.google.com/spreadsheets/d/e/'+pub[1]+'/pub?gid='+g+'&single=true&output=csv';
+  }
+  // Edit/view URL: /spreadsheets/d/SHEETID/
+  var edit=s.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)\//);
+  if(edit&&edit[1]!=='e'){
+    var g=(s.match(/[#&?]gid=(\d+)/)||[])[1]||'0';
+    return'https://docs.google.com/spreadsheets/d/'+edit[1]+'/export?format=csv&gid='+g;
+  }
+  return s;
+}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function hl(text,q){if(!q)return esc(text);var parts=esc(text).split(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'));return parts.map(function(p,i){return i%2===1?'<span class="hl">'+p+'</span>':p;}).join('');}
 function showAlert(id,type,msg,loading){var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};var icon=loading?'<div class="spinner"></div>':{info:'\u2139',success:'\u2713',error:'\u2717',warn:'\u26A0'}[type];var el=document.getElementById(id);if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';}
