@@ -6,342 +6,992 @@
 <title>Scholar Lens</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&family=IM+Fell+English+SC&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --white:#fff;--gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
-  --gray-300:#d1d5db;--gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;
-  --gray-700:#374151;--gray-800:#1f2937;--gray-900:#111827;
-  --blue-50:#eff6ff;--blue-100:#dbeafe;--blue-500:#3b82f6;--blue-600:#2563eb;--blue-700:#1d4ed8;
-  --green-50:#f0fdf4;--green-100:#dcfce7;--green-600:#16a34a;
-  --red-50:#fef2f2;--red-600:#dc2626;
-  --yellow-50:#fefce8;--yellow-600:#ca8a04;
-  --text:#111827;--text-secondary:#6b7280;--text-light:#9ca3af;
-  --border:#e5e7eb;--bg:#f9fafb;
-  --radius:8px;--radius-sm:6px;
-  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.04);
+  /* Light Academic Palette — parchment, aged ink, sepia */
+  --ink:#2c1f0e;
+  --ink-deep:#1a1108;
+  --ink-mid:#3d2b14;
+  --ink-light:#523a1e;
+  --slate:#7a5c3a;
+  --mist:#a8876a;
+  --fog:#c9aa88;
+  --cloud:#ddc9b0;
+  --veil:#ede3d5;
+  --paper:#f6f0e6;
+  --white:#fdfaf4;
+
+  /* Burgundy / Oxblood accent */
+  --gold:#8b1a2a;
+  --gold-light:#b52235;
+  --gold-dim:#6b1420;
+  --gold-bg:#fdf0f2;
+  --gold-border:#e8b4bb;
+
+  /* Steel blue — academic navy */
+  --blue:#1e3a5f;
+  --blue-mid:#14274a;
+  --blue-bg:#edf2f8;
+  --blue-border:#b0c4de;
+
+  --green:#2d6a4f;
+  --green-bg:#edf5ef;
+  --green-border:#a3c4af;
+
+  --red:#8b1a1a;
+  --red-bg:#fdf0f0;
+  --red-border:#e8b4b4;
+
+  --amber:#7a4f1a;
+  --amber-bg:#fdf6ee;
+  --amber-border:#d4a96a;
+
+  --radius:8px;
+  --radius-sm:5px;
+  --radius-lg:12px;
+
+  --shadow-xs:0 1px 3px rgba(44,31,14,.07);
+  --shadow-sm:0 2px 10px rgba(44,31,14,.09),0 1px 4px rgba(44,31,14,.05);
+  --shadow-md:0 6px 24px rgba(44,31,14,.12),0 2px 8px rgba(44,31,14,.07);
+  --shadow-lg:0 16px 48px rgba(44,31,14,.15),0 4px 16px rgba(44,31,14,.09);
+
+  --serif:'EB Garamond','Libre Baskerville',Georgia,serif;
+  --sans:'Crimson Pro','EB Garamond',Georgia,serif;
+  --mono:'Courier Prime','Courier New',monospace;
+
+  --border:var(--cloud);
+  --bg:var(--paper);
+  --text:var(--ink);
+  --text-2:var(--slate);
+  --text-3:var(--mist);
 }
+
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;user-select:none}
-input,textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.6;min-height:100vh;-webkit-user-select:none;user-select:none;-webkit-font-smoothing:antialiased}
+input,textarea{-webkit-user-select:text;user-select:text}
+
+/* ── PAGE SYSTEM ── */
 .page{display:none;min-height:100vh}
 .page.show{display:flex;flex-direction:column}
-#pageLanding{align-items:center;justify-content:center;padding:2rem 1rem;background:var(--white)}
-.landing-inner{width:100%;max-width:480px;text-align:center}
-.landing-logo{font-size:28px;font-weight:600;color:var(--gray-900);letter-spacing:-.5px;margin-bottom:.25rem}
-.landing-logo span{color:var(--blue-600)}
-.landing-tagline{font-size:13px;color:var(--text-secondary);margin-bottom:2.5rem}
-.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+
+/* ── LANDING ── */
+#pageLanding{
+  background:var(--paper);
+  position:relative;
+  overflow:hidden;
+}
+.landing-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(139,26,42,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(139,26,42,.06) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+}
+.landing-grain{
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  pointer-events:none;
+  opacity:.5;
+}
+.landing-glow{
+  position:absolute;
+  top:-120px;left:50%;transform:translateX(-50%);
+  width:700px;height:400px;
+  background:radial-gradient(ellipse at 50% 30%,rgba(139,26,42,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.landing-inner{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;
+  padding:3rem 1.5rem 2rem;
+  text-align:center;
+}
+.landing-eyebrow{
+  font-family:var(--mono);
+  font-size:10px;font-weight:400;
+  letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:1.25rem;
+  opacity:.9;
+}
+.landing-logo{
+  font-family:var(--serif);
+  font-size:clamp(44px,8vw,68px);
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.5px;
+  line-height:1;
+  margin-bottom:.5rem;
+}
+.landing-logo em{
+  color:var(--gold);
+  font-style:italic;
+}
+.landing-rule{
+  width:60px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:.9rem auto 1rem;
+}
+.landing-tagline{
+  font-size:14px;font-weight:300;
+  color:var(--slate);
+  letter-spacing:.3px;
+  margin-bottom:3rem;
+  font-style:italic;
+}
+.role-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:14px;
+  width:100%;max-width:440px;
+  margin-bottom:1.5rem;
+}
 @media(max-width:380px){.role-grid{grid-template-columns:1fr}}
-.role-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.5rem 1.25rem;cursor:pointer;transition:all .15s;text-align:left;touch-action:manipulation;-webkit-tap-highlight-color:rgba(59,130,246,.15)}
-.role-card:hover{border-color:var(--blue-500);box-shadow:var(--shadow-md)}
-.role-card:active{transform:scale(.98)}
-.role-card-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:.85rem}
-.role-card.admin .role-card-icon{background:#fef3c7}
-.role-card.user .role-card-icon{background:var(--blue-50)}
-.role-card-name{font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:.2rem}
-.role-card-desc{font-size:12px;color:var(--text-secondary);line-height:1.5}
-.nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 clamp(1rem,4vw,1.5rem);display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;flex-shrink:0}
-.nav-logo{font-size:16px;font-weight:600;color:var(--gray-900);display:flex;align-items:center;gap:6px}
-.nav-logo span{color:var(--blue-600)}
-.nav-logo-badge{font-size:10px;font-weight:500;color:var(--blue-600);background:var(--blue-50);border:1px solid var(--blue-100);padding:1px 6px;border-radius:4px}
+.role-card{
+  background:var(--white);
+  border:1px solid var(--cloud);
+  border-radius:var(--radius-lg);
+  padding:1.5rem 1.25rem;
+  cursor:pointer;
+  transition:all .2s;
+  text-align:left;
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow-xs);
+}
+.role-card::before{
+  content:'';
+  position:absolute;inset:0;
+  border-radius:var(--radius-lg);
+  background:linear-gradient(135deg,rgba(246,240,230,.9) 0%,transparent 60%);
+  pointer-events:none;
+}
+.role-card:hover{
+  border-color:var(--gold);
+  background:var(--gold-bg);
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-md);
+}
+.role-card:active{transform:scale(.98)translateY(0)}
+.role-card-icon{
+  font-size:22px;
+  margin-bottom:.9rem;
+  display:block;
+}
+.role-card-name{
+  font-family:var(--serif);
+  font-size:16px;font-weight:600;
+  color:var(--ink);
+  margin-bottom:.3rem;
+}
+.role-card-desc{
+  font-size:12px;font-weight:300;
+  color:var(--slate);
+  line-height:1.5;
+  font-style:italic;
+}
+.landing-hint{
+  font-size:11px;
+  color:var(--mist);
+  letter-spacing:.3px;
+}
+
+/* ── NAV ── */
+.nav{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:0 clamp(1rem,4vw,1.75rem);
+  display:flex;align-items:center;justify-content:space-between;
+  height:58px;
+  position:sticky;top:0;z-index:100;
+  flex-shrink:0;
+  box-shadow:0 1px 3px rgba(44,31,14,.06);
+}
+.nav-logo{
+  font-family:var(--serif);
+  font-size:18px;font-weight:700;
+  color:var(--ink);
+  display:flex;align-items:center;gap:7px;
+}
+.nav-logo em{
+  color:var(--gold);
+  font-style:italic;
+}
+.nav-logo-badge{
+  font-family:var(--mono);
+  font-size:9px;font-weight:400;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--gold-dim);
+  background:var(--gold-bg);
+  border:1px solid var(--gold-border);
+  padding:2px 7px;border-radius:3px;
+}
 .nav-right{display:flex;align-items:center;gap:8px}
-label{display:block;font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:.35rem}
-input[type=text],input[type=password],input[type=search],textarea{width:100%;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:8px 11px;outline:none;transition:border-color .15s,box-shadow .15s}
-input:focus,textarea:focus{border-color:var(--blue-500);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
-input::placeholder,textarea::placeholder{color:var(--text-light)}
+
+/* ── FORMS ── */
+label{
+  display:block;
+  font-size:12px;font-weight:500;
+  color:var(--ink-light);
+  letter-spacing:.3px;
+  margin-bottom:.4rem;
+  font-family:var(--mono);
+  text-transform:uppercase;
+}
+input[type=text],input[type=password],input[type=search],textarea{
+  width:100%;
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  color:var(--text);
+  font-family:var(--sans);font-size:14px;
+  padding:9px 12px;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+input:focus,textarea:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(139,26,42,.08);
+}
+input::placeholder,textarea::placeholder{color:var(--mist);font-style:italic}
 .input-row{display:flex;gap:8px}
 .input-row input{flex:1;min-width:0}
-.field{margin-bottom:.875rem}
-.btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);color:var(--gray-700);cursor:pointer;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;line-height:1;touch-action:manipulation}
-.btn:hover{background:var(--gray-50);border-color:var(--gray-300)}
+.field{margin-bottom:1rem}
+
+/* ── BUTTONS ── */
+.btn{
+  font-family:var(--sans);font-size:14px;font-weight:500;
+  padding:8px 15px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  background:var(--white);color:var(--slate);
+  cursor:pointer;
+  transition:all .15s;
+  white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;line-height:1;
+}
+.btn:hover{background:var(--veil);border-color:var(--fog);color:var(--ink)}
 .btn:active{transform:scale(.98)}
-.btn-primary{background:var(--blue-600);color:var(--white);border-color:var(--blue-600)}
-.btn-primary:hover{background:var(--blue-700);border-color:var(--blue-700);color:var(--white)}
+.btn-primary{
+  background:var(--ink);color:var(--white);
+  border-color:var(--ink);
+  letter-spacing:.1px;
+}
+.btn-primary:hover{background:var(--ink-mid);border-color:var(--ink-mid);color:var(--white)}
+.btn-gold{
+  background:var(--gold);color:var(--white);
+  border-color:var(--gold);
+  font-weight:500;
+}
+.btn-gold:hover{background:var(--gold-light);border-color:var(--gold-light);color:var(--white)}
 .btn-sm{padding:6px 11px;font-size:12px}
 .btn-block{width:100%;justify-content:center}
-.btn-ghost{border-color:transparent;background:transparent;color:var(--text-secondary)}
-.btn-ghost:hover{background:var(--gray-100);border-color:transparent;color:var(--gray-700)}
-.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)}
-.card-title{font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:.2rem}
-.card-sub{font-size:12px;color:var(--text-secondary)}
-.alert{padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;display:flex;align-items:flex-start;gap:8px;margin-top:8px;line-height:1.4}
-.alert-info{background:var(--blue-50);color:var(--blue-700);border:1px solid var(--blue-100)}
-.alert-success{background:var(--green-50);color:var(--green-600);border:1px solid var(--green-100)}
-.alert-error{background:var(--red-50);color:var(--red-600);border:1px solid #fecaca}
-.alert-warning{background:var(--yellow-50);color:var(--yellow-600);border:1px solid #fef08a}
-.spinner{width:13px;height:13px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;margin-top:1px}
+.btn-ghost{border-color:transparent;background:transparent;color:var(--text-2)}
+.btn-ghost:hover{background:var(--veil);border-color:transparent;color:var(--ink)}
+
+/* ── CARDS ── */
+.card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.25rem 1.375rem;
+  margin-bottom:1rem;
+  box-shadow:var(--shadow-xs);
+}
+.card-title{
+  font-family:var(--serif);
+  font-size:14.5px;font-weight:600;
+  color:var(--ink);margin-bottom:.2rem;
+}
+.card-sub{font-size:12px;color:var(--text-2)}
+
+/* ── ALERTS ── */
+.alert{
+  padding:10px 13px;border-radius:var(--radius-sm);
+  font-size:12.5px;
+  display:flex;align-items:flex-start;gap:9px;
+  margin-top:8px;line-height:1.45;
+}
+.alert-info{background:var(--blue-bg);color:var(--blue-mid);border:1px solid var(--blue-border)}
+.alert-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.alert-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.alert-warning{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+
+/* ── SPINNER ── */
+.spinner{
+  width:13px;height:13px;
+  border:2px solid currentColor;border-top-color:transparent;
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  flex-shrink:0;margin-top:1px;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
-.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 7px;border-radius:4px}
-.badge-green{background:var(--green-50);color:var(--green-600)}
-.badge-gray{background:var(--gray-100);color:var(--gray-600)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:4px;letter-spacing:.2px}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-gray{background:var(--veil);color:var(--slate)}
+.badge-gold{background:var(--gold-bg);color:var(--gold-dim);border:1px solid var(--gold-border)}
+
+/* ── DIVIDER ── */
 .divider{height:1px;background:var(--border);margin:1.25rem 0}
-#pageAdminLogin{align-items:center;justify-content:center;padding:2rem 1rem;background:var(--bg)}
-.login-box{width:100%;max-width:360px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md)}
-.login-icon{width:44px;height:44px;background:var(--yellow-50);border:1px solid #fef08a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 1.25rem}
-.login-title{font-size:18px;font-weight:600;color:var(--gray-900);text-align:center;margin-bottom:.2rem}
-.login-sub{font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:1.5rem}
-.login-hint{font-size:11px;color:var(--text-light);text-align:center;margin-top:.85rem}
-.login-hint code{color:var(--gray-600);background:var(--gray-100);padding:1px 5px;border-radius:3px}
+
+/* ── ADMIN LOGIN ── */
+#pageAdminLogin{
+  align-items:center;justify-content:center;
+  padding:2rem 1rem;
+  background:var(--bg);
+}
+.login-box{
+  width:100%;max-width:360px;
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:2.25rem 2rem;
+  box-shadow:var(--shadow-md);
+}
+.login-crest{
+  width:52px;height:52px;
+  background:var(--ink);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  margin:0 auto 1.5rem;
+  box-shadow:0 4px 16px rgba(15,17,23,.2);
+}
+.login-title{
+  font-family:var(--serif);
+  font-size:22px;font-weight:700;
+  color:var(--ink);text-align:center;
+  margin-bottom:.2rem;
+}
+.login-sub{font-size:12px;color:var(--text-2);text-align:center;margin-bottom:1.75rem}
+.login-hint{font-size:11px;color:var(--text-3);text-align:center;margin-top:.9rem}
+.login-hint code{color:var(--ink-light);background:var(--veil);padding:1px 6px;border-radius:3px;font-family:var(--mono)}
+.back-link{
+  font-size:12px;color:var(--text-2);cursor:pointer;
+  background:none;border:none;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:0;margin-bottom:1.25rem;
+  font-family:var(--sans);
+  transition:color .15s;
+}
+.back-link:hover{color:var(--gold)}
+
+/* ── ADMIN DASHBOARD ── */
 .admin-wrap{flex:1;display:flex;min-height:0}
-.admin-sidebar{width:200px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);padding:1rem 0}
+.admin-sidebar{
+  width:210px;flex-shrink:0;
+  background:var(--ink);
+  padding:1.25rem 0;
+}
 @media(max-width:640px){.admin-sidebar{display:none}}
-.sidebar-label{font-size:10px;font-weight:600;color:var(--text-light);letter-spacing:.6px;text-transform:uppercase;padding:.5rem 1rem .25rem}
-.sidebar-item{display:flex;align-items:center;gap:8px;padding:.55rem 1rem;font-size:13px;color:var(--gray-600);cursor:pointer;transition:all .12s;border:none;background:none;width:100%;text-align:left;font-family:'Inter',sans-serif;touch-action:manipulation}
-.sidebar-item:hover{background:var(--gray-50);color:var(--gray-900)}
-.sidebar-item.active{background:var(--blue-50);color:var(--blue-600);font-weight:500}
-.admin-content{flex:1;overflow-y:auto;padding:clamp(1.25rem,3vw,2rem)}
-.mobile-tabs{display:none;border-bottom:1px solid var(--border);background:var(--white);overflow-x:auto}
+.sidebar-logo{
+  font-family:var(--serif);
+  font-size:13px;font-weight:600;
+  color:var(--white);
+  padding:.25rem 1.25rem .9rem;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  margin-bottom:.5rem;
+  display:flex;align-items:center;gap:6px;
+}
+.sidebar-logo em{color:var(--gold-light);font-style:italic}
+.sidebar-section-label{
+  font-family:var(--mono);
+  font-size:9px;font-weight:500;
+  color:rgba(255,255,255,.25);
+  letter-spacing:2px;text-transform:uppercase;
+  padding:.75rem 1.25rem .25rem;
+}
+.sidebar-item{
+  display:flex;align-items:center;gap:9px;
+  padding:.55rem 1.25rem;
+  font-size:12.5px;
+  color:rgba(255,255,255,.45);
+  cursor:pointer;
+  transition:all .12s;
+  border:none;background:none;
+  width:100%;text-align:left;
+  font-family:var(--sans);
+  border-left:2px solid transparent;
+}
+.sidebar-item .si-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.8)}
+.sidebar-item.active{
+  background:rgba(201,168,76,.1);
+  color:var(--gold-light);
+  border-left-color:var(--gold);
+  font-weight:500;
+}
+.admin-content{
+  flex:1;overflow-y:auto;
+  background:var(--bg);
+  padding:clamp(1.5rem,3vw,2.25rem) clamp(1.25rem,4vw,2rem);
+}
+
+/* ── MOBILE TABS ── */
+.mobile-tabs{
+  display:none;
+  border-bottom:1px solid var(--border);
+  background:var(--white);
+  overflow-x:auto;
+}
 @media(max-width:640px){.mobile-tabs{display:flex}}
-.mobile-tab{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:10px 14px;border:none;background:none;color:var(--text-secondary);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;touch-action:manipulation}
-.mobile-tab.active{color:var(--blue-600);border-bottom-color:var(--blue-600)}
+.mobile-tab{
+  font-family:var(--sans);font-size:12px;font-weight:500;
+  padding:11px 14px;border:none;background:none;
+  color:var(--text-2);cursor:pointer;
+  white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:all .15s;
+}
+.mobile-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── ADMIN PANELS ── */
 .admin-panel{display:none}
 .admin-panel.show{display:block}
-.page-title{font-size:20px;font-weight:600;color:var(--gray-900);margin-bottom:.25rem}
-.page-subtitle{font-size:13px;color:var(--text-secondary);margin-bottom:1.5rem}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:1.25rem}
-.stat-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
-.stat-val{font-size:22px;font-weight:600;color:var(--gray-900);display:block;font-family:'JetBrains Mono',monospace}
-.stat-lbl{font-size:11px;color:var(--text-secondary);margin-top:2px;display:block}
-.table-wrap{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--white);box-shadow:var(--shadow)}
+.page-title{
+  font-family:var(--serif);
+  font-size:22px;font-weight:700;
+  color:var(--ink);margin-bottom:.3rem;
+}
+.page-subtitle{font-size:13px;color:var(--text-2);margin-bottom:1.5rem}
+
+/* ── STATS ── */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(115px,1fr));
+  gap:10px;margin-bottom:1.5rem;
+}
+.stat-box{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.1rem 1rem;
+  box-shadow:var(--shadow-xs);
+  position:relative;overflow:hidden;
+}
+.stat-box::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light));
+}
+.stat-val{
+  font-family:var(--serif);
+  font-size:26px;font-weight:700;
+  color:var(--ink);
+  display:block;line-height:1;
+  margin-bottom:.3rem;
+}
+.stat-lbl{font-size:10.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;display:block}
+
+/* ── TABLE ── */
+.table-wrap{
+  border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;background:var(--white);
+  box-shadow:var(--shadow-xs);
+}
 .table-scroll{max-height:360px;overflow-y:auto}
-.table-scroll::-webkit-scrollbar{width:5px}
-.table-scroll::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:3px}
+.table-scroll::-webkit-scrollbar{width:4px}
+.table-scroll::-webkit-scrollbar-thumb{background:var(--cloud);border-radius:3px}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:var(--gray-50);padding:9px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border)}
-tbody td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--gray-700);vertical-align:top}
+thead th{
+  background:var(--ink);
+  padding:9px 13px;text-align:left;
+  font-size:10px;font-weight:400;
+  color:rgba(253,250,244,.6);
+  letter-spacing:1.2px;text-transform:uppercase;
+  border-bottom:none;
+  font-family:var(--mono);
+}
+tbody td{padding:9px 13px;border-bottom:1px solid var(--veil);color:var(--slate);vertical-align:top}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:var(--gray-50)}
-.td-doi{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue-600);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.td-title{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--gray-900)}
-.td-author{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary)}
+tbody tr:hover td{background:var(--paper)}
+.td-doi{font-family:var(--mono);font-size:11px;color:var(--gold);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-title{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:500}
+.td-author{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
 @media(max-width:560px){thead th:nth-child(3),tbody td:nth-child(3){display:none}}
-.method-tabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
-.method-tab{display:flex;align-items:center;gap:8px;padding:.65rem 1rem;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;flex:1;min-width:140px;touch-action:manipulation}
-.method-tab:hover{border-color:var(--gray-300)}
-.method-tab.active{border-color:var(--blue-500);background:var(--blue-50)}
-.method-tab-label{font-size:13px;font-weight:500;color:var(--gray-700)}
-.method-tab.active .method-tab-label{color:var(--blue-700)}
-.method-tab-sub{font-size:11px;color:var(--text-light)}
-.method-tab.active .method-tab-sub{color:var(--blue-500)}
+
+/* ── METHOD TABS ── */
+.method-tabs{display:flex;gap:8px;margin-bottom:1.375rem;flex-wrap:wrap}
+.method-tab{
+  display:flex;align-items:center;gap:10px;
+  padding:.65rem 1rem;
+  background:var(--white);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  cursor:pointer;transition:all .15s;
+  font-family:var(--sans);flex:1;min-width:140px;
+}
+.method-tab:hover{border-color:var(--fog)}
+.method-tab.active{border-color:var(--ink);background:var(--ink)}
+.method-tab-label{font-size:14px;font-weight:500;color:var(--slate)}
+.method-tab.active .method-tab-label{color:var(--white)}
+.method-tab-sub{font-size:12px;color:var(--text-3)}
+.method-tab.active .method-tab-sub{color:rgba(253,250,244,.4)}
+
+/* ── STEPS ── */
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:1.25rem}
-.step-item{background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem}
-.step-num{font-size:11px;font-weight:600;color:var(--blue-600);margin-bottom:.3rem}
-.step-title{font-size:13px;font-weight:500;color:var(--gray-900);margin-bottom:.2rem}
-.step-desc{font-size:11px;color:var(--text-secondary);line-height:1.5}
-.source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:1rem}
-.source-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+.step-item{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:.875rem;
+  position:relative;
+}
+.step-num{
+  font-family:var(--mono);
+  font-size:10px;font-weight:500;
+  color:var(--gold-dim);letter-spacing:1px;
+  margin-bottom:.3rem;
+}
+.step-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:.2rem}
+.step-desc{font-size:11px;color:var(--text-2);line-height:1.5}
+
+/* ── SOURCE GRID ── */
+.source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:1rem}
+.source-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.1rem;
+  box-shadow:var(--shadow-xs);
+}
 .source-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
-.source-card-name{font-size:13px;font-weight:600;color:var(--gray-900);display:flex;align-items:center;gap:6px}
-.source-card-desc{font-size:11px;color:var(--text-secondary);line-height:1.5;margin-bottom:.75rem}
-.search-wrap{flex:1;max-width:760px;width:100%;margin:0 auto;padding:clamp(1.25rem,3vw,2rem) clamp(1rem,4vw,1.5rem) 3rem}
-.search-hero{margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)}
-.search-hero h1{font-size:clamp(20px,4vw,26px);font-weight:600;color:var(--gray-900);margin-bottom:.3rem}
-.search-hero p{font-size:13px;color:var(--text-secondary)}
-.scope-bar{display:flex;align-items:center;gap:8px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:1rem;font-size:12px;color:var(--blue-700)}
-.search-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;box-shadow:var(--shadow)}
-.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem}
-.filter-btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:5px 11px;border-radius:5px;border:1px solid var(--border);background:var(--white);color:var(--text-secondary);cursor:pointer;transition:all .12s;touch-action:manipulation}
-.filter-btn:hover{border-color:var(--gray-300);color:var(--gray-700)}
-.filter-btn.active{background:var(--blue-600);border-color:var(--blue-600);color:var(--white)}
+.source-card-name{font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px}
+.source-card-desc{font-size:11.5px;color:var(--text-2);line-height:1.5;margin-bottom:.75rem}
+
+/* ── SEARCH PAGE ── */
+.search-wrap{
+  flex:1;max-width:780px;width:100%;
+  margin:0 auto;
+  padding:clamp(1.5rem,3vw,2.25rem) clamp(1rem,4vw,1.5rem) 4rem;
+}
+.search-hero{margin-bottom:1.75rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.search-hero-eyebrow{
+  font-family:var(--mono);
+  font-size:10px;font-weight:400;
+  letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:.6rem;
+}
+.search-hero h1{
+  font-family:var(--serif);
+  font-size:clamp(22px,4vw,30px);
+  font-weight:700;color:var(--ink);
+  margin-bottom:.35rem;
+  line-height:1.2;
+}
+.search-hero p{font-size:13px;color:var(--text-2);font-weight:300}
+
+.scope-bar{
+  display:flex;align-items:center;gap:9px;
+  background:var(--gold-bg);
+  border:1px solid var(--gold-border);
+  border-radius:var(--radius-sm);
+  padding:9px 13px;
+  margin-bottom:1rem;
+  font-size:12px;color:var(--amber);
+}
+
+.search-box{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.125rem;
+  margin-bottom:1rem;
+  box-shadow:var(--shadow-sm);
+}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.875rem}
+.filter-btn{
+  font-family:var(--sans);font-size:12px;font-weight:500;
+  padding:5px 13px;border-radius:20px;
+  border:1.5px solid var(--border);
+  background:var(--white);color:var(--text-2);
+  cursor:pointer;transition:all .12s;
+}
+.filter-btn:hover{border-color:var(--fog);color:var(--ink)}
+.filter-btn.active{background:var(--ink);border-color:var(--ink);color:var(--white)}
+
 .search-input-wrap{position:relative}
-.search-input-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gray-400);width:16px;height:16px;pointer-events:none}
-#pubInput{padding-left:34px!important}
-.search-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;flex-wrap:wrap;gap:4px}
-.search-count{font-size:11px;color:var(--text-secondary)}
-.search-count strong{color:var(--blue-600)}
-.enrich-row{display:none;align-items:center;gap:6px;font-size:11px;color:var(--yellow-600);margin-top:6px;padding:6px 8px;background:var(--yellow-50);border-radius:var(--radius-sm)}
+.search-input-wrap svg{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--mist);width:15px;height:15px;pointer-events:none;
+}
+#pubInput{padding-left:36px!important}
+
+.search-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:.65rem;flex-wrap:wrap;gap:4px;
+}
+.search-count{font-size:12px;color:var(--text-2)}
+.search-count strong{color:var(--gold);font-weight:600}
+
+.enrich-row{
+  display:none;align-items:center;gap:7px;
+  font-size:11.5px;color:var(--amber);
+  margin-top:7px;padding:7px 10px;
+  background:var(--amber-bg);border-radius:var(--radius-sm);
+  border:1px solid var(--amber-border);
+}
 .enrich-row.show{display:flex}
-.results-list{display:flex;flex-direction:column;gap:6px}
-.result-item{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1rem;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);touch-action:manipulation;-webkit-tap-highlight-color:rgba(59,130,246,.1)}
-.result-item:hover{border-color:var(--blue-500);box-shadow:0 0 0 3px rgba(59,130,246,.08)}
+
+/* ── RESULT ITEMS ── */
+.results-list{display:flex;flex-direction:column;gap:7px}
+.result-item{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:.95rem 1.1rem;
+  cursor:pointer;
+  transition:all .15s;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:var(--shadow-xs);
+}
+.result-item:hover{
+  border-color:rgba(15,17,23,.25);
+  box-shadow:var(--shadow-sm);
+  transform:translateX(2px);
+}
+.result-item-badge{
+  width:34px;height:34px;
+  background:var(--veil);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  font-size:15px;
+  border:1px solid var(--border);
+}
 .result-item-info{flex:1;min-width:0}
-.result-doi{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue-600);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.result-title{font-size:13px;font-weight:500;color:var(--gray-900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px}
-.result-author{font-size:11px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.result-arrow{color:var(--gray-300);flex-shrink:0;font-size:16px}
-.result-item:hover .result-arrow{color:var(--blue-500)}
-.hl{background:#fef9c3;color:#854d0e;border-radius:2px;padding:0 1px}
-.ns-bar{display:flex;gap:8px;background:var(--yellow-50);border:1px solid #fef08a;border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:1rem;font-size:12px;color:var(--yellow-600)}
-.empty-state{text-align:center;padding:3rem 1rem;color:var(--text-secondary)}
-.empty-icon{font-size:32px;display:block;margin-bottom:.75rem;opacity:.4}
-.empty-title{font-size:14px;font-weight:500;color:var(--gray-700);margin-bottom:.3rem}
-.empty-sub{font-size:12px;color:var(--text-light)}
-.no-match{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;box-shadow:var(--shadow)}
-.no-match-icon{font-size:24px;display:block;margin-bottom:.5rem}
-.no-match-title{font-size:13px;font-weight:600;color:var(--gray-800);margin-bottom:.3rem}
-.no-match-sub{font-size:12px;color:var(--text-secondary);max-width:340px;margin:0 auto}
-.detail-wrap{flex:1;max-width:760px;width:100%;margin:0 auto;padding:clamp(1.25rem,3vw,2rem) clamp(1rem,4vw,1.5rem) 3rem}
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);margin-bottom:1.25rem;flex-wrap:wrap}
-.bc-link{color:var(--blue-600);cursor:pointer}
+.result-doi{
+  font-family:var(--mono);
+  font-size:10.5px;color:var(--gold);
+  margin-bottom:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.result-title{
+  font-size:14px;font-weight:500;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  margin-bottom:2px;
+  font-family:var(--serif);
+}
+.result-author{font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic}
+.result-arrow{color:var(--fog);flex-shrink:0;font-size:18px;transition:color .15s;font-weight:300}
+.result-item:hover .result-arrow{color:var(--ink)}
+
+/* ── HIGHLIGHT ── */
+.hl{background:#f5e6c8;color:#6b1420;border-radius:2px;padding:0 2px}
+
+/* ── NS BAR ── */
+.ns-bar{
+  display:flex;gap:8px;
+  background:var(--amber-bg);border:1px solid var(--amber-border);
+  border-radius:var(--radius-sm);padding:10px 13px;
+  margin-bottom:1rem;font-size:12px;color:var(--amber);
+}
+
+/* ── EMPTY / NO-MATCH ── */
+.empty-state{text-align:center;padding:3.5rem 1rem;color:var(--text-2)}
+.empty-icon{font-size:34px;display:block;margin-bottom:.75rem;opacity:.35}
+.empty-title{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--slate);margin-bottom:.3rem}
+.empty-sub{font-size:12px;color:var(--text-3)}
+.no-match{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.75rem;
+  text-align:center;box-shadow:var(--shadow-xs);
+}
+.no-match-icon{font-size:26px;display:block;margin-bottom:.5rem}
+.no-match-title{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink);margin-bottom:.3rem}
+.no-match-sub{font-size:12px;color:var(--text-2);max-width:340px;margin:0 auto;line-height:1.55}
+
+/* ── DETAIL PAGE ── */
+.detail-wrap{
+  flex:1;max-width:780px;width:100%;
+  margin:0 auto;
+  padding:clamp(1.5rem,3vw,2.25rem) clamp(1rem,4vw,1.5rem) 4rem;
+}
+.breadcrumb{
+  display:flex;align-items:center;gap:7px;
+  font-size:12px;color:var(--text-2);
+  margin-bottom:1.375rem;flex-wrap:wrap;
+}
+.bc-link{color:var(--gold);cursor:pointer;font-weight:500}
 .bc-link:hover{text-decoration:underline}
-.bc-sep{color:var(--gray-300)}
-.bc-current{color:var(--gray-700);font-weight:500}
-.detail-header{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)}
-.detail-source-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;margin-bottom:.75rem;border:1px solid}
-.detail-title{font-size:clamp(15px,2.5vw,19px);font-weight:600;color:var(--gray-900);line-height:1.35;margin-bottom:.5rem}
-.detail-authors{font-size:13px;color:var(--text-secondary);margin-bottom:.75rem}
-.detail-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.875rem}
-.detail-doi-link{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue-600);text-decoration:none;background:var(--blue-50);padding:4px 9px;border-radius:4px;border:1px solid var(--blue-100);word-break:break-all}
-.detail-doi-link:hover{background:var(--blue-100)}
-.detail-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin-bottom:1rem}
-.dstat{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center;box-shadow:var(--shadow)}
-.dstat-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--gray-900);display:block}
-.dstat-lbl{font-size:10px;color:var(--text-secondary);display:block;margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
-.detail-section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)}
-.section-heading{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.65rem;display:flex;align-items:center;gap:6px}
-.section-heading::after{content:'';flex:1;height:1px;background:var(--border)}
-.abstract-text{font-size:13px;line-height:1.75;color:var(--gray-700)}
+.bc-sep{color:var(--fog)}
+.bc-current{color:var(--ink);font-weight:500}
 
-.kw-list{display:flex;flex-wrap:wrap;gap:5px}
-.kw-tag{font-size:11px;padding:3px 9px;border-radius:4px;background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200)}
+.detail-header{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:1.5rem 1.75rem;
+  margin-bottom:1rem;
+  box-shadow:var(--shadow-sm);
+  position:relative;overflow:hidden;
+}
+.detail-header::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--ink),var(--gold),var(--ink));
+}
+.detail-source-tag{
+  display:inline-flex;align-items:center;
+  font-family:var(--mono);
+  font-size:10px;font-weight:500;
+  letter-spacing:1px;text-transform:uppercase;
+  padding:3px 9px;border-radius:4px;
+  margin-bottom:.9rem;border:1px solid;
+}
+.detail-title{
+  font-family:var(--serif);
+  font-size:clamp(17px,2.5vw,22px);
+  font-weight:700;color:var(--ink);
+  line-height:1.3;margin-bottom:.6rem;
+}
+.detail-authors{font-size:13px;color:var(--text-2);margin-bottom:.85rem;font-weight:300}
+.detail-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem}
+.detail-doi-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:10.5px;
+  color:var(--gold);text-decoration:none;
+  background:var(--gold-bg);padding:5px 10px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--gold-border);
+  word-break:break-all;
+  transition:background .15s;
+}
+.detail-doi-link:hover{background:var(--gold-border)}
+
+.detail-stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
+  gap:8px;margin-bottom:1rem;
+}
+.dstat{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px;
+  text-align:center;box-shadow:var(--shadow-xs);
+}
+.dstat-val{
+  font-family:var(--serif);
+  font-size:18px;font-weight:700;color:var(--ink);
+  display:block;
+}
+.dstat-lbl{
+  font-family:var(--mono);
+  font-size:9px;color:var(--text-3);display:block;
+  margin-top:3px;text-transform:uppercase;letter-spacing:.5px;
+}
+
+.detail-section{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.25rem 1.5rem;
+  margin-bottom:1rem;box-shadow:var(--shadow-xs);
+}
+.section-heading{
+  font-family:var(--mono);
+  font-size:9.5px;font-weight:400;
+  color:var(--mist);text-transform:uppercase;letter-spacing:2px;
+  margin-bottom:.75rem;
+  display:flex;align-items:center;gap:8px;
+}
+.section-heading::after{content:'';flex:1;height:1px;background:var(--veil)}
+.abstract-text{
+  font-size:14.5px;line-height:1.85;
+  color:var(--ink-light);
+  font-weight:400;
+  font-family:var(--serif);
+}
+.kw-list{display:flex;flex-wrap:wrap;gap:6px}
+.kw-tag{
+  font-size:11px;padding:3px 10px;border-radius:4px;
+  background:var(--veil);color:var(--slate);
+  border:1px solid var(--cloud);
+  transition:all .12s;
+}
+.kw-tag:hover{background:var(--ink);color:var(--white)}
+
+/* ── PIPELINE ── */
 .pipeline{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:1rem}
-.pipe-step{font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid var(--border);background:var(--white);color:var(--text-secondary);transition:all .2s}
-.pipe-step.trying{background:var(--yellow-50);border-color:#fef08a;color:var(--yellow-600)}
-.pipe-step.found{background:var(--green-50);border-color:var(--green-100);color:var(--green-600)}
-.pipe-step.failed{background:var(--red-50);border-color:#fecaca;color:var(--red-600);text-decoration:line-through;opacity:.6}
+.pipe-step{
+  font-family:var(--mono);
+  font-size:10.5px;padding:3px 9px;
+  border-radius:4px;border:1px solid var(--border);
+  background:var(--white);color:var(--text-2);
+  transition:all .2s;
+}
+.pipe-step.trying{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
+.pipe-step.found{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.pipe-step.failed{background:var(--red-bg);border-color:var(--red-border);color:var(--red);text-decoration:line-through;opacity:.6}
 .pipe-step.skipped{opacity:.3}
-.pipe-sep{color:var(--gray-300);font-size:12px}
-.direct-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin-top:.5rem}
-.direct-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--white);text-decoration:none;transition:all .12s}
-.direct-link:hover{border-color:var(--gray-300);background:var(--gray-50)}
-.direct-link-icon{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.direct-link-name{font-size:12px;font-weight:500;color:var(--gray-700)}
-.direct-link-type{font-size:10px;color:var(--text-light)}
-#dropZone{border:2px dashed var(--border);border-radius:var(--radius);padding:2rem;text-align:center;cursor:pointer;background:var(--gray-50);transition:all .15s;margin-bottom:.75rem}
-#dropZone:hover{border-color:var(--blue-400);background:var(--blue-50)}
-.back-link{font-size:12px;color:var(--text-secondary);cursor:pointer;background:none;border:none;display:inline-flex;align-items:center;gap:4px;padding:0;margin-bottom:1rem;font-family:'Inter',sans-serif}
-.back-link:hover{color:var(--blue-600)}
-footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-size:11px;color:var(--text-light);margin-top:auto;background:var(--white)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fade-up{animation:fadeUp .25s ease both}
+.pipe-sep{color:var(--fog);font-size:12px}
 
-.sdg-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
-.sdg-card{display:flex;gap:10px;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow);flex:1;min-width:200px}
-.sdg-badge{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;line-height:1.1;text-align:center}
-.sdg-info{flex:1;min-width:0}
-.sdg-name{font-size:12px;font-weight:600;color:var(--gray-900);margin-bottom:3px;line-height:1.3}
-.sdg-reason{font-size:11px;color:var(--text-secondary);line-height:1.5}
-.sdg-sheet-tag{display:inline-flex;align-items:center;font-size:10px;color:var(--green-600);background:var(--green-50);border:1px solid var(--green-100);border-radius:3px;padding:1px 5px;margin-left:5px;vertical-align:middle}
+/* ── DIRECT LINKS ── */
+.direct-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;margin-top:.6rem}
+.direct-link{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 11px;
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--white);text-decoration:none;
+  transition:all .12s;
+}
+.direct-link:hover{border-color:var(--fog);background:var(--veil)}
+.direct-link-icon{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.direct-link-name{font-size:12px;font-weight:500;color:var(--ink)}
+.direct-link-type{font-size:10px;color:var(--text-3)}
+
+/* ── DROPZONE ── */
+#dropZone{
+  border:2px dashed var(--border);border-radius:var(--radius);
+  padding:2.25rem;text-align:center;cursor:pointer;
+  background:var(--paper);transition:all .15s;margin-bottom:.75rem;
+}
+#dropZone:hover{border-color:var(--gold);background:var(--gold-bg)}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);padding:1rem;
+  text-align:center;font-family:var(--mono);
+  font-size:10.5px;color:var(--text-3);
+  letter-spacing:.5px;
+  margin-top:auto;background:var(--white);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .28s ease both}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade-in{animation:fadeIn .3s ease both}
 </style>
 </head>
 <body>
 
-<!-- LANDING -->
+<!-- ═══════════════ LANDING ═══════════════ -->
 <div class="page show" id="pageLanding">
+  <div class="landing-grid"></div>
+  <div class="landing-grain"></div>
+  <div class="landing-glow"></div>
   <div class="landing-inner">
-    <div class="landing-logo">Scholar<span>Lens</span></div>
+    <div class="landing-eyebrow">Academic Research Tool</div>
+    <div class="landing-logo">Scholar<em>Lens</em></div>
+    <div class="landing-rule"></div>
     <div class="landing-tagline">Research DOI Lookup System</div>
     <div class="role-grid">
       <div class="role-card admin" onclick="goAdminLogin()">
-        <div class="role-card-icon">&#x1F510;</div>
+        <span class="role-card-icon">🔐</span>
         <div class="role-card-name">Admin</div>
         <div class="role-card-desc">Configure data source, API keys, and system settings</div>
       </div>
       <div class="role-card user" onclick="goPublicSearch()">
-        <div class="role-card-icon">&#x1F50D;</div>
+        <span class="role-card-icon">🔍</span>
         <div class="role-card-name">Researcher</div>
         <div class="role-card-desc">Search papers by DOI, author, or title</div>
       </div>
     </div>
-    <p style="font-size:11px;color:var(--text-light)">Select your role to continue</p>
+    <p class="landing-hint">Select your role to continue</p>
   </div>
-  <footer>Scholar Lens &middot; Scopus &middot; ScienceDirect &middot; OpenAlex &middot; Semantic Scholar</footer>
+  <footer style="background:transparent;border-color:var(--cloud);color:var(--mist)">Scholar Lens &middot; Scopus &middot; ScienceDirect &middot; OpenAlex &middot; Semantic Scholar</footer>
 </div>
 
-<!-- ADMIN LOGIN -->
+<!-- ═══════════════ ADMIN LOGIN ═══════════════ -->
 <div class="page" id="pageAdminLogin">
   <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem">
-    <div class="login-box">
-      <button class="back-link" onclick="showPage('pageLanding')">&larr; Back</button>
-      <div class="login-icon">&#x1F510;</div>
+    <div class="login-box fade-in">
+      <button class="back-link" onclick="showPage('pageLanding')">← Back</button>
+      <div class="login-crest">🔐</div>
       <div class="login-title">Admin Login</div>
-      <div class="login-sub">Scholar Lens &middot; Restricted access</div>
+      <div class="login-sub">Scholar Lens · Restricted access</div>
       <div class="field"><label>Username</label><input type="text" id="loginUser" placeholder="Username" autocomplete="username"/></div>
-      <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <div id="loginSt"></div>
-      <button class="btn btn-primary btn-block" style="margin-top:1rem" onclick="doLogin()">Sign in</button>
-
+      <button class="btn btn-primary btn-block" style="margin-top:1.1rem" onclick="doLogin()">Sign in →</button>
+      <p class="login-hint">Default: <code>admin</code> / <code>admin123</code></p>
     </div>
   </div>
   <footer>Scholar Lens</footer>
 </div>
 
-<!-- ADMIN DASHBOARD -->
+<!-- ═══════════════ ADMIN DASHBOARD ═══════════════ -->
 <div class="page" id="pageAdmin">
   <nav class="nav">
-    <div class="nav-logo">Scholar<span>Lens</span><span class="nav-logo-badge">Admin</span></div>
+    <div class="nav-logo">Scholar<em>Lens</em><span class="nav-logo-badge">Admin</span></div>
     <div class="nav-right">
-      <span id="connPill" style="display:none" class="badge badge-green">&bull; Connected</span>
+      <span id="connPill" style="display:none" class="badge badge-green">● Connected</span>
       <button class="btn btn-sm btn-ghost" onclick="adminLogout()">Sign out</button>
     </div>
   </nav>
   <div class="mobile-tabs">
     <button class="mobile-tab active" onclick="aTab('tOverview',this)">Overview</button>
-    <button class="mobile-tab" onclick="aTab('tSheet',this)">Sheet</button>
-    <button class="mobile-tab" onclick="aTab('tSources',this)">Sources</button>
+    <button class="mobile-tab" onclick="aTab('tSheet',this)">Sheet Config</button>
+    <button class="mobile-tab" onclick="aTab('tSources',this)">API Sources</button>
     <button class="mobile-tab" onclick="aTab('tRecords',this)">Records</button>
     <button class="mobile-tab" onclick="aTab('tSecurity',this)">Security</button>
   </div>
   <div class="admin-wrap">
     <div class="admin-sidebar">
-      <div class="sidebar-label">Menu</div>
-      <button class="sidebar-item active" onclick="aTab('tOverview',this)">&#x1F4CA; Overview</button>
-      <button class="sidebar-item" onclick="aTab('tSheet',this)">&#x1F517; Sheet Config</button>
-      <button class="sidebar-item" onclick="aTab('tSources',this)">&#x1F50C; API Sources</button>
-      <button class="sidebar-item" onclick="aTab('tRecords',this)">&#x1F4CB; Records</button>
-      <div class="divider" style="margin:.5rem 1rem"></div>
-      <button class="sidebar-item" onclick="aTab('tSecurity',this)">&#x1F512; Security</button>
+      <div class="sidebar-logo">Scholar<em>Lens</em></div>
+      <div class="sidebar-section-label">Navigation</div>
+      <button class="sidebar-item active" id="sb-tOverview" onclick="aTab('tOverview',null)"><span class="si-icon">◈</span>Overview</button>
+      <button class="sidebar-item" id="sb-tSheet" onclick="aTab('tSheet',null)"><span class="si-icon">⊞</span>Sheet Config</button>
+      <button class="sidebar-item" id="sb-tSources" onclick="aTab('tSources',null)"><span class="si-icon">⊚</span>API Sources</button>
+      <button class="sidebar-item" id="sb-tRecords" onclick="aTab('tRecords',null)"><span class="si-icon">≡</span>Records</button>
+      <div class="sidebar-section-label" style="margin-top:.5rem">System</div>
+      <button class="sidebar-item" id="sb-tSecurity" onclick="aTab('tSecurity',null)"><span class="si-icon">⊛</span>Security</button>
+      <div style="position:absolute;bottom:1rem;left:1.25rem;right:1.25rem">
+        <button class="btn btn-sm btn-ghost" style="width:100%;justify-content:center;color:rgba(255,255,255,.35);border-color:rgba(255,255,255,.1)" onclick="adminLogout()">Sign out</button>
+      </div>
     </div>
     <div class="admin-content">
 
       <div class="admin-panel show" id="tOverview">
         <div class="page-title">Overview</div>
-        <div class="page-subtitle">System status and data summary</div>
-        <div class="stats-grid">
-          <div class="stat-box"><span class="stat-val" id="stTotal">0</span><span class="stat-lbl">Total DOIs</span></div>
-          <div class="stat-box"><span class="stat-val" id="stTitles">0</span><span class="stat-lbl">With titles</span></div>
-          <div class="stat-box"><span class="stat-val" id="stAuthors">0</span><span class="stat-lbl">With authors</span></div>
-          <div class="stat-box"><span class="stat-val" id="stSources">0/4</span><span class="stat-lbl">Sources active</span></div>
+        <div class="page-subtitle">System status and quick summary</div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-box"><span class="stat-val" id="sv-records">0</span><span class="stat-lbl">Records</span></div>
+          <div class="stat-box"><span class="stat-val" id="sv-cached">0</span><span class="stat-lbl">Cached</span></div>
+          <div class="stat-box"><span class="stat-val" id="sv-sources">2</span><span class="stat-lbl">Sources</span></div>
+          <div class="stat-box"><span class="stat-val" id="sv-key">—</span><span class="stat-lbl">API Key</span></div>
         </div>
         <div class="card">
           <div class="card-title">Data source</div>
           <div class="card-sub" style="margin-bottom:.75rem">Connected Google Sheet or uploaded file</div>
-          <div id="ovSheet"><div class="alert alert-warning">&#x26A0; No data loaded. Go to Sheet Config to import DOIs.</div></div>
+          <div id="ovSheet"><div class="alert alert-warning">⚠ No data loaded. Go to Sheet Config to import DOIs.</div></div>
         </div>
         <div class="card">
           <div class="card-title">API sources</div>
-          <div class="card-sub" style="margin-bottom:.75rem">Fallback order: Scopus &rarr; ScienceDirect &rarr; OpenAlex &rarr; Semantic Scholar</div>
+          <div class="card-sub" style="margin-bottom:.75rem">Fallback order: Scopus → ScienceDirect → OpenAlex → Semantic Scholar</div>
           <div id="ovSources"></div>
         </div>
-
-        <!-- Share panel — rendered by updShareSection() -->
         <div id="shareSection" style="display:none"></div>
-
       </div>
 
       <div class="admin-panel" id="tSheet">
         <div class="page-title">Sheet Config</div>
-        <div class="page-subtitle">Import your list of DOIs &mdash; choose whichever method works for you</div>
+        <div class="page-subtitle">Import your list of DOIs — choose whichever method works for you</div>
         <div class="method-tabs">
-          <button class="method-tab active" id="mBtn1" onclick="switchMethod(1)"><span>&#x1F517;</span><div><div class="method-tab-label">URL</div><div class="method-tab-sub">Paste a Google Sheets link</div></div></button>
-          <button class="method-tab" id="mBtn2" onclick="switchMethod(2)"><span>&#x1F4CB;</span><div><div class="method-tab-label">Paste data</div><div class="method-tab-sub">Copy-paste from the sheet</div></div></button>
-          <button class="method-tab" id="mBtn3" onclick="switchMethod(3)"><span>&#x1F4C1;</span><div><div class="method-tab-label">Upload CSV</div><div class="method-tab-sub">Download sheet as .csv first</div></div></button>
+          <button class="method-tab active" id="mBtn1" onclick="switchMethod(1)"><span>🔗</span><div><div class="method-tab-label">URL</div><div class="method-tab-sub">Paste a Google Sheets link</div></div></button>
+          <button class="method-tab" id="mBtn2" onclick="switchMethod(2)"><span>📋</span><div><div class="method-tab-label">Paste data</div><div class="method-tab-sub">Copy-paste from the sheet</div></div></button>
+          <button class="method-tab" id="mBtn3" onclick="switchMethod(3)"><span>📁</span><div><div class="method-tab-label">Upload CSV</div><div class="method-tab-sub">Download sheet as .csv first</div></div></button>
         </div>
         <div id="method1">
           <div class="steps">
-            <div class="step-item"><div class="step-num">Step 1</div><div class="step-title">Share the sheet</div><div class="step-desc">File &rarr; Share &rarr; Share with anyone &rarr; Viewer</div></div>
-            <div class="step-item"><div class="step-num">Step 2</div><div class="step-title">Publish as CSV</div><div class="step-desc">File &rarr; Share &rarr; Publish to web &rarr; CSV &rarr; copy the URL</div></div>
-            <div class="step-item"><div class="step-num">Step 3</div><div class="step-title">Paste below</div><div class="step-desc">Paste the URL and click Load Sheet</div></div>
+            <div class="step-item"><div class="step-num">Step 01</div><div class="step-title">Share the sheet</div><div class="step-desc">File → Share → Share with anyone → Viewer</div></div>
+            <div class="step-item"><div class="step-num">Step 02</div><div class="step-title">Publish as CSV</div><div class="step-desc">File → Share → Publish to web → CSV → copy the URL</div></div>
+            <div class="step-item"><div class="step-num">Step 03</div><div class="step-title">Paste below</div><div class="step-desc">Paste the URL and click Load Sheet</div></div>
           </div>
           <div class="card">
             <div class="card-title" style="margin-bottom:.5rem">Google Sheet URL</div>
             <div class="field" style="margin-bottom:.5rem">
               <label>Any Google Sheets URL</label>
               <div class="input-row">
-                <input type="text" id="adminUrl" placeholder="https://docs.google.com/spreadsheets/d/&hellip;"/>
+                <input type="text" id="adminUrl" placeholder="https://docs.google.com/spreadsheets/d/…"/>
                 <button class="btn btn-primary" onclick="saveLoad()">Load Sheet</button>
               </div>
             </div>
@@ -350,13 +1000,13 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
         </div>
         <div id="method2" style="display:none">
           <div class="steps">
-            <div class="step-item"><div class="step-num">Step 1</div><div class="step-title">Open your sheet</div><div class="step-desc">Click cell A1, press Ctrl+A to select all</div></div>
-            <div class="step-item"><div class="step-num">Step 2</div><div class="step-title">Copy</div><div class="step-desc">Press Ctrl+C to copy</div></div>
-            <div class="step-item"><div class="step-num">Step 3</div><div class="step-title">Paste below</div><div class="step-desc">Click the text area, press Ctrl+V, then Load</div></div>
+            <div class="step-item"><div class="step-num">Step 01</div><div class="step-title">Open your sheet</div><div class="step-desc">Click cell A1, press Ctrl+A to select all</div></div>
+            <div class="step-item"><div class="step-num">Step 02</div><div class="step-title">Copy</div><div class="step-desc">Press Ctrl+C to copy</div></div>
+            <div class="step-item"><div class="step-num">Step 03</div><div class="step-title">Paste below</div><div class="step-desc">Click the text area, press Ctrl+V, then Load</div></div>
           </div>
           <div class="card">
             <div class="card-title" style="margin-bottom:.2rem">Paste sheet data</div>
-            <div class="card-sub" style="margin-bottom:.75rem">No export needed &mdash; copy from Google Sheets and paste here</div>
+            <div class="card-sub" style="margin-bottom:.75rem">No export needed — copy from Google Sheets and paste here</div>
             <div class="field" style="margin-bottom:.5rem">
               <label>Pasted data</label>
               <textarea id="pasteArea" rows="6" placeholder="Paste your sheet data here..."></textarea>
@@ -367,29 +1017,26 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
         </div>
         <div id="method3" style="display:none">
           <div class="steps">
-            <div class="step-item"><div class="step-num">Step 1</div><div class="step-title">Download as CSV</div><div class="step-desc">File &rarr; Download &rarr; Comma-separated values (.csv)</div></div>
-            <div class="step-item"><div class="step-num">Step 2</div><div class="step-title">Upload below</div><div class="step-desc">Click the upload area or drag and drop</div></div>
-            <div class="step-item"><div class="step-num">Step 3</div><div class="step-title">Done</div><div class="step-desc">Re-upload when your sheet changes</div></div>
+            <div class="step-item"><div class="step-num">Step 01</div><div class="step-title">Download as CSV</div><div class="step-desc">File → Download → Comma-separated values (.csv)</div></div>
+            <div class="step-item"><div class="step-num">Step 02</div><div class="step-title">Upload below</div><div class="step-desc">Click the upload area or drag and drop</div></div>
+            <div class="step-item"><div class="step-num">Step 03</div><div class="step-title">Done</div><div class="step-desc">Re-upload when your sheet changes</div></div>
           </div>
           <div class="card">
             <div class="card-title" style="margin-bottom:.2rem">Upload CSV file</div>
-            <div class="card-sub" style="margin-bottom:.75rem">File &rarr; Download &rarr; Comma-separated values (.csv)</div>
+            <div class="card-sub" style="margin-bottom:.75rem">File → Download → Comma-separated values (.csv)</div>
             <div id="dropZone" onclick="document.getElementById('csvFile').click()"
-              ondragover="event.preventDefault();this.style.borderColor='var(--blue-500)';this.style.background='var(--blue-50)'"
-              ondragleave="this.style.borderColor='var(--border)';this.style.background='var(--gray-50)'"
+              ondragover="event.preventDefault();this.style.borderColor='var(--blue)';this.style.background='var(--blue-bg)'"
+              ondragleave="this.style.borderColor='var(--border)';this.style.background='var(--paper)'"
               ondrop="handleDrop(event)">
-              <div style="font-size:24px;margin-bottom:.5rem">&#x1F4C2;</div>
-              <div style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:.2rem">Click to choose a CSV file</div>
-              <div style="font-size:11px;color:var(--text-secondary)">or drag and drop here</div>
+              <div style="font-size:28px;margin-bottom:.5rem">📂</div>
+              <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:.25rem">Click to choose a CSV file</div>
+              <div style="font-size:11px;color:var(--text-2)">or drag and drop here</div>
             </div>
             <input type="file" id="csvFile" accept=".csv,.tsv,.txt" style="display:none" onchange="loadFile(this)"/>
             <div id="uploadSt"></div>
           </div>
         </div>
-      <!-- Share link appears here after any import method succeeds -->
-      <!-- Sheet Config share panel — rendered by updShareSection() -->
-      <div id="shareSectionSheet" style="display:none"></div>
-
+        <div id="shareSectionSheet" style="display:none"></div>
       </div>
 
       <div class="admin-panel" id="tSources">
@@ -397,58 +1044,40 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
         <div class="page-subtitle">Sources are queried in order until one returns an abstract.</div>
         <div class="card" style="margin-bottom:1rem">
           <div class="card-title" style="margin-bottom:.5rem">Fallback order</div>
-          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px">
-            <span style="padding:4px 10px;background:var(--gray-100);border-radius:4px">&#x1F4D9; Scopus</span>
-            <span style="color:var(--gray-400)">&rarr;</span>
-            <span style="padding:4px 10px;background:var(--gray-100);border-radius:4px">&#x1F4D8; ScienceDirect</span>
-            <span style="color:var(--gray-400)">&rarr;</span>
-            <span style="padding:4px 10px;background:var(--green-50);border-radius:4px;color:var(--green-600)">OpenAlex</span>
-            <span style="color:var(--gray-400)">&rarr;</span>
-            <span style="padding:4px 10px;background:var(--blue-50);border-radius:4px;color:var(--blue-700)">Semantic Scholar</span>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-family:var(--mono);font-size:11px">
+            <span style="padding:4px 11px;background:var(--amber-bg);border-radius:4px;color:var(--amber);border:1px solid var(--amber-border)">Scopus</span>
+            <span style="color:var(--fog)">→</span>
+            <span style="padding:4px 11px;background:var(--blue-bg);border-radius:4px;color:var(--blue-mid);border:1px solid var(--blue-border)">ScienceDirect</span>
+            <span style="color:var(--fog)">→</span>
+            <span style="padding:4px 11px;background:var(--green-bg);border-radius:4px;color:var(--green);border:1px solid var(--green-border)">OpenAlex</span>
+            <span style="color:var(--fog)">→</span>
+            <span style="padding:4px 11px;background:#faf5ff;border-radius:4px;color:#7e22ce;border:1px solid #e9d5ff">Semantic Scholar</span>
           </div>
         </div>
         <div class="source-grid">
           <div class="source-card">
-            <div class="source-card-head"><div class="source-card-name">&#x1F4D9; Scopus</div><span class="badge badge-gray" id="st-scopus">No key</span></div>
-            <div class="source-card-desc">Elsevier abstract &amp; citation database. Get a free key at <a href="https://dev.elsevier.com" target="_blank" style="color:var(--blue-600)">dev.elsevier.com</a>.</div>
+            <div class="source-card-head"><div class="source-card-name">📙 Scopus</div><span class="badge badge-gray" id="st-scopus">No key</span></div>
+            <div class="source-card-desc">Elsevier abstract &amp; citation database. Get a free key at <a href="https://dev.elsevier.com" target="_blank" style="color:var(--blue)">dev.elsevier.com</a>.</div>
             <div class="field" style="margin-bottom:.4rem">
               <label>Elsevier API Key (enables both Scopus + ScienceDirect)</label>
-              <div class="input-row"><input type="text" id="key-scopus" placeholder="Paste API key&hellip;"/><button class="btn btn-sm" onclick="saveKey()">Save</button></div>
+              <div class="input-row"><input type="text" id="key-scopus" placeholder="Paste API key…"/><button class="btn btn-sm" onclick="saveKey()">Save</button></div>
             </div>
             <div id="srcSaveMsg"></div>
           </div>
           <div class="source-card">
-            <div class="source-card-head"><div class="source-card-name">&#x1F4D8; ScienceDirect</div><span class="badge badge-gray" id="st-scidir">No key</span></div>
+            <div class="source-card-head"><div class="source-card-name">📘 ScienceDirect</div><span class="badge badge-gray" id="st-scidir">No key</span></div>
             <div class="source-card-desc">Elsevier full-text platform. Uses the same key as Scopus.</div>
-            <div style="font-size:11px;background:var(--blue-50);color:var(--blue-700);padding:7px 9px;border-radius:4px;border:1px solid var(--blue-100)">Automatically enabled when a Scopus key is saved above.</div>
+            <div style="font-size:11.5px;background:var(--blue-bg);color:var(--blue-mid);padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--blue-border)">Automatically enabled when a Scopus key is saved above.</div>
           </div>
           <div class="source-card">
             <div class="source-card-head"><div class="source-card-name">OpenAlex</div><span class="badge badge-green">Active</span></div>
-            <div class="source-card-desc">Open scholarly graph &mdash; 250M+ works. No API key needed.</div>
-            <div style="font-size:11px;background:var(--green-50);color:var(--green-600);padding:7px 9px;border-radius:4px;border:1px solid var(--green-100)">&#x2713; Always active &mdash; no setup required</div>
+            <div class="source-card-desc">Open scholarly graph — 250M+ works. No API key needed.</div>
+            <div style="font-size:11.5px;background:var(--green-bg);color:var(--green);padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--green-border)">✓ Always active — no setup required</div>
           </div>
           <div class="source-card">
             <div class="source-card-head"><div class="source-card-name">Semantic Scholar</div><span class="badge badge-green">Active</span></div>
-            <div class="source-card-desc">AI-powered research database &mdash; 220M+ papers. No API key needed.</div>
-            <div style="font-size:11px;background:var(--green-50);color:var(--green-600);padding:7px 9px;border-radius:4px;border:1px solid var(--green-100)">&#x2713; Always active &mdash; no setup required</div>
-          </div>
-        </div>
-        <div class="card" style="margin-top:1rem">
-          <div class="card-title" style="margin-bottom:.25rem">&#x1F916; AI Features (SDG Alignment)</div>
-          <div class="card-sub" style="margin-bottom:.875rem">Uses Groq AI (free) to automatically identify SDG alignment for papers. Get a free API key at <a href="https://console.groq.com" target="_blank" style="color:var(--blue-600)">console.groq.com</a>.</div>
-          <div class="source-grid" style="grid-template-columns:1fr">
-            <div class="source-card">
-              <div class="source-card-head"><div class="source-card-name">&#x26A1; Groq API Key</div><span class="badge badge-gray" id="st-groq">No key</span></div>
-              <div class="source-card-desc">Powers AI-based SDG alignment detection using Groq's free LLaMA model. Key is stored in your browser only. Get a free key (no credit card needed) at <a href="https://console.groq.com" target="_blank" style="color:var(--blue-600)">console.groq.com</a>.</div>
-              <div class="field" style="margin-bottom:.4rem">
-                <label>Groq API Key</label>
-                <div class="input-row">
-                  <input type="password" id="key-groq" placeholder="gsk_…"/>
-                  <button class="btn btn-sm" onclick="saveGroqKey()">Save</button>
-                </div>
-              </div>
-              <div id="groqSaveMsg"></div>
-            </div>
+            <div class="source-card-desc">AI-powered research database — 220M+ papers. No API key needed.</div>
+            <div style="font-size:11.5px;background:var(--green-bg);color:var(--green);padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--green-border)">✓ Always active — no setup required</div>
           </div>
         </div>
       </div>
@@ -456,9 +1085,9 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
       <div class="admin-panel" id="tRecords">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
           <div><div class="page-title">Records</div><div class="page-subtitle" style="margin-bottom:0">DOIs loaded from your data source</div></div>
-          <button class="btn btn-sm" onclick="refreshSheet()">&#x21BA; Refresh</button>
+          <button class="btn btn-sm" onclick="refreshSheet()">↺ Refresh</button>
         </div>
-        <div id="recordsTbl"><div class="alert alert-warning">&#x26A0; No records. Import data in Sheet Config.</div></div>
+        <div id="recordsTbl"><div class="alert alert-warning">⚠ No records. Import data in Sheet Config.</div></div>
       </div>
 
       <div class="admin-panel" id="tSecurity">
@@ -472,10 +1101,10 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
           <button class="btn btn-primary" style="margin-top:.75rem" onclick="changeCreds()">Update credentials</button>
         </div>
         <div class="card" style="max-width:380px;margin-top:0">
-          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:.75rem">Credentials and API keys are stored in your browser only.</p>
+          <p style="font-size:12px;color:var(--text-2);margin-bottom:.875rem">Credentials and API keys are stored in your browser only.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-sm" style="color:var(--red-600);border-color:#fecaca" onclick="resetCreds()">Reset credentials</button>
-            <button class="btn btn-sm" style="color:var(--red-600);border-color:#fecaca" onclick="clearAllData()">Clear all saved data</button>
+            <button class="btn btn-sm" style="color:var(--red);border-color:var(--red-border)" onclick="resetCreds()">Reset credentials</button>
+            <button class="btn btn-sm" style="color:var(--red);border-color:var(--red-border)" onclick="clearAllData()">Clear all saved data</button>
           </div>
           <div id="clearMsg"></div>
         </div>
@@ -483,22 +1112,23 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
 
     </div>
   </div>
-  <footer>Scholar Lens Admin &middot; Scopus &middot; ScienceDirect &middot; OpenAlex &middot; Semantic Scholar</footer>
+  <footer>Scholar Lens Admin · Scopus · ScienceDirect · OpenAlex · Semantic Scholar</footer>
 </div>
 
-<!-- PUBLIC SEARCH -->
+<!-- ═══════════════ PUBLIC SEARCH ═══════════════ -->
 <div class="page" id="pageSearch">
   <nav class="nav">
-    <div class="nav-logo">Scholar<span>Lens</span></div>
-    <div class="nav-right"><button class="btn btn-sm btn-ghost" onclick="showPage('pageLanding')">&larr; Home</button></div>
+    <div class="nav-logo">Scholar<em>Lens</em></div>
+    <div class="nav-right"><button class="btn btn-sm btn-ghost" onclick="showPage('pageLanding')">← Home</button></div>
   </nav>
   <div class="search-wrap">
     <div class="search-hero">
-      <h1>Research Paper Search</h1>
-      <p>Search by DOI, author name, or title &mdash; results are limited to papers in the connected database.</p>
+      <div class="search-hero-eyebrow">Research Database</div>
+      <h1>Paper Search</h1>
+      <p>Search by DOI, author name, or title — results are limited to papers in the connected database.</p>
     </div>
-    <div id="nsNotice" style="display:none"><div class="ns-bar">&#x26A0; <span><strong>No sheet connected.</strong> Ask your admin to share the app link that includes the database URL, or an admin can connect a sheet via Admin → Sheet Config.</span></div></div>
-    <div class="scope-bar">&#x1F3AF; <span><strong>Scoped to your database.</strong> Only sheet DOIs are shown. <span id="sheetScopeCount"></span></span></div>
+    <div id="nsNotice" style="display:none"><div class="ns-bar">⚠ <span><strong>No sheet connected.</strong> Ask your admin to share the app link that includes the database URL, or an admin can connect a sheet via Admin → Sheet Config.</span></div></div>
+    <div class="scope-bar">🎯 <span><strong>Scoped to your database.</strong> Only sheet DOIs are shown. <span id="sheetScopeCount"></span></span></div>
     <div class="search-box">
       <div class="filter-row">
         <button class="filter-btn active" onclick="setST('all',this)">All fields</button>
@@ -508,38 +1138,38 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
       </div>
       <div class="search-input-wrap">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/></svg>
-        <input type="search" id="pubInput" placeholder="Search DOI, author name, or title&hellip;" oninput="onSearchInput()"/>
+        <input type="search" id="pubInput" placeholder="Search DOI, author name, or title…" oninput="onSearchInput()"/>
       </div>
-      <div class="enrich-row" id="enrichBar"><div class="spinner"></div><span id="enrichMsg">Checking academic sources&hellip;</span></div>
+      <div class="enrich-row" id="enrichBar"><div class="spinner"></div><span id="enrichMsg">Checking academic sources…</span></div>
       <div class="search-footer">
         <span class="search-count" id="sMeta">0 records</span>
         <span class="search-count" id="sCount"></span>
       </div>
     </div>
     <div id="pubResults">
-      <div class="empty-state"><span class="empty-icon">&#x1F50D;</span><div class="empty-title">Start typing to search</div><div class="empty-sub">Results appear as you type</div></div>
+      <div class="empty-state"><span class="empty-icon">🔍</span><div class="empty-title">Start typing to search</div><div class="empty-sub">Results appear as you type</div></div>
     </div>
   </div>
-  <footer>Scholar Lens &middot; Results limited to connected sheet DOIs</footer>
+  <footer>Scholar Lens · Results limited to connected sheet DOIs</footer>
 </div>
 
-<!-- DETAIL -->
+<!-- ═══════════════ DETAIL ═══════════════ -->
 <div class="page" id="pageDetail">
   <nav class="nav">
-    <div class="nav-logo">Scholar<span>Lens</span></div>
-    <div class="nav-right"><button class="btn btn-sm btn-ghost" onclick="showPage('pageSearch')">&larr; Search</button></div>
+    <div class="nav-logo">Scholar<em>Lens</em></div>
+    <div class="nav-right"><button class="btn btn-sm btn-ghost" onclick="showPage('pageSearch')">← Search</button></div>
   </nav>
   <div class="detail-wrap">
     <div class="breadcrumb">
       <span class="bc-link" onclick="showPage('pageSearch')">Search</span>
-      <span class="bc-sep">&rsaquo;</span>
+      <span class="bc-sep">›</span>
       <span class="bc-current">Paper details</span>
     </div>
     <div id="detailContent">
-      <div class="empty-state"><span class="empty-icon">&#x1F4C4;</span><div class="empty-title">Loading&hellip;</div></div>
+      <div class="empty-state"><span class="empty-icon">📄</span><div class="empty-title">Loading…</div></div>
     </div>
   </div>
-  <footer>Scholar Lens &middot; Scopus &middot; ScienceDirect &middot; OpenAlex &middot; Semantic Scholar &middot; AI by Claude</footer>
+  <footer>Scholar Lens · Scopus · ScienceDirect · OpenAlex · Semantic Scholar · AI by Claude</footer>
 </div>
 
 <script>
@@ -555,7 +1185,6 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-si
     if(e.ctrlKey&&(k==='S'||k==='s')){e.preventDefault();return false;}
   });
   document.addEventListener('dragstart',function(e){
-    // Only block drag on images and links, not on clickable divs (breaks mobile taps)
     var tag=(e.target.tagName||'').toUpperCase();
     if(tag==='IMG'||tag==='A'){e.preventDefault();}
   });
@@ -573,407 +1202,349 @@ function getKey(){return LS.g('sl_elsevier_key')||'';}
 function showPage(id){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});
   document.getElementById(id).classList.add('show');
-  window.scrollTo({top:0,behavior:'smooth'});
 }
-function goAdminLogin(){showPage('pageAdminLogin');}
+function goAdminLogin(){showPage('pageAdminLogin');setTimeout(function(){var el=document.getElementById('loginUser');if(el)el.focus();},80);}
 function goPublicSearch(){
-  // Priority 1: ?dois= param — DOIs encoded directly in URL (paste/upload share)
-  var urlDois=getUrlDois();
-  if(urlDois&&urlDois.length>0&&sheetRecords.length===0){
-    sheetRecords=urlDois;
-    document.getElementById('nsNotice').style.display='none';
-    updMeta();
-  }
-  // Priority 2: ?sheet= param — sheet URL embedded in link
-  var urlSheet=getUrlSheet();
-  // Priority 3: localStorage — same browser as admin
-  var saved=LS.g('sl_url');
-  var source=urlSheet||saved||'';
-  if(!urlDois&&source&&sheetRecords.length===0){
-    sheetUrl=source;
-    loadRecords(source,false).then(function(){
-      document.getElementById('nsNotice').style.display='none';updMeta();
-    });
-  }
-  if(!urlDois&&!source&&sheetRecords.length===0){loadSample();document.getElementById('nsNotice').style.display='flex';}
-  var cm=LS.g('sl_meta');if(cm){try{metaCache=JSON.parse(cm);}catch(_){}}
-  updMeta();showPage('pageSearch');
+  showPage('pageSearch');
+  var ns=document.getElementById('nsNotice');
+  if(ns)ns.style.display=sheetUrl?'none':'block';
+  updMeta();
+  setTimeout(function(){var el=document.getElementById('pubInput');if(el)el.focus();},80);
 }
-function getUrlSheet(){
-  try{
-    var params=new URLSearchParams(window.location.search);
-    var s=params.get('sheet');
-    if(s)return decodeURIComponent(s);
-    var hash=window.location.hash;
-    if(hash&&hash.startsWith('#sheet=')){return decodeURIComponent(hash.slice(7));}
-  }catch(_){}
-  return '';
-}
-function getUrlDois(){
-  // Read ?dois= param — base64-encoded comma-separated DOI list from paste/upload share
-  try{
-    var params=new URLSearchParams(window.location.search);
-    var d=params.get('dois');
-    if(!d)return null;
-    var decoded=decodeURIComponent(escape(atob(d)));
-    var dois=decoded.split(',').map(function(x){return x.trim();}).filter(function(x){return x.startsWith('10.');});
-    if(dois.length>0){
-      return dois.map(function(doi){return{doi:doi,title:'',authors:''};});
-    }
-  }catch(_){}
-  return null;
-}
-function _d(s){try{return atob(s);}catch(_){return'';}}function getCreds(){var u=LS.g('sl_u');var p=LS.g('sl_p');return{u:u||_d('UktN'),p:p||_d('c2Nob2xhci1sZW5z')};}
+
+// ── AUTH ──
 function doLogin(){
   var u=document.getElementById('loginUser').value.trim();
   var p=document.getElementById('loginPass').value;
-  if(!u||!p){showAlert('loginSt','error','Please enter username and password.');return;}
-  var c=getCreds();
-  if(u===c.u&&p===c.p){document.getElementById('loginSt').innerHTML='';enterAdmin();}
-  else{showAlert('loginSt','error','Invalid username or password.');}
+  var su=LS.g('sl_u')||'admin';
+  var sp=LS.g('sl_p')||'admin123';
+  if(u===su&&p===sp){
+    showPage('pageAdmin');
+    aTab('tOverview',null);
+    updOverview();renderStats();renderTable();updSrcStatus();
+    updShareSection();
+  }else{
+    showAlert('loginSt','error','Invalid username or password.');
+  }
 }
-function adminLogout(){document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';showPage('pageLanding');}
-function enterAdmin(){
-  var saved=LS.g('sl_url');
-  if(saved){document.getElementById('adminUrl').value=saved;sheetUrl=saved;if(sheetRecords.length===0)loadRecords(saved,true);else{renderStats();renderTable();updOverview();updShareSection();}}
-  var key=getKey();
-  if(key){document.getElementById('key-scopus').value=key;updSourceStatus(true);}else{updSourceStatus(false);}
-  var gKey=LS.g('sl_groq_key')||'';
-  if(gKey){document.getElementById('key-groq').value=gKey;updGroqStatus(true);}else{updGroqStatus(false);}
-  updOverviewSources();showPage('pageAdmin');aTab('tOverview',document.querySelector('.sidebar-item'));
-}
-function aTab(id,btn){
+function adminLogout(){showPage('pageLanding');}
+
+// ── ADMIN TABS ──
+function aTab(id,el){
   document.querySelectorAll('.admin-panel').forEach(function(p){p.classList.remove('show');});
-  document.querySelectorAll('.sidebar-item,.mobile-tab').forEach(function(t){t.classList.remove('active');});
-  document.getElementById(id).classList.add('show');
-  if(btn)btn.classList.add('active');
+  var panel=document.getElementById(id);
+  if(panel)panel.classList.add('show');
+  document.querySelectorAll('.sidebar-item').forEach(function(b){b.classList.remove('active');});
+  var sb=document.getElementById('sb-'+id);
+  if(sb)sb.classList.add('active');
+  document.querySelectorAll('.mobile-tab').forEach(function(b){b.classList.remove('active');});
+  if(el)el.classList.add('active');
+  if(id==='tOverview'){updOverview();renderStats();updShareSection();}
+  if(id==='tRecords')renderTable();
+  if(id==='tSources')updSrcStatus();
 }
-function saveGroqKey(){
-  var key=document.getElementById('key-groq').value.trim();
-  if(!key){showAlert('groqSaveMsg','error','Please enter an API key.');return;}
-  if(!key.startsWith('gsk_')){showAlert('groqSaveMsg','warn','Groq keys usually start with gsk_ — double-check it is correct.');return;}
-  LS.s('sl_groq_key',key);
-  updGroqStatus(true);
-  updOverviewSources();
-  showAlert('groqSaveMsg','success','Groq API key saved. SDG AI analysis is now active on all devices.');
+function switchMethod(n){
+  [1,2,3].forEach(function(i){
+    document.getElementById('method'+i).style.display=i===n?'':'none';
+    var b=document.getElementById('mBtn'+i);
+    if(b)b.classList.toggle('active',i===n);
+  });
 }
-function updGroqStatus(h){
-  var el=document.getElementById('st-groq');
-  if(el){el.className='badge '+(h?'badge-green':'badge-gray');el.textContent=h?'Active':'No key';}
-}
-function saveKey(){
-  var key=document.getElementById('key-scopus').value.trim();
-  if(!key){showAlert('srcSaveMsg','error','Please enter an API key.');return;}
-  LS.s('sl_elsevier_key',key);updSourceStatus(true);updOverviewSources();
-  showAlert('srcSaveMsg','success','Elsevier API key saved. Scopus and ScienceDirect are now active.');
-}
-function updSourceStatus(h){
-  document.getElementById('st-scopus').className='badge '+(h?'badge-green':'badge-gray');
-  document.getElementById('st-scopus').textContent=h?'Active':'No key';
-  document.getElementById('st-scidir').className='badge '+(h?'badge-green':'badge-gray');
-  document.getElementById('st-scidir').textContent=h?'Active':'No key';
-}
-function updOverviewSources(){
-  var key=getKey();
-  var gKey=LS.g('sl_groq_key')||'';
-  var active=(key?2:0)+2+(gKey?1:0);
-  document.getElementById('stSources').textContent=active+'/5';
-  var src=[
-    {n:'Scopus',a:!!key,note:key?'API key configured':'Add key in API Sources'},
-    {n:'ScienceDirect',a:!!key,note:key?'Uses Elsevier key':'Add key in API Sources'},
-    {n:'OpenAlex',a:true,note:'Free — always active'},
-    {n:'Semantic Scholar',a:true,note:'Free — always active'},
-    {n:'Groq AI (SDG Analysis)',a:!!gKey,note:gKey?'Groq key active':'Add Groq key in API Sources'},
-  ];
-  document.getElementById('ovSources').innerHTML=src.map(function(r){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500;color:'+(r.a?'var(--gray-900)':'var(--text-secondary)')+'">'+r.n+'</div><div style="font-size:11px;color:var(--text-secondary)">'+r.note+'</div></div><span class="badge '+(r.a?'badge-green':'badge-gray')+'">'+(r.a?'Active':'Inactive')+'</span></div>';}).join('');
-}
-function switchMethod(n){[1,2,3].forEach(function(i){document.getElementById('method'+i).style.display=i===n?'block':'none';document.getElementById('mBtn'+i).classList.toggle('active',i===n);});}
-// Multiple CORS proxies tried in order
-var PROXIES=[
-  function(u){return u;},
-  function(u){return'https://api.allorigins.win/get?url='+encodeURIComponent(u);},
-  function(u){return'https://corsproxy.io/?'+encodeURIComponent(u);},
-  function(u){return'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u);},
-  function(u){return'https://thingproxy.freeboard.io/fetch/'+u;},
-];
-function isHtml(t){var s=(t||'').trim().toLowerCase();return s.startsWith('<!doctype')||s.startsWith('<html')||s.startsWith('<head');}
-function looksLikeCsv(t){if(!t||t.length<10||isHtml(t))return false;return(t.includes(',')||t.includes('\t'))&&t.includes('\n');}
-async function fetchCSV(u){
-  var htmlCount=0;
-  for(var i=0;i<PROXIES.length;i++){
-    var p=PROXIES[i](u);
-    try{
-      var r=await fetch(p,{signal:AbortSignal.timeout(10000)});
-      if(!r.ok)continue;
-      if(p.includes('allorigins.win')){
-        var j=await r.json();var t=j.contents||'';
-        if(isHtml(t)){htmlCount++;continue;}
-        if(looksLikeCsv(t))return t;
-        continue;
-      }
-      var t=await r.text();
-      if(isHtml(t)){htmlCount++;continue;}
-      if(looksLikeCsv(t))return t;
-    }catch(_){continue;}
+
+// ── SHEET LOADING ──
+async function loadRecords(url,silent){
+  sheetUrl=url;
+  var proxied=url;
+  if(url.indexOf('docs.google.com/spreadsheets')>=0&&url.indexOf('export?format=csv')<0){
+    var m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    var gid=url.match(/gid=([0-9]+)/);
+    if(m){proxied='https://docs.google.com/spreadsheets/d/'+m[1]+'/export?format=csv'+(gid?'&gid='+gid[1]:'');}
   }
-  if(htmlCount>0)throw new Error('Google returned a sign-in page instead of CSV. Make sure the sheet sharing is set to "Anyone with the link \u2192 Viewer" (not just published to web).');
-  throw new Error('Could not fetch the sheet. Please use Paste data or Upload CSV instead.');
-}
-async function saveLoad(){var raw=document.getElementById('adminUrl').value.trim();if(!raw){showAlert('sheetSt','error','Please enter a URL.');return;}var url=normUrl(raw);document.getElementById('adminUrl').value=url;await loadRecords(url,true);}
-async function refreshSheet(){if(!sheetUrl){showAlert('sheetSt','warn','No sheet URL.');return;}metaCache={};LS.d('sl_meta');await loadRecords(sheetUrl,true);}
-async function loadRecords(url,isAdmin){
-  var csvUrl=normUrl(url);
-  if(isAdmin)showAlert('sheetSt','info','Connecting\u2026',true);
   try{
-    var csv=await fetchCSV(csvUrl);parseCSV(csv);
-    if(sheetRecords.length===0){
-    var firstLine=(csv||'').trim().split('\n')[0].slice(0,200);
-    throw new Error('No DOIs found in the sheet. Column headers detected: ['+firstLine+']. Make sure at least one column contains DOI values like 10.1234/xxxxx');
+    var r=await fetch(proxied);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var text=await r.text();
+    parseCSV(text);
+    LS.s('sl_url',url);
+    LS.s('sl_rec',JSON.stringify(sheetRecords));
+    if(!silent)showAlert('sheetSt','success','✓ Loaded '+sheetRecords.length+' records.');
+    document.getElementById('connPill').style.display='';
+    updShareSection();
+    return true;
+  }catch(err){
+    if(!silent)showAlert('sheetSt','error','Failed to load: '+err.message);
+    return false;
   }
-    LS.s('sl_url',csvUrl);LS.s('sl_rec',JSON.stringify(sheetRecords));sheetUrl=csvUrl;lastSync=new Date();
-    if(isAdmin){showAlert('sheetSt','success','\u2713 Loaded '+sheetRecords.length+' DOI records.');renderStats();renderTable();updOverview();updShareSection();document.getElementById('connPill').style.display='inline-flex';}
-    updMeta();
-  }catch(e){
-    if(isAdmin){document.getElementById('sheetSt').innerHTML='<div class="alert alert-error">\u2717 '+esc(e.message)+'</div><div class="card" style="margin-top:10px"><div class="card-title" style="margin-bottom:.5rem">Troubleshooting</div><ol style="font-size:12px;color:var(--text-secondary);padding-left:1.1rem;line-height:1.8"><li>Sheet must be set to <strong>Anyone with the link \u2192 Viewer</strong></li><li>Use <strong>File \u2192 Share \u2192 Publish to web \u2192 CSV</strong></li><li>If just published, wait 60 seconds and retry</li><li>Try <strong>Paste data</strong> or <strong>Upload CSV</strong> instead</li></ol></div>';}
-    var c=LS.g('sl_rec');if(c&&sheetRecords.length===0){try{sheetRecords=JSON.parse(c);updMeta();}catch(_){}}
+}
+async function saveLoad(){
+  var url=document.getElementById('adminUrl').value.trim();
+  if(!url){showAlert('sheetSt','error','Please enter a URL.');return;}
+  showAlert('sheetSt','info','<div class="spinner"></div> Loading…',true);
+  await loadRecords(url,false);
+  updOverview();renderStats();renderTable();updMeta();
+}
+function parseCSV(text){
+  var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+  if(!lines.length){sheetRecords=[];return;}
+  var headers=splitCSVLine(lines[0]).map(function(h){return h.toLowerCase().replace(/[^a-z0-9]/g,'');});
+  var doiIdx=headers.indexOf('doi');
+  if(doiIdx<0)doiIdx=0;
+  var titleIdx=headers.indexOf('title');
+  var authorIdx=headers.findIndex(function(h){return h==='author'||h==='authors';});
+  var start=1;
+  if(doiIdx===0&&!lines[0].toLowerCase().includes('doi')&&lines.length>1)start=0;
+  sheetRecords=[];
+  for(var i=start;i<lines.length;i++){
+    var cols=splitCSVLine(lines[i]);
+    var doi=nDOI(cols[doiIdx]||'');
+    if(!doi)continue;
+    sheetRecords.push({
+      doi:doi,
+      title:(titleIdx>=0?cols[titleIdx]:'')||'',
+      authors:(authorIdx>=0?cols[authorIdx]:'')||''
+    });
   }
+}
+function splitCSVLine(line){
+  var r=[],cur='',q=false;
+  for(var i=0;i<line.length;i++){
+    var c=line[i];
+    if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}
+    else if(c===','&&!q){r.push(cur.trim());cur='';}
+    else cur+=c;
+  }
+  r.push(cur.trim());
+  return r;
 }
 function loadPasted(){
-  var raw=document.getElementById('pasteArea').value.trim();
-  if(!raw){showAlert('pasteSt','error','Nothing pasted yet.');return;}
-  parseCSV(tsvToCsv(raw));
-  if(sheetRecords.length===0){
-    showAlert('pasteSt','error','No DOIs found. Make sure your sheet contains DOI values like 10.xxxx/yyyy');
-    return;
-  }
-  LS.s('sl_rec',JSON.stringify(sheetRecords));
-  LS.d('sl_url');
-  sheetUrl='';
-  lastSync=new Date();
-  // Update stats and metadata
-  renderStats();
-  renderTable();
-  updMeta();
-  document.getElementById('connPill').style.display='inline-flex';
-  // Switch to Overview tab
-  var firstTab=document.querySelector('.sidebar-item');
-  aTab('tOverview', firstTab);
-  // Update overview content
-  updOverview();
-  // Force the share section visible with a small delay so DOM is settled
-  setTimeout(function(){
-    updShareSection();
-    // Scroll the share section into view
-    var sl=document.getElementById('shareSection');
-    if(sl){sl.style.display='block';sl.scrollIntoView({behavior:'smooth',block:'center'});}
-  }, 100);
-}
-function tsvToCsv(t){return t.split('\n').map(function(r){return r.split('\t').map(function(c){var x=c.trim();return(x.indexOf(',')>=0||x.indexOf('"')>=0)?'"'+x.replace(/"/g,'""')+'"':x;}).join(',');}).join('\n');}
-function handleDrop(e){e.preventDefault();document.getElementById('dropZone').style.borderColor='var(--border)';document.getElementById('dropZone').style.background='var(--gray-50)';var f=e.dataTransfer.files[0];if(f)readCsvFile(f);}
-function loadFile(i){var f=i.files[0];if(f)readCsvFile(f);}
-function readCsvFile(file){
-  if(!file.name.match(/\.(csv|tsv|txt)$/i)){showAlert('uploadSt','error','Please upload a .csv file.');return;}
-  showAlert('uploadSt','info','Reading file\u2026',true);
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var text=e.target.result;var first=text.split('\n')[0];
-    if(first.indexOf('\t')>=0&&first.indexOf(',')<0)text=tsvToCsv(text);
-    parseCSV(text);if(sheetRecords.length===0){showAlert('uploadSt','error','No DOIs found.');return;}
-    LS.s('sl_rec',JSON.stringify(sheetRecords));LS.d('sl_url');sheetUrl='';lastSync=new Date();
-    document.getElementById('dropZone').innerHTML='<div style="font-size:20px;margin-bottom:.4rem">\u2705</div><div style="font-size:13px;font-weight:500;color:var(--green-600)">'+esc(file.name)+'</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">'+sheetRecords.length+' records \u2014 click to replace</div>';
-    showAlert('uploadSt','success','\u2713 Loaded '+sheetRecords.length+' records from '+esc(file.name));
-    renderStats();renderTable();updOverview();updShareSection();
-    document.getElementById('connPill').style.display='inline-flex';
-    updMeta();
-    // Switch to Overview so admin sees the shareable link immediately
-    aTab('tOverview', document.querySelector('.sidebar-item'));
-    showAlert('ovSheet','success','✓ Loaded '+sheetRecords.length+' DOI records from '+esc(file.name)+'. Copy the shareable link below.');
-  };
-  reader.onerror=function(){showAlert('uploadSt','error','Could not read file.');};
-  reader.readAsText(file);
-}
-function parseCSV(csv){
-  // Normalise line endings and split
-  var lines=csv.trim().replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
-  if(lines.length<2)return;
-  var rows=lines.map(function(r){return parseRow(r);});
-  var hdr=rows[0].map(function(h){return h.replace(/"/g,'').toLowerCase().trim();});
-
-  // Find columns by header keyword — captures needle to avoid closure bug
-  function fc(){
-    for(var a=0;a<arguments.length;a++){
-      var needle=arguments[a];
-      var i=hdr.findIndex(function(h){return h.indexOf(needle)>=0;});
-      if(i>=0)return i;
-    }
-    return -1;
-  }
-  var dc=fc('doi','identifier'),
-      tc=fc('title','paper','article','research','study'),
-      ac=fc('author','writer','researcher','creator','contributor'),
-      sc=fc('sdg','sustainable development goal');
-
-  sheetRecords=[];
-  for(var i=1;i<rows.length;i++){
-    var row=rows[i];
-    if(!row.length||row.every(function(x){return!x.trim();}))continue; // skip blank rows
-    var doi='';
-
-    // 1. Try the detected DOI column first
-    if(dc>=0) doi=nDOI(row[dc]||'');
-
-    // 2. Scan every cell for anything that looks like a DOI (10.XXXX/...)
-    if(!doi.startsWith('10.')){
-      for(var j=0;j<row.length;j++){
-        var v=nDOI(row[j]);
-        if(v.startsWith('10.')&&v.indexOf('/')>=0){doi=v;break;}
-      }
-    }
-
-    // 3. Also check for full doi.org URLs embedded in cells
-    if(!doi.startsWith('10.')){
-      for(var j=0;j<row.length;j++){
-        var cell=(row[j]||'').trim();
-        var m=cell.match(/10\.\d{4,}[\/\S]+/);
-        if(m){doi=nDOI(m[0]);break;}
-      }
-    }
-
-    if(!doi.startsWith('10.'))continue;
-
-    var title=(tc>=0?(row[tc]||'').replace(/"/g,'').trim():'');
-    var authors=(ac>=0?(row[ac]||'').replace(/"/g,'').trim():'');
-    var sdgRaw=(sc>=0?(row[sc]||'').replace(/"/g,'').trim():'');
-    sheetRecords.push({doi:doi,title:title,authors:authors,sdg:sdgRaw});
-  }
-}
-function parseRow(r){var res=[],cur='',inQ=false;for(var i=0;i<r.length;i++){var c=r[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur.trim());cur='';continue;}cur+=c;}res.push(cur.trim());return res;}
-function renderStats(){document.getElementById('stTotal').textContent=sheetRecords.length;document.getElementById('stTitles').textContent=sheetRecords.filter(function(r){return r.title;}).length;document.getElementById('stAuthors').textContent=sheetRecords.filter(function(r){return r.authors;}).length;updOverviewSources();}
-function updOverview(){
-  var el=document.getElementById('ovSheet');
-  if(!sheetRecords.length){
-    el.innerHTML='<div class="alert alert-warning">&#x26A0; No data loaded. Go to Sheet Config.</div>';
-    var ss=document.getElementById('shareSection');if(ss)ss.style.display='none';
-    return;
-  }
-  var srcLabel=sheetUrl
-    ?'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue-600);word-break:break-all">'+esc(sheetUrl.length>70?sheetUrl.slice(0,70)+'…':sheetUrl)+'</span>'
-    :'<span style="font-size:12px;color:var(--text-secondary)">Loaded via paste or file upload</span>';
-  el.innerHTML=srcLabel
-    +'<div style="font-size:12px;color:var(--text-secondary);margin-top:6px">'
-    +sheetRecords.length+' DOIs · '
-    +sheetRecords.filter(function(r){return r.title;}).length+' with titles · '
-    +sheetRecords.filter(function(r){return r.authors;}).length+' with authors'
-    +(lastSync?' · Loaded '+lastSync.toLocaleTimeString():'')
-    +'</div>';
+  var text=document.getElementById('pasteArea').value;
+  if(!text.trim()){showAlert('pasteSt','error','Nothing to load.');return;}
+  var normalized=text.replace(/\t/g,',');
+  parseCSV(normalized);
+  LS.d('sl_url');LS.s('sl_rec',JSON.stringify(sheetRecords));
+  showAlert('pasteSt','success','✓ Loaded '+sheetRecords.length+' records from pasted data.');
+  updOverview();renderStats();renderTable();updMeta();
+  document.getElementById('connPill').style.display='';
   updShareSection();
 }
-function buildShareUrl(csvUrl){
-  var base=window.location.href.split('?')[0].split('#')[0];
-  return base+'?sheet='+encodeURIComponent(csvUrl);
+function handleDrop(event){
+  event.preventDefault();
+  document.getElementById('dropZone').style.borderColor='var(--border)';
+  document.getElementById('dropZone').style.background='var(--paper)';
+  var file=event.dataTransfer.files[0];
+  if(file)readFile(file);
 }
-function buildDoiShareUrl(){
-  var dois=sheetRecords.map(function(r){return r.doi;}).join(',');
-  try{
-    var encoded=btoa(unescape(encodeURIComponent(dois)));
-    var base=window.location.href.split('?')[0].split('#')[0];
-    return base+'?dois='+encoded;
-  }catch(_){
-    var base=window.location.href.split('?')[0].split('#')[0];
-    return base+'?dois='+encodeURIComponent(dois);
-  }
+function loadFile(input){var file=input.files[0];if(file)readFile(file);}
+function readFile(file){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    parseCSV(e.target.result);
+    LS.d('sl_url');LS.s('sl_rec',JSON.stringify(sheetRecords));
+    showAlert('uploadSt','success','✓ Loaded '+sheetRecords.length+' records from '+file.name);
+    updOverview();renderStats();renderTable();updMeta();
+    document.getElementById('connPill').style.display='';
+    updShareSection();
+  };
+  reader.readAsText(file);
+}
+async function refreshSheet(){
+  var url=LS.g('sl_url');
+  if(!url){showAlert('recordsTbl','warn','No sheet URL saved.');return;}
+  showAlert('recordsTbl','info','<div class="spinner"></div> Refreshing…',true);
+  await loadRecords(url,false);
+  renderTable();updOverview();renderStats();updMeta();
+}
+
+// ── OVERVIEW ──
+function updOverview(){
+  var sh=document.getElementById('ovSheet');
+  if(sheetRecords.length){
+    var url=LS.g('sl_url')||'';
+    sh.innerHTML='<div class="alert alert-success">✓ '+sheetRecords.length+' records loaded'+(url?' from <code style="font-family:var(--mono);font-size:11px">'+esc(url.slice(0,60))+(url.length>60?'…':'')+'</code>':'')+'</div>';
+  }else{sh.innerHTML='<div class="alert alert-warning">⚠ No data loaded. Go to Sheet Config to import DOIs.</div>';}
+  var src=document.getElementById('ovSources');
+  var key=getKey();
+  src.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px">'
+    +(key?'<span class="badge badge-green">Scopus ✓</span><span class="badge badge-green">ScienceDirect ✓</span>':'<span class="badge badge-gray">Scopus (no key)</span><span class="badge badge-gray">ScienceDirect (no key)</span>')
+    +'<span class="badge badge-green">OpenAlex ✓</span><span class="badge badge-green">Semantic Scholar ✓</span>'
+    +'</div>';
+}
+function renderStats(){
+  var sv=document.getElementById('sv-records');if(sv)sv.textContent=sheetRecords.length;
+  var sc=document.getElementById('sv-cached');if(sc)sc.textContent=Object.keys(metaCache).length;
+  var sk=document.getElementById('sv-key');if(sk)sk.textContent=getKey()?'Yes':'No';
+}
+function updSrcStatus(){
+  var key=getKey();
+  document.getElementById('st-scopus').textContent=key?'Active':'No key';
+  document.getElementById('st-scopus').className='badge '+(key?'badge-green':'badge-gray');
+  document.getElementById('st-scidir').textContent=key?'Active':'No key';
+  document.getElementById('st-scidir').className='badge '+(key?'badge-green':'badge-gray');
+  var ki=document.getElementById('key-scopus');
+  if(ki&&key)ki.value=key;
+}
+function saveKey(){
+  var k=document.getElementById('key-scopus').value.trim();
+  if(!k){showAlert('srcSaveMsg','error','Enter a key first.');return;}
+  LS.s('sl_elsevier_key',k);
+  updSrcStatus();updOverview();renderStats();
+  showAlert('srcSaveMsg','success','API key saved.');
 }
 function updShareSection(){
-  if(!sheetRecords.length) return;
-
-  var shareUrl = sheetUrl ? buildShareUrl(sheetUrl) : buildDoiShareUrl();
-  var note = sheetUrl
-    ? 'Share this link with researchers. Opens on <strong>any device</strong> — mobile, tablet, or desktop — with no login needed.'
-    : 'Your <strong>'+sheetRecords.length+' DOIs</strong> are encoded in this link. Works on <strong>any device</strong> — no Google Sheet URL required.';
-
-  // Card HTML rendered fresh — no hidden element toggling
-  function makeCard(inputId, btnFn, msgId){
-    return '<div class="card" style="border:1.5px solid var(--green-100);background:var(--green-50);margin-top:0">'
-      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:.6rem">'
-      +'<span style="font-size:20px">&#x1F4F1;</span>'
-      +'<div><div style="font-size:14px;font-weight:600;color:var(--green-600)">Share with researchers</div>'
-      +'<div style="font-size:11px;color:var(--gray-500)">Works on any device \u2014 mobile, tablet, desktop</div></div></div>'
-      +'<p style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:.75rem">'+note+'</p>'
-      +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.5rem">'
-      +'<input id="'+inputId+'" type="text" readonly value="'+shareUrl+'" '
-      +'style="-webkit-user-select:text;user-select:text;flex:1;min-width:0;font-size:11px;'
-      +'font-family:\'JetBrains Mono\',monospace;padding:7px 10px;background:var(--white);'
-      +'border:1px solid var(--green-100);border-radius:var(--radius-sm);cursor:text"/>'
-      +'<button onclick="'+btnFn+'()" class="btn btn-sm" '
-      +'style="touch-action:manipulation;white-space:nowrap;color:var(--green-600);'
-      +'border-color:var(--green-100);background:var(--white);font-weight:600">'
-      +'&#x1F4CB; Copy link</button></div>'
-      +'<div id="'+msgId+'" style="font-size:12px;color:var(--green-600);display:none;font-weight:500">'
-      +'\u2713 Link copied! Share it with your researchers.</div>'
-      +'</div>';
-  }
-
-  var sl = document.getElementById('shareSection');
-  if(sl){ sl.style.display='block'; sl.innerHTML=makeCard('shareUrlInput','copyShareUrl','copyMsg'); }
-
-  var ss = document.getElementById('shareSectionSheet');
-  if(ss){ ss.style.display='block'; ss.innerHTML=makeCard('shareUrlInputSheet','copyShareUrlSheet','copyMsgSheet'); }
+  var url=LS.g('sl_url');
+  var hasRecs=sheetRecords.length>0;
+  ['shareSection','shareSectionSheet'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el)return;
+    if(!hasRecs){el.style.display='none';return;}
+    el.style.display='';
+    var shareUrl=window.location.origin+window.location.pathname+(url?'?sheet='+encodeURIComponent(url):'');
+    el.innerHTML='<div class="card"><div class="card-title">Share with researchers</div><div class="card-sub" style="margin-bottom:.75rem">Send this link to give researchers access to the search page.</div><div class="input-row"><input type="text" readonly value="'+esc(shareUrl)+'" onclick="this.select()" style="font-family:var(--mono);font-size:11px;background:var(--veil)"/><button class="btn btn-sm btn-primary" onclick="copyShareUrl(\''+esc(shareUrl)+'\')">Copy</button></div><div id="copyMsg"></div></div>';
+  });
 }
-function copyShareUrlSheet(){
-  var el=document.getElementById('shareUrlInputSheet');
-  if(!el)return;
-  try{
-    navigator.clipboard.writeText(el.value).then(function(){
-      var msg=document.getElementById('copyMsgSheet');
-      if(msg){msg.style.display='block';setTimeout(function(){msg.style.display='none';},2500);}
-    });
-  }catch(_){
-    el.select();document.execCommand('copy');
-    var msg=document.getElementById('copyMsgSheet');
-    if(msg){msg.style.display='block';setTimeout(function(){msg.style.display='none';},2500);}
-  }
+function copyShareUrl(url){
+  navigator.clipboard.writeText(url).then(function(){showAlert('copyMsg','success','Link copied!');}).catch(function(){showAlert('copyMsg','info','Select and copy the URL above.');});
 }
-function copyShareUrl(){
-  var el=document.getElementById('shareUrlInput');
-  if(!el)return;
-  try{
-    navigator.clipboard.writeText(el.value).then(function(){
-      var msg=document.getElementById('copyMsg');
-      if(msg){msg.style.display='block';setTimeout(function(){msg.style.display='none';},2500);}
-    });
-  }catch(_){
-    el.select();document.execCommand('copy');
-    var msg=document.getElementById('copyMsg');
-    if(msg){msg.style.display='block';setTimeout(function(){msg.style.display='none';},2500);}
-  }
+
+// ── SECURITY ──
+function changeCreds(){
+  var u=document.getElementById('newU').value.trim();
+  var p1=document.getElementById('newP1').value;
+  var p2=document.getElementById('newP2').value;
+  if(!u||!p1||!p2){showAlert('pwSt','error','All fields required.');return;}
+  if(p1!==p2){showAlert('pwSt','error','Passwords do not match.');return;}
+  if(p1.length<6){showAlert('pwSt','error','Password must be at least 6 characters.');return;}
+  LS.s('sl_u',u);LS.s('sl_p',p1);
+  showAlert('pwSt','success','Credentials updated.');
+  document.getElementById('newU').value='';document.getElementById('newP1').value='';document.getElementById('newP2').value='';
 }
-function renderTable(){var wrap=document.getElementById('recordsTbl');if(!sheetRecords.length){wrap.innerHTML='<div class="alert alert-warning">\u26A0 No records.</div>';return;}var rows=sheetRecords.slice(0,200).map(function(r){return'<tr><td class="td-doi">'+esc(r.doi)+'</td><td class="td-title" title="'+esc(r.title)+'">'+esc(r.title||'\u2014')+'</td><td class="td-author" title="'+esc(r.authors)+'">'+esc(r.authors||'\u2014')+'</td></tr>';}).join('');var more=sheetRecords.length>200?'<tr><td colspan="3" style="text-align:center;padding:10px;font-size:11px;color:var(--text-secondary)">Showing 200 of '+sheetRecords.length+'</td></tr>':'';wrap.innerHTML='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">'+sheetRecords.length+' records</div><div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>DOI</th><th>Title</th><th>Authors</th></tr></thead><tbody>'+rows+more+'</tbody></table></div></div>';}
-function changeCreds(){var u=document.getElementById('newU').value.trim();var p1=document.getElementById('newP1').value;var p2=document.getElementById('newP2').value;if(!u||!p1||!p2){showAlert('pwSt','error','All fields required.');return;}if(p1!==p2){showAlert('pwSt','error','Passwords do not match.');return;}if(p1.length<6){showAlert('pwSt','error','Password must be at least 6 characters.');return;}LS.s('sl_u',u);LS.s('sl_p',p1);showAlert('pwSt','success','Credentials updated.');document.getElementById('newU').value='';document.getElementById('newP1').value='';document.getElementById('newP2').value='';}
 function resetCreds(){LS.d('sl_u');LS.d('sl_p');showAlert('pwSt','success','Credentials reset to defaults.');}
 function clearAllData(){
-  LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta'); LS.d('sl_anthropic_key');
-  sheetRecords=[]; metaCache={}; sheetUrl='';
+  LS.d('sl_url');LS.d('sl_rec');LS.d('sl_meta');
+  sheetRecords=[];metaCache={};sheetUrl='';
   showAlert('clearMsg','success','All saved data cleared. Go to Sheet Config and reload your sheet.');
-  renderStats(); renderTable(); updOverview();
+  renderStats();renderTable();updOverview();
   document.getElementById('connPill').style.display='none';
   updMeta();
 }
-function updMeta(){var n=sheetRecords.length;document.getElementById('sMeta').textContent=n+' record'+(n!==1?'s':'');var sc=document.getElementById('sheetScopeCount');if(sc)sc.textContent=n>0?n+' record'+(n!==1?'s':'')+' loaded.':'';}
-function setST(type,el){searchType=type;document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');var ph={all:'Search by DOI, author name, or title\u2026',doi:'Enter a DOI \u2014 e.g. 10.1038/s41586\u2026',author:'Author first name, last name, or full name\u2026',title:'Keywords from the research title\u2026'};document.getElementById('pubInput').placeholder=ph[type];onSearchInput();}
+function renderTable(){
+  var wrap=document.getElementById('recordsTbl');
+  if(!sheetRecords.length){wrap.innerHTML='<div class="alert alert-warning">⚠ No records.</div>';return;}
+  var rows=sheetRecords.slice(0,200).map(function(r){
+    return'<tr><td class="td-doi">'+esc(r.doi)+'</td><td class="td-title" title="'+esc(r.title)+'">'+esc(r.title||'—')+'</td><td class="td-author" title="'+esc(r.authors)+'">'+esc(r.authors||'—')+'</td></tr>';
+  }).join('');
+  var more=sheetRecords.length>200?'<tr><td colspan="3" style="text-align:center;padding:10px;font-size:11px;color:var(--text-2)">Showing 200 of '+sheetRecords.length+'</td></tr>':'';
+  wrap.innerHTML='<div style="font-size:12px;color:var(--text-2);margin-bottom:8px">'+sheetRecords.length+' records</div><div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>DOI</th><th>Title</th><th>Authors</th></tr></thead><tbody>'+rows+more+'</tbody></table></div></div>';
+}
+
+// ── SEARCH ──
+function updMeta(){
+  var n=sheetRecords.length;
+  document.getElementById('sMeta').textContent=n+' record'+(n!==1?'s':'');
+  var sc=document.getElementById('sheetScopeCount');
+  if(sc)sc.textContent=n>0?n+' record'+(n!==1?'s':'')+' loaded.':'';
+}
+function setST(type,el){
+  searchType=type;
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  var ph={all:'Search by DOI, author name, or title…',doi:'Enter a DOI — e.g. 10.1038/s41586…',author:'Author first name, last name, or full name…',title:'Keywords from the research title…'};
+  document.getElementById('pubInput').placeholder=ph[type];
+  onSearchInput();
+}
 function onSearchInput(){clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,260);}
-function runSearch(){var q=document.getElementById('pubInput').value.trim();var ql=q.toLowerCase();var rc=document.getElementById('pubResults');if(!q){rc.innerHTML='<div class="empty-state"><span class="empty-icon">&#x1F50D;</span><div class="empty-title">Start typing to search</div><div class="empty-sub">Results appear as you type</div></div>';document.getElementById('sCount').textContent='';showEnrich(false);return;}var matches=matchSheet(ql);renderResults(matches,ql,false);if(searchType!=='doi'){clearTimeout(enrichTimer);enrichTimer=setTimeout(function(){enrichSearch(ql);},700);}}
-function matchSheet(ql){return sheetRecords.filter(function(r){var d=nDOI(r.doi).indexOf(ql)>=0;var t=r.title.toLowerCase().indexOf(ql)>=0;var a=r.authors.toLowerCase().indexOf(ql)>=0;var cached=metaCache[r.doi]||{};var ct=(cached.title||'').toLowerCase().indexOf(ql)>=0;var ca=(cached.authors||[]).join(' ').toLowerCase().indexOf(ql)>=0;if(searchType==='doi')return d;if(searchType==='author')return a||ca;if(searchType==='title')return t||ct;return d||t||a||ct||ca;});}
-async function enrichSearch(ql){var uncached=sheetRecords.filter(function(r){return!metaCache[r.doi];}).slice(0,20);if(!uncached.length)return;showEnrich(true,'Checking '+uncached.length+' paper'+(uncached.length!==1?'s':'')+' against academic sources\u2026');for(var i=0;i<uncached.length;i+=5){await Promise.all(uncached.slice(i,i+5).map(function(r){return fetchMeta(r.doi);}));var cur=document.getElementById('pubInput').value.trim().toLowerCase();if(cur===ql)renderResults(matchSheet(ql),ql,true);}showEnrich(false);try{LS.s('sl_meta',JSON.stringify(metaCache));}catch(_){}}
-async function fetchMeta(doi){if(metaCache[doi])return;try{var r=await fetch('https://api.openalex.org/works/https://doi.org/'+doi+'?select=title,authorships&mailto=scholarlens@app.dev');if(r.ok){var d=await r.json();if(d.title){metaCache[doi]={title:d.title||'',authors:(d.authorships||[]).slice(0,8).map(function(a){return a.author&&a.author.display_name;}).filter(Boolean)};return;}}}catch(_){}try{var r=await fetch('https://api.semanticscholar.org/graph/v1/paper/DOI:'+doi+'?fields=title,authors');if(r.ok){var d=await r.json();if(d.title)metaCache[doi]={title:d.title||'',authors:(d.authors||[]).slice(0,8).map(function(a){return a.name;}).filter(Boolean)};}}catch(_){}}
-function showEnrich(show,msg){var bar=document.getElementById('enrichBar');bar.classList.toggle('show',show);if(msg)document.getElementById('enrichMsg').textContent=msg;}
-function renderResults(matches,ql,enriched){var rc=document.getElementById('pubResults');document.getElementById('sCount').innerHTML=matches.length?'<strong>'+matches.length+'</strong> result'+(matches.length!==1?'s':''):'';if(!matches.length){rc.innerHTML='<div class="no-match"><span class="no-match-icon">&#x1F50E;</span><div class="no-match-title">No matches in your database</div><div class="no-match-sub">"'+esc(ql)+'" did not match any of the '+sheetRecords.length+' DOIs in the connected sheet.'+(searchType!=='doi'&&!enriched?'<br><span style="color:var(--yellow-600)">Still checking academic sources\u2026</span>':'')+'</div></div>';return;}var items=matches.slice(0,30).map(function(r){var c=metaCache[r.doi]||{};var dt=r.title||(c.title||'');var da=r.authors||((c.authors||[]).join(', '))||'';return'<div class="result-item fade-up" onclick="openDetail(\''+encodeURIComponent(r.doi)+'\')"><div class="result-item-info"><div class="result-doi">'+hl(r.doi,ql)+'</div><div class="result-title">'+(dt?hl(dt,ql):'<em style="color:var(--text-light);font-size:11px">Title loading\u2026</em>')+'</div>'+(da?'<div class="result-author">'+hl(da,ql)+'</div>':'')+'</div><div class="result-arrow">&rsaquo;</div></div>';}).join('');var more=matches.length>30?'<div style="text-align:center;padding:12px;font-size:11px;color:var(--text-secondary)">Showing 30 of '+matches.length+' \u2014 refine your search</div>':'';rc.innerHTML='<div class="results-list">'+items+more+'</div>';}
-function openDetail(enc){var doi=decodeURIComponent(enc);if(!sheetRecords.find(function(r){return r.doi===doi;})){showPage('pageSearch');return;}showPage('pageDetail');fetchAllSources(doi,sheetRecords.find(function(r){return r.doi===doi;}));}
+function runSearch(){
+  var q=document.getElementById('pubInput').value.trim();
+  var ql=q.toLowerCase();
+  var rc=document.getElementById('pubResults');
+  if(!q){
+    rc.innerHTML='<div class="empty-state"><span class="empty-icon">🔍</span><div class="empty-title">Start typing to search</div><div class="empty-sub">Results appear as you type</div></div>';
+    document.getElementById('sCount').textContent='';
+    showEnrich(false);return;
+  }
+  var matches=matchSheet(ql);
+  renderResults(matches,ql,false);
+  if(searchType!=='doi'){clearTimeout(enrichTimer);enrichTimer=setTimeout(function(){enrichSearch(ql);},700);}
+}
+function matchSheet(ql){
+  return sheetRecords.filter(function(r){
+    var d=nDOI(r.doi).indexOf(ql)>=0;
+    var t=r.title.toLowerCase().indexOf(ql)>=0;
+    var a=r.authors.toLowerCase().indexOf(ql)>=0;
+    var cached=metaCache[r.doi]||{};
+    var ct=(cached.title||'').toLowerCase().indexOf(ql)>=0;
+    var ca=(cached.authors||[]).join(' ').toLowerCase().indexOf(ql)>=0;
+    if(searchType==='doi')return d;
+    if(searchType==='author')return a||ca;
+    if(searchType==='title')return t||ct;
+    return d||t||a||ct||ca;
+  });
+}
+async function enrichSearch(ql){
+  var uncached=sheetRecords.filter(function(r){return!metaCache[r.doi];}).slice(0,20);
+  if(!uncached.length)return;
+  showEnrich(true,'Checking '+uncached.length+' paper'+(uncached.length!==1?'s':'')+' against academic sources…');
+  for(var i=0;i<uncached.length;i+=5){
+    await Promise.all(uncached.slice(i,i+5).map(function(r){return fetchMeta(r.doi);}));
+    var cur=document.getElementById('pubInput').value.trim().toLowerCase();
+    if(cur===ql)renderResults(matchSheet(ql),ql,true);
+  }
+  showEnrich(false);
+  try{LS.s('sl_meta',JSON.stringify(metaCache));}catch(_){}
+}
+async function fetchMeta(doi){
+  if(metaCache[doi])return;
+  try{
+    var r=await fetch('https://api.openalex.org/works/https://doi.org/'+doi+'?select=title,authorships&mailto=scholarlens@app.dev');
+    if(r.ok){
+      var d=await r.json();
+      if(d.title){metaCache[doi]={title:d.title||'',authors:(d.authorships||[]).slice(0,8).map(function(a){return a.author&&a.author.display_name;}).filter(Boolean)};return;}
+    }
+  }catch(_){}
+  try{
+    var r=await fetch('https://api.semanticscholar.org/graph/v1/paper/DOI:'+doi+'?fields=title,authors');
+    if(r.ok){var d=await r.json();if(d.title)metaCache[doi]={title:d.title||'',authors:(d.authors||[]).slice(0,8).map(function(a){return a.name;}).filter(Boolean)};}
+  }catch(_){}
+}
+function showEnrich(show,msg){
+  var bar=document.getElementById('enrichBar');
+  bar.classList.toggle('show',show);
+  if(msg)document.getElementById('enrichMsg').textContent=msg;
+}
+function renderResults(matches,ql,enriched){
+  var rc=document.getElementById('pubResults');
+  document.getElementById('sCount').innerHTML=matches.length?'<strong>'+matches.length+'</strong> result'+(matches.length!==1?'s':''):'';
+  if(!matches.length){
+    rc.innerHTML='<div class="no-match"><span class="no-match-icon">🔎</span><div class="no-match-title">No matches in your database</div><div class="no-match-sub">"'+esc(ql)+'" did not match any of the '+sheetRecords.length+' DOIs in the connected sheet.'+(searchType!=='doi'&&!enriched?'<br><span style="color:var(--amber)">Still checking academic sources…</span>':'')+'</div></div>';
+    return;
+  }
+  var items=matches.slice(0,30).map(function(r,idx){
+    var c=metaCache[r.doi]||{};
+    var dt=r.title||(c.title||'');
+    var da=r.authors||((c.authors||[]).join(', '))||'';
+    return'<div class="result-item fade-up" style="animation-delay:'+(idx*30)+'ms" onclick="openDetail(\''+encodeURIComponent(r.doi)+'\')"><div class="result-item-badge">📄</div><div class="result-item-info"><div class="result-doi">'+hl(r.doi,ql)+'</div><div class="result-title">'+(dt?hl(dt,ql):'<em style="color:var(--mist);font-size:11.5px;font-family:var(--sans)">Title loading…</em>')+'</div>'+(da?'<div class="result-author">'+hl(da,ql)+'</div>':'')+'</div><div class="result-arrow">›</div></div>';
+  }).join('');
+  var more=matches.length>30?'<div style="text-align:center;padding:14px;font-size:11.5px;color:var(--text-2)">Showing 30 of '+matches.length+' — refine your search</div>':'';
+  rc.innerHTML='<div class="results-list">'+items+more+'</div>';
+}
+function openDetail(enc){
+  var doi=decodeURIComponent(enc);
+  if(!sheetRecords.find(function(r){return r.doi===doi;})){showPage('pageSearch');return;}
+  showPage('pageDetail');
+  fetchAllSources(doi,sheetRecords.find(function(r){return r.doi===doi;}));
+}
+
+// ── DETAIL FETCH ──
 var SOURCES=[{id:'scopus',label:'Scopus'},{id:'scidir',label:'ScienceDirect'},{id:'openalex',label:'OpenAlex'},{id:'semantic',label:'Semantic Scholar'}];
-function mkPipeline(){return'<div class="pipeline">'+SOURCES.map(function(s,i){return'<span class="pipe-step" id="pipe-'+s.id+'">'+s.label+'</span>'+(i<SOURCES.length-1?'<span class="pipe-sep">&rarr;</span>':'');}).join('')+'</div>';}
+function mkPipeline(){
+  return'<div class="pipeline">'+SOURCES.map(function(s,i){
+    return'<span class="pipe-step" id="pipe-'+s.id+'">'+s.label+'</span>'+(i<SOURCES.length-1?'<span class="pipe-sep">→</span>':'');
+  }).join('')+'</div>';
+}
 function setPipe(id,st){var el=document.getElementById('pipe-'+id);if(el)el.className='pipe-step '+st;}
 async function fetchAllSources(doi,local){
   var key=getKey();
-  document.getElementById('detailContent').innerHTML='<div class="alert alert-info"><div class="spinner"></div> Fetching details\u2026</div>'+mkPipeline();
+  document.getElementById('detailContent').innerHTML='<div class="alert alert-info"><div class="spinner"></div> Fetching details…</div>'+mkPipeline();
   var result=null,src='';
   if(key){setPipe('scopus','trying');try{var d=await fetchScopus(doi,key);if(d&&d.title){result=d;src='Scopus';setPipe('scopus','found');}else setPipe('scopus','failed');}catch(_){setPipe('scopus','failed');}}else setPipe('scopus','skipped');
   if(!result&&key){setPipe('scidir','trying');try{var d=await fetchSciDir(doi,key);if(d&&d.title){result=d;src='ScienceDirect';setPipe('scidir','found');}else setPipe('scidir','failed');}catch(_){setPipe('scidir','failed');}}else if(!key)setPipe('scidir','skipped');
@@ -982,23 +1553,27 @@ async function fetchAllSources(doi,local){
   if(local){result=result||{};result.title=result.title||(local.title||'');result.authors=(result.authors&&result.authors.length)?result.authors:(local.authors?local.authors.split(/[,;]/).map(function(s){return s.trim();}): []);if(!src&&(result.title||result.authors.length))src='Sheet (local)';}
   if(result&&result.title){metaCache[doi]={title:result.title,authors:result.authors||[]};try{LS.s('sl_meta',JSON.stringify(metaCache));}catch(_){}}
   renderDetail(result,src,doi,!key);
-  genSDG(result,doi,local);
-
 }
 async function fetchScopus(doi,key){var r=await fetch('https://api.elsevier.com/content/abstract/doi/'+encodeURIComponent(doi)+'?apiKey='+key+'&httpAccept=application%2Fjson');if(!r.ok)return null;var d=await r.json();var core=d['abstracts-retrieval-response'];if(!core)return null;var bib=core.coredata||{};var authors=[];var ra=bib['dc:creator']||(core.authors&&core.authors.author)||[];if(!Array.isArray(ra))ra=[ra];ra.forEach(function(a){var n=a['ce:indexed-name']||a.$;if(n)authors.push(n);});var kws=core.idxterms&&core.idxterms.mainterm||[];var keywords=[];if(!Array.isArray(kws))kws=[kws];kws.forEach(function(k){if(k.$)keywords.push(k.$);});return{title:bib['dc:title']||'',authors:authors.slice(0,8),year:(bib['prism:coverDate']||'').slice(0,4),journal:bib['prism:publicationName']||'',abstract:bib['dc:description']||null,citationCount:parseInt(bib['citedby-count'])||0,keywords:keywords.slice(0,12),openAccess:bib.openaccess==='1',type:bib.subtypeDescription||'Article'};}
 async function fetchSciDir(doi,key){var r=await fetch('https://api.elsevier.com/content/article/doi/'+encodeURIComponent(doi)+'?apiKey='+key+'&httpAccept=application%2Fjson');if(!r.ok)return null;var d=await r.json();var core=d['full-text-retrieval-response'];if(!core)return null;var bib=core.coredata||{};var authors=[];var ra=bib['dc:creator']||[];if(!Array.isArray(ra))ra=[ra];ra.forEach(function(a){if(a.$)authors.push(a.$);});return{title:bib['dc:title']||'',authors:authors.slice(0,8),year:(bib['prism:coverDate']||'').slice(0,4),journal:bib['prism:publicationName']||'',abstract:bib['dc:description']||null,citationCount:0,keywords:[],openAccess:bib.openaccess==='1',type:'Article'};}
 async function fetchOpenAlex(doi){var r=await fetch('https://api.openalex.org/works/https://doi.org/'+doi+'?mailto=scholarlens@app.dev');if(!r.ok)return null;var d=await r.json();return{title:d.title||'',authors:(d.authorships||[]).slice(0,8).map(function(a){return a.author&&a.author.display_name;}).filter(Boolean),year:d.publication_year||'',journal:(d.primary_location&&d.primary_location.source&&d.primary_location.source.display_name)||(d.host_venue&&d.host_venue.display_name)||'',abstract:d.abstract_inverted_index?rebuildAbs(d.abstract_inverted_index):null,citationCount:d.cited_by_count||0,keywords:[...(d.keywords||[]).slice(0,8).map(function(k){return k.display_name||k;}),...(d.concepts||[]).slice(0,5).filter(function(c){return c.score>.4;}).map(function(c){return c.display_name;})].slice(0,12),openAccess:(d.open_access&&d.open_access.is_oa)||false,type:d.type||'article'};}
 async function fetchSemantic(doi){var r=await fetch('https://api.semanticscholar.org/graph/v1/paper/DOI:'+doi+'?fields=title,authors,year,abstract,journal,venue,citationCount,fieldsOfStudy,openAccessPdf,publicationTypes');if(!r.ok)return null;var d=await r.json();return{title:d.title||'',authors:(d.authors||[]).slice(0,8).map(function(a){return a.name;}).filter(Boolean),year:d.year||'',journal:(d.journal&&d.journal.name)||d.venue||'',abstract:d.abstract||null,citationCount:d.citationCount||0,keywords:(d.fieldsOfStudy||[]).slice(0,8),openAccess:!!d.openAccessPdf,type:(d.publicationTypes&&d.publicationTypes[0])||'article'};}
 function rebuildAbs(inv){var w=[];for(var word in inv){var pos=inv[word];for(var i=0;i<pos.length;i++)w[pos[i]]=word;}return w.filter(Boolean).join(' ');}
-function srcColor(src){if((src||'').indexOf('Scopus')>=0)return{bg:'#fff7ed',color:'#c2410c',border:'#fed7aa'};if((src||'').indexOf('ScienceDirect')>=0)return{bg:'var(--blue-50)',color:'var(--blue-700)',border:'var(--blue-100)'};if((src||'').indexOf('OpenAlex')>=0)return{bg:'var(--green-50)',color:'var(--green-600)',border:'var(--green-100)'};if((src||'').indexOf('Semantic')>=0)return{bg:'#faf5ff',color:'#7e22ce',border:'#e9d5ff'};return{bg:'var(--gray-100)',color:'var(--gray-600)',border:'var(--gray-200)'};}
+function srcColor(src){
+  if((src||'').indexOf('Scopus')>=0)return{bg:'#fdf6ee',color:'#7a4f1a',border:'#d4a96a'};
+  if((src||'').indexOf('ScienceDirect')>=0)return{bg:'var(--blue-bg)',color:'var(--blue-mid)',border:'var(--blue-border)'};
+  if((src||'').indexOf('OpenAlex')>=0)return{bg:'var(--green-bg)',color:'var(--green)',border:'var(--green-border)'};
+  if((src||'').indexOf('Semantic')>=0)return{bg:'#f5f0fc',color:'#5c3a8a',border:'#d4b8f0'};
+  return{bg:'var(--veil)',color:'var(--slate)',border:'var(--cloud)'};
+}
 function renderDetail(r,src,doi,noKey){
   var sc=srcColor(src);
   var authStr=(r&&r.authors&&r.authors.length)?r.authors.slice(0,5).join(', ')+(r.authors.length>5?' et al.':''):'Authors unknown';
   var meta=[(r&&r.year)?'<span class="badge badge-gray">'+esc(String(r.year))+'</span>':'',(r&&r.type)?'<span class="badge badge-gray" style="text-transform:capitalize">'+esc(r.type)+'</span>':'',(r&&r.openAccess)?'<span class="badge badge-green">Open Access</span>':'',(r&&r.journal)?'<span class="badge badge-gray">'+esc(r.journal.slice(0,40))+'</span>':''].filter(Boolean).join('');
-  var dlLinks='<div class="direct-links"><a href="https://www.scopus.com/search/results.uri?query=DOI('+encodeURIComponent(doi)+')" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#fff7ed">&#x1F4D9;</div><div><div class="direct-link-name">Scopus</div><div class="direct-link-type">Abstract DB</div></div></a><a href="https://www.sciencedirect.com/search?query=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--blue-50)">&#x1F4D8;</div><div><div class="direct-link-name">ScienceDirect</div><div class="direct-link-type">Full text</div></div></a><a href="https://openalex.org/works?filter=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--green-50)">&#x1F7E2;</div><div><div class="direct-link-name">OpenAlex</div><div class="direct-link-type">Open graph</div></div></a><a href="https://www.semanticscholar.org/search?q='+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#faf5ff">&#x1F7E3;</div><div><div class="direct-link-name">Semantic Scholar</div><div class="direct-link-type">AI-enhanced</div></div></a><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--gray-100)">&#x1F517;</div><div><div class="direct-link-name">DOI Direct</div><div class="direct-link-type">Publisher page</div></div></a></div>';
-  var absBlock=(r&&r.abstract)?'<div class="detail-section"><div class="section-heading">Abstract</div><div class="abstract-text">'+cleanAbstract(r.abstract)+'</div></div>':'<div class="detail-section"><div class="section-heading">Abstract</div><p style="font-size:13px;color:var(--text-secondary);margin-bottom:.875rem">Abstract not available. View the paper directly:</p>'+dlLinks+(noKey?'<div class="alert alert-warning" style="margin-top:10px">Add an Elsevier API key in Admin &rarr; API Sources to enable Scopus and ScienceDirect lookups.</div>':'')+'</div>';
+  var dlLinks='<div class="direct-links"><a href="https://www.scopus.com/search/results.uri?query=DOI('+encodeURIComponent(doi)+')" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#fffbee">📙</div><div><div class="direct-link-name">Scopus</div><div class="direct-link-type">Abstract DB</div></div></a><a href="https://www.sciencedirect.com/search?query=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--blue-bg)">📘</div><div><div class="direct-link-name">ScienceDirect</div><div class="direct-link-type">Full text</div></div></a><a href="https://openalex.org/works?filter=doi:'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--green-bg)">🟢</div><div><div class="direct-link-name">OpenAlex</div><div class="direct-link-type">Open graph</div></div></a><a href="https://www.semanticscholar.org/search?q='+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:#faf5ff">🟣</div><div><div class="direct-link-name">Semantic Scholar</div><div class="direct-link-type">AI-enhanced</div></div></a><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="direct-link"><div class="direct-link-icon" style="background:var(--veil)">🔗</div><div><div class="direct-link-name">DOI Direct</div><div class="direct-link-type">Publisher page</div></div></a></div>';
+  var absBlock=(r&&r.abstract)?'<div class="detail-section"><div class="section-heading">Abstract</div><div class="abstract-text">'+cleanAbstract(r.abstract)+'</div></div>':'<div class="detail-section"><div class="section-heading">Abstract</div><p style="font-size:13px;color:var(--text-2);margin-bottom:.875rem">Abstract not available. View the paper directly:</p>'+dlLinks+(noKey?'<div class="alert alert-warning" style="margin-top:10px">Add an Elsevier API key in Admin → API Sources to enable Scopus and ScienceDirect lookups.</div>':'')+'</div>';
   var kwBlock=(r&&r.keywords&&r.keywords.length)?'<div class="detail-section"><div class="section-heading">Keywords &amp; Fields</div><div class="kw-list">'+r.keywords.map(function(k){return'<span class="kw-tag">'+esc(String(k))+'</span>';}).join('')+'</div></div>':'';
-  document.getElementById('detailContent').innerHTML='<div class="fade-up"><div class="detail-header"><div class="detail-source-tag" style="background:'+sc.bg+';color:'+sc.color+';border-color:'+sc.border+'">via '+esc(src||'\u2014')+'</div><div class="detail-title">'+esc((r&&r.title)||'Untitled')+'</div><div class="detail-authors">'+esc(authStr)+'</div><div class="detail-meta">'+meta+'</div><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="detail-doi-link">doi.org/'+esc(doi)+'</a></div><div class="detail-stats"><div class="dstat"><span class="dstat-val">'+(r&&r.citationCount?Number(r.citationCount).toLocaleString():'\u2014')+'</span><span class="dstat-lbl">Citations</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.year||'\u2014')+'</span><span class="dstat-lbl">Year</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.authors?r.authors.length:'\u2014')+'</span><span class="dstat-lbl">Authors</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.openAccess?'Yes':'No')+'</span><span class="dstat-lbl">Open Access</span></div></div>'+absBlock+kwBlock+'<div class="detail-section"><div class="section-heading">SDG Alignment</div><div id="sdgEl"><p style="font-size:12px;color:var(--text-secondary)">Loading SDG data…</p></div></div>'+'<div class="detail-section"><div class="section-heading">View on external sources</div>'+dlLinks+'</div><p style="font-size:11px;color:var(--text-light);text-align:right;margin-top:.5rem">Source: '+esc(src||'none')+' &middot; DOI: '+esc(doi)+'</p></div>';
+  document.getElementById('detailContent').innerHTML='<div class="fade-up"><div class="detail-header"><div class="detail-source-tag" style="background:'+sc.bg+';color:'+sc.color+';border-color:'+sc.border+'">via '+esc(src||'—')+'</div><div class="detail-title">'+esc((r&&r.title)||'Untitled')+'</div><div class="detail-authors">'+esc(authStr)+'</div><div class="detail-meta">'+meta+'</div><a href="https://doi.org/'+encodeURIComponent(doi)+'" target="_blank" class="detail-doi-link">↗ doi.org/'+esc(doi)+'</a></div><div class="detail-stats"><div class="dstat"><span class="dstat-val">'+(r&&r.citationCount?Number(r.citationCount).toLocaleString():'—')+'</span><span class="dstat-lbl">Citations</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.year||'—')+'</span><span class="dstat-lbl">Year</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.authors?r.authors.length:'—')+'</span><span class="dstat-lbl">Authors</span></div><div class="dstat"><span class="dstat-val">'+(r&&r.openAccess?'Yes':'No')+'</span><span class="dstat-lbl">Open Access</span></div></div>'+absBlock+kwBlock+'<div class="detail-section"><div class="section-heading">View on external sources</div>'+dlLinks+'</div><p style="font-size:10.5px;color:var(--mist);text-align:right;margin-top:.5rem;font-family:var(--mono)">Source: '+esc(src||'none')+' · DOI: '+esc(doi)+'</p></div>';
 }
 function cleanAbstract(text){
   if(!text)return'';
@@ -1009,7 +1584,7 @@ function cleanAbstract(text){
   t=t.replace(/<sup>(.*?)<\/sup>/gi,function(_,s){return toSup(s.trim());});
   t=t.replace(/<sub>(.*?)<\/sub>/gi,function(_,s){return toSub(s.trim());});
   t=t.replace(/<[^>]+>/g,'');
-  var ltx=[['\\rightarrow','\u2192'],['\\leftarrow','\u2190'],['\\Rightarrow','\u21D2'],['\\Leftarrow','\u21D0'],['\\leftrightarrow','\u2194'],['\\Leftrightarrow','\u21D4'],['\\leq','\u2264'],['\\geq','\u2265'],['\\neq','\u2260'],['\\approx','\u2248'],['\\times','\u00D7'],['\\cdot','\u00B7'],['\\pm','\u00B1'],['\\mp','\u2213'],['\\infty','\u221E'],['\\alpha','\u03B1'],['\\beta','\u03B2'],['\\gamma','\u03B3'],['\\delta','\u03B4'],['\\epsilon','\u03B5'],['\\zeta','\u03B6'],['\\eta','\u03B7'],['\\theta','\u03B8'],['\\lambda','\u03BB'],['\\mu','\u03BC'],['\\nu','\u03BD'],['\\xi','\u03BE'],['\\pi','\u03C0'],['\\rho','\u03C1'],['\\sigma','\u03C3'],['\\tau','\u03C4'],['\\phi','\u03C6'],['\\chi','\u03C7'],['\\psi','\u03C8'],['\\omega','\u03C9'],['\\Delta','\u0394'],['\\Sigma','\u03A3'],['\\Pi','\u03A0'],['\\Omega','\u03A9'],['\\Gamma','\u0393'],['\\Lambda','\u039B'],['\\sum','\u03A3'],['\\prod','\u03A0'],['\\int','\u222B'],['\\sqrt','\u221A'],['\\partial','\u2202'],['\\in','\u2208'],['\\notin','\u2209'],['\\subset','\u2282'],['\\cup','\u222A'],['\\cap','\u2229'],['\\forall','\u2200'],['\\exists','\u2203'],['\\hat{',''],['\\bar{',''],['\\vec{',''],['\\textit{',''],['\\textbf{',''],['\\text{',''],['\\mathrm{',''],['\\mathbf{',''],['\\mathit{',''],['\\frac{','('],['\\%','%']];
+  var ltx=[['\\rightarrow','→'],['\\leftarrow','←'],['\\Rightarrow','⇒'],['\\leq','≤'],['\\geq','≥'],['\\neq','≠'],['\\approx','≈'],['\\times','×'],['\\cdot','·'],['\\pm','±'],['\\infty','∞'],['\\alpha','α'],['\\beta','β'],['\\gamma','γ'],['\\delta','δ'],['\\epsilon','ε'],['\\theta','θ'],['\\lambda','λ'],['\\mu','μ'],['\\pi','π'],['\\sigma','σ'],['\\omega','ω'],['\\Delta','Δ'],['\\Sigma','Σ'],['\\sqrt','√'],['\\partial','∂'],['\\in','∈'],['\\hat{',''],['\\bar{',''],['\\vec{',''],['\\frac{','('],['\\%','%']];
   for(var i=0;i<ltx.length;i++)t=t.split(ltx[i][0]).join(ltx[i][1]);
   t=t.replace(/\$\$([\s\S]*?)\$\$/g,function(_,inner){return inner.trim();});
   t=t.replace(/\$([\s\S]*?)\$/g,function(_,inner){return inner.trim();});
@@ -1021,192 +1596,39 @@ function cleanAbstract(text){
   t=t.replace(/[ \t]{2,}/g,' ').replace(/\n{3,}/g,'\n\n').trim();
   return esc(t);
 }
-function toSup(s){var m={'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4':'\u2074','5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079','+':'\u207A','-':'\u207B','=':'\u207C','(':'\u207D',')':'\u207E','n':'\u207F','i':'\u2071'};return s.split('').map(function(c){return m[c]||c;}).join('');}
-function toSub(s){var m={'0':'\u2080','1':'\u2081','2':'\u2082','3':'\u2083','4':'\u2084','5':'\u2085','6':'\u2086','7':'\u2087','8':'\u2088','9':'\u2089','+':'\u208A','-':'\u208B','=':'\u208C','(':'\u208D',')':'\u208E'};return s.split('').map(function(c){return m[c]||c;}).join('');}
-
-var SDG_META=[
-  {n:1,name:'No Poverty',color:'#E5243B'},
-  {n:2,name:'Zero Hunger',color:'#DDA63A'},
-  {n:3,name:'Good Health and Well-being',color:'#4C9F38'},
-  {n:4,name:'Quality Education',color:'#C5192D'},
-  {n:5,name:'Gender Equality',color:'#FF3A21'},
-  {n:6,name:'Clean Water and Sanitation',color:'#26BDE2'},
-  {n:7,name:'Affordable and Clean Energy',color:'#FCC30B'},
-  {n:8,name:'Decent Work and Economic Growth',color:'#A21942'},
-  {n:9,name:'Industry, Innovation and Infrastructure',color:'#FD6925'},
-  {n:10,name:'Reduced Inequalities',color:'#DD1367'},
-  {n:11,name:'Sustainable Cities and Communities',color:'#FD9D24'},
-  {n:12,name:'Responsible Consumption and Production',color:'#BF8B2E'},
-  {n:13,name:'Climate Action',color:'#3F7E44'},
-  {n:14,name:'Life Below Water',color:'#0A97D9'},
-  {n:15,name:'Life on Land',color:'#56C02B'},
-  {n:16,name:'Peace, Justice and Strong Institutions',color:'#00689D'},
-  {n:17,name:'Partnerships for the Goals',color:'#19486A'}
-];
-function parseSheetSDGs(raw){
-  if(!raw)return[];
-  var nums=[];
-  var s=raw.trim();
-
-  // Pattern 1: explicit "SDG N" or "Goal N" mentions
-  var explicit=s.match(/(?:SDG|goal)\s*(\d{1,2})/gi)||[];
-  explicit.forEach(function(m){
-    var n=parseInt(m.match(/\d+/)[0]);
-    if(n>=1&&n<=17)nums.push(n);
-  });
-  if(nums.length>0) return nums.filter(function(v,i,a){return a.indexOf(v)===i;});
-
-  // Pattern 2: plain number list like "3", "3,7,13", "3; 7; 13"
-  // Only if the entire cell looks like a short number list (no long text)
-  if(s.length<=30){
-    var parts=s.split(/[,;\s]+/);
-    parts.forEach(function(p){
-      var n=parseInt(p.trim());
-      if(!isNaN(n)&&n>=1&&n<=17)nums.push(n);
-    });
-  }
-  return nums.filter(function(v,i,a){return a.indexOf(v)===i;});
-}
-function renderSDGCards(sdgs,fromSheet){
-  var el=document.getElementById('sdgEl');
-  if(!el)return;
-  if(!sdgs||!sdgs.length){
-    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">No SDG alignment identified for this paper.</p>';
-    return;
-  }
-  var cards=sdgs.map(function(s){
-    var meta=SDG_META[s.n-1];
-    var sheetTag=fromSheet?'<span class="sdg-sheet-tag">&#x1F4CB; from sheet</span>':'';
-    return'<div class="sdg-card">'
-      +'<div class="sdg-badge" style="background:'+meta.color+'">SDG<br>'+s.n+'</div>'
-      +'<div class="sdg-info">'
-      +'<div class="sdg-name">'+esc(meta.name)+sheetTag+'</div>'
-      +(s.reason?'<div class="sdg-reason">'+esc(s.reason)+'</div>':'')
-      +'</div></div>';
-  }).join('');
-  el.innerHTML='<div class="sdg-grid">'+cards+'</div>';
-}
-async function genSDG(paper,doi,local){
-  var el=document.getElementById('sdgEl');
-  if(!el)return;
-
-  // Priority 1: SDG column in sheet — instant, no AI needed
-  var sheetSDGRaw=(local&&local.sdg)||((paper&&paper.sdgFromSheet)||'');
-  if(sheetSDGRaw){
-    var nums=parseSheetSDGs(sheetSDGRaw);
-    if(nums.length>0){
-      renderSDGCards(nums.map(function(n){return{n:n,reason:''};}),true);
-      return;
-    }
-  }
-
-  // Priority 2: AI analysis via Anthropic API
-  var titleText=(paper&&paper.title)||'';
-  var abstractText=(paper&&paper.abstract)||'';
-  if(!titleText&&!abstractText){
-    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">Not enough information to determine SDG alignment.</p>';
-    return;
-  }
-
-  el.innerHTML='<div class="alert alert-info"><div class="spinner"></div> Analysing SDG alignment with AI…</div>';
-
-  var sdgList='SDG 1: No Poverty | SDG 2: Zero Hunger | SDG 3: Good Health and Well-being | SDG 4: Quality Education | SDG 5: Gender Equality | SDG 6: Clean Water and Sanitation | SDG 7: Affordable and Clean Energy | SDG 8: Decent Work and Economic Growth | SDG 9: Industry Innovation and Infrastructure | SDG 10: Reduced Inequalities | SDG 11: Sustainable Cities and Communities | SDG 12: Responsible Consumption and Production | SDG 13: Climate Action | SDG 14: Life Below Water | SDG 15: Life on Land | SDG 16: Peace Justice and Strong Institutions | SDG 17: Partnerships for the Goals';
-
-    var prompt='You are an expert in the UN Sustainable Development Goals (SDGs). Analyse this research paper and identify which SDGs it aligns with.\n\nTitle: '+titleText+'\nAbstract: '+(abstractText||'Not available')+'\n\nThe 17 SDGs are: '+sdgList+'\n\nRespond ONLY with a valid JSON array. Each item must have: n (integer 1-17) and reason (one sentence max 15 words). Example: [{"n":3,"reason":"Addresses health outcomes."},{"n":4,"reason":"Improves educational access."}]. Return ONLY the JSON array, no markdown, no backticks.';
-
-  try{
-    var groqKey=LS.g('sl_groq_key')||'';
-    if(!groqKey){
-      el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG AI analysis requires a Groq API key. Go to <strong>Admin → API Sources</strong> to add your free Groq key from <a href="https://console.groq.com" target="_blank" style="color:var(--blue-600)">console.groq.com</a>.</p>';
-      return;
-    }
-    var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':'Bearer '+groqKey
-      },
-      body:JSON.stringify({
-        model:'llama-3.3-70b-versatile',
-        max_tokens:600,
-        temperature:0.1,
-        messages:[
-          {role:'system',content:'You are an expert in the UN Sustainable Development Goals (SDGs). Always respond with only a valid JSON array, no markdown, no explanation.'},
-          {role:'user',content:prompt}
-        ]
-      })
-    });
-    var d=await res.json();
-    if(!res.ok){
-      var errMsg=(d.error&&d.error.message)||('HTTP '+res.status);
-      throw new Error('Groq API error: '+errMsg);
-    }
-    var txt=((d.choices||[])[0]||{}).message&&d.choices[0].message.content||'';
-    // Extract JSON array from response
-    var jsonMatch=txt.match(/\[[\s\S]*?\]/);
-    if(!jsonMatch) throw new Error('No JSON in response: '+txt.slice(0,100));
-    var sdgs=JSON.parse(jsonMatch[0]);
-    if(!Array.isArray(sdgs)||!sdgs.length) throw new Error('Empty SDG array');
-    sdgs=sdgs.filter(function(s){return s&&s.n>=1&&s.n<=17;});
-    if(!sdgs.length) throw new Error('No valid SDGs in range 1-17');
-    renderSDGCards(sdgs,false);
-  }catch(e){
-    el.innerHTML='<p style="font-size:12px;color:var(--text-secondary)">SDG analysis failed: '+esc(e.message||'Unknown error')+'</p>';
-  }
-}
-
+function toSup(s){var m={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','+':'⁺','-':'⁻','n':'ⁿ'};return s.split('').map(function(c){return m[c]||c;}).join('');}
+function toSub(s){var m={'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉','+':'₊','-':'₋'};return s.split('').map(function(c){return m[c]||c;}).join('');}
 function loadSample(){sheetRecords=[{doi:'10.1038/s41586-021-03819-2',title:'Highly accurate protein structure prediction with AlphaFold',authors:'John Jumper, Richard Evans, Alexander Pritzel'},{doi:'10.1056/NEJMoa2001316',title:'A Novel Coronavirus from Patients with Pneumonia in China, 2019',authors:'Na Zhu, Dingyu Zhang, Wenling Wang'},{doi:'10.1038/nature14539',title:'Human-level control through deep reinforcement learning',authors:'Volodymyr Mnih, Koray Kavukcuoglu, David Silver'},{doi:'10.1145/3442188.3445922',title:'On the Dangers of Stochastic Parrots',authors:'Emily M. Bender, Timnit Gebru, Angelina McMillan-Major'},{doi:'10.1126/science.abc4189',title:'Quantum supremacy using a programmable superconducting processor',authors:'Frank Arute, Kunal Arya, Ryan Babbush'}];}
 function nDOI(d){return(d||'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').replace(/"/g,'').trim().toLowerCase();}
-function normUrl(url){
-  var s=(url||'').trim();
-  // Already a proper CSV export URL — pass through unchanged
-  if(s.indexOf('output=csv')>=0) return s;
-  // Published URL: /spreadsheets/d/e/LONGID/pub
-  var pub=s.match(/\/spreadsheets\/d\/e\/([a-zA-Z0-9_-]+)\/pub/);
-  if(pub){
-    var g=(s.match(/[#&?]gid=(\d+)/)||[])[1]||'0';
-    return'https://docs.google.com/spreadsheets/d/e/'+pub[1]+'/pub?gid='+g+'&single=true&output=csv';
-  }
-  // Edit/view URL: /spreadsheets/d/SHEETID/
-  var edit=s.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)\//);
-  if(edit&&edit[1]!=='e'){
-    var g=(s.match(/[#&?]gid=(\d+)/)||[])[1]||'0';
-    return'https://docs.google.com/spreadsheets/d/'+edit[1]+'/export?format=csv&gid='+g;
-  }
-  return s;
-}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function hl(text,q){if(!q)return esc(text);var parts=esc(text).split(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'));return parts.map(function(p,i){return i%2===1?'<span class="hl">'+p+'</span>':p;}).join('');}
-function showAlert(id,type,msg,loading){var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};var icon=loading?'<div class="spinner"></div>':{info:'\u2139',success:'\u2713',error:'\u2717',warn:'\u26A0'}[type];var el=document.getElementById(id);if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';}
+function showAlert(id,type,msg,loading){
+  var map={info:'alert-info',success:'alert-success',error:'alert-error',warn:'alert-warning'};
+  var icon=loading?'<div class="spinner"></div>':{info:'ℹ',success:'✓',error:'✗',warn:'⚠'}[type]||'';
+  var el=document.getElementById(id);
+  if(el)el.innerHTML='<div class="alert '+map[type]+'">'+icon+' '+msg+'</div>';
+}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('pageAdminLogin').classList.contains('show'))doLogin();});
+
 (function(){
-  // Clear any broken saved URL (missing the long publish ID)
   var savedUrl=LS.g('sl_url')||'';
-  var isBroken=savedUrl && (
-    savedUrl.indexOf('/d/e/pub')>=0 ||
-    savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0 ||
-    (savedUrl.indexOf('/d/e/')>=0 && savedUrl.indexOf('/d/e/2PACX')<0 && savedUrl.indexOf('export?format=csv')<0)
+  var isBroken=savedUrl&&(
+    savedUrl.indexOf('/d/e/pub')>=0||
+    savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0||
+    (savedUrl.indexOf('/d/e/')>=0&&savedUrl.indexOf('/d/e/2PACX')<0&&savedUrl.indexOf('export?format=csv')<0)
   );
-  if(isBroken){
-    LS.d('sl_url'); LS.d('sl_rec'); LS.d('sl_meta');
-  }
-  // Restore cached records
+  if(isBroken){LS.d('sl_url');LS.d('sl_rec');LS.d('sl_meta');}
   var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
   var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
-  // If URL contains ?sheet=..., pre-load the sheet URL so it's ready
-  // when the researcher clicks into the search page
   try{
     var params=new URLSearchParams(window.location.search);
     var urlSheet=params.get('sheet');
     if(!urlSheet){var h=window.location.hash;if(h&&h.startsWith('#sheet='))urlSheet=decodeURIComponent(h.slice(7));}
     if(urlSheet){
-      // Override any cached URL with the one from the link
       LS.s('sl_url',decodeURIComponent(urlSheet));
       sheetUrl=decodeURIComponent(urlSheet);
-      // Pre-fetch in background so search page loads fast
       loadRecords(decodeURIComponent(urlSheet),false).then(function(){
         updMeta();
-        // If already on search page, hide the no-sheet notice
         var ns=document.getElementById('nsNotice');
         if(ns)ns.style.display='none';
       });
