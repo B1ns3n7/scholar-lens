@@ -402,6 +402,14 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-fa
       <div id="loginSt"></div>
       <button class="btn btn-primary btn-block" style="margin-top:1.1rem" onclick="doLogin()">Sign in →</button>
       <p class="login-hint">Default: <code>admin</code> / <code>admin123</code></p>
+      <!-- ── TEMP CREDENTIAL RECOVERY (remove after use) ── -->
+      <div id="credRecovery" style="margin-top:1.25rem;padding:12px;background:#fdf6ee;border:1px solid #d4a96a;border-radius:6px;font-size:12px;">
+        <div style="font-family:monospace;font-weight:600;color:#7a4f1a;margin-bottom:8px;">🔑 Stored Credentials</div>
+        <div style="margin-bottom:4px;color:#523a1e;">Username: <code id="storedU" style="background:#fff;padding:1px 6px;border-radius:3px;border:1px solid #d4a96a"></code></div>
+        <div style="margin-bottom:10px;color:#523a1e;">Password: <code id="storedP" style="background:#fff;padding:1px 6px;border-radius:3px;border:1px solid #d4a96a"></code></div>
+        <button class="btn btn-sm" style="color:#8b1a1a;border-color:#e8b4b4;background:#fdf0f0;width:100%;justify-content:center;" onclick="resetStoredCreds()">Reset to defaults (admin / admin123)</button>
+      </div>
+      <!-- ── END TEMP ── -->
     </div>
   </div>
   <footer>Scholar Lens</footer>
@@ -781,7 +789,7 @@ function showPage(id){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});
   document.getElementById(id).classList.add('show');
 }
-function goAdminLogin(){showPage('pageAdminLogin');setTimeout(function(){var el=document.getElementById('loginUser');if(el)el.focus();},80);}
+function goAdminLogin(){showPage('pageAdminLogin');setTimeout(function(){var el=document.getElementById('loginUser');if(el)el.focus();showStoredCreds();},80);}
 function goPublicSearch(){
   showPage('pageSearch');
   var ns=document.getElementById('nsNotice');
@@ -791,6 +799,22 @@ function goPublicSearch(){
 }
 
 // ── AUTH ──
+/* ── TEMP: credential recovery (remove after use) ── */
+function showStoredCreds(){
+  var u=localStorage.getItem('sl_u')||'(not set — default: admin)';
+  var p=localStorage.getItem('sl_p')||'(not set — default: admin123)';
+  var eu=document.getElementById('storedU');
+  var ep=document.getElementById('storedP');
+  if(eu)eu.textContent=u;
+  if(ep)ep.textContent=p;
+}
+function resetStoredCreds(){
+  localStorage.removeItem('sl_u');
+  localStorage.removeItem('sl_p');
+  showStoredCreds();
+  showAlert('loginSt','success','Credentials reset! Use admin / admin123.');
+}
+/* ── END TEMP ── */
 function doLogin(){
   var u=document.getElementById('loginUser').value.trim();
   var p=document.getElementById('loginPass').value;
