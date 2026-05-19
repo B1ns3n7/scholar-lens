@@ -569,8 +569,8 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-fa
             <div style="font-size:11.5px;background:var(--green-bg);color:var(--green);padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--green-border)">✓ Always active — no setup required</div>
           </div>
           <div class="source-card" style="border-color:#a8d4ef;background:#f0f8ff">
-            <div class="source-card-head"><div class="source-card-name" style="color:#1a5f8a">🤖 Groq AI (SDG)</div><span class="badge badge-green" id="st-groq">Active</span></div>
-            <div class="source-card-desc">Powers automatic SDG classification from paper abstracts using Llama 3 via Groq API.</div>
+            <div class="source-card-head"><div class="source-card-name" style="color:#1a5f8a"></div><span class="badge badge-green" id="st-groq">Active</span></div>
+            <div class="source-card-desc">Powers automatic SDG classification from paper abstracts </div>
             <div style="font-size:11.5px;background:#e8f4fd;color:#1a5f8a;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid #a8d4ef">✓ API key pre-configured — SDG classification is active</div>
           </div>
         </div>
@@ -606,7 +606,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-fa
 
     </div>
   </div>
-  <footer>Scholar Lens Admin · Scopus · ScienceDirect · OpenAlex · Semantic Scholar · SDG by Groq AI</footer>
+  <footer>Scholar Lens Admin · Scopus · ScienceDirect · OpenAlex · Semantic Scholar · SDG </footer>
 </div>
 
 <!-- ═══════════════ PUBLIC SEARCH ═══════════════ -->
@@ -663,7 +663,7 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-fa
       <div class="empty-state"><span class="empty-icon">📄</span><div class="empty-title">Loading…</div></div>
     </div>
   </div>
-  <footer>Scholar Lens · Scopus · ScienceDirect · OpenAlex · Semantic Scholar · SDG Classification by Groq AI</footer>
+  <footer>Scholar Lens · Scopus · ScienceDirect · OpenAlex · Semantic Scholar · SDG Classification </footer>
 </div>
 
 <script>
@@ -692,7 +692,7 @@ var LS={
   d:function(k){try{localStorage.removeItem(k);}catch(e){}}
 };
 
-var GROQ_API_KEY='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';
+var GROQ_API_KEY='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';
 
 // ── SDG METADATA ──
 var SDG_LIST=[
@@ -754,7 +754,7 @@ async function classifySDGWithGroq(title,abstract,existingSDG){
 }
 
 function renderSDGSection(doi,title,existingSDG){
-  var html='<div class="sdg-panel" id="sdgPanel-'+btoa(doi).replace(/[^a-zA-Z0-9]/g,'')+'"><div class="section-heading">UN SDG Classification <span style="font-size:9px;color:#1a5f8a;background:#e8f4fd;padding:2px 7px;border-radius:3px;border:1px solid #a8d4ef;margin-left:4px;font-family:var(--mono)">AI by Groq</span></div><div class="sdg-loading" id="sdgLoading-'+btoa(doi).replace(/[^a-zA-Z0-9]/g,'')+'"><div class="spinner"></div><span>Classifying SDGs using Groq AI (Llama 3)…</span></div><div id="sdgResult-'+btoa(doi).replace(/[^a-zA-Z0-9]/g,'')+'" style="display:none"></div></div>';
+  var html='<div class="sdg-panel" id="sdgPanel-'+btoa(doi).replace(/[^a-zA-Z0-9]/g,'')+'"><div class="section-heading">UN SDG Classification <span style="font-size:9px;color:#1a5f8a;background:#e8f4fd;padding:2px 7px;border-radius:3px;border:1px solid #a8d4ef;margin-left:4px;font-family:var(--mono)"></span></div><div class="sdg-loading" id="sdgLoading-'+btoa(doi).replace(/[^a-zA-Z0-9]/g,'')+'"><div class="spinner"></div><span>Classifying SDGs …</span></div><div id="sdgResult-'+btoa(doi).replace(/[^a-zA-Z0-9]/g,'')+'" style="display:none"></div></div>';
   return html;
 }
 
@@ -937,7 +937,7 @@ function updOverview(){
   src.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px">'
     +(key?'<span class="badge badge-green">Scopus ✓</span><span class="badge badge-green">ScienceDirect ✓</span>':'<span class="badge badge-gray">Scopus (no key)</span><span class="badge badge-gray">ScienceDirect (no key)</span>')
     +'<span class="badge badge-green">OpenAlex ✓</span><span class="badge badge-green">Semantic Scholar ✓</span>'
-    +'<span class="badge" style="background:#e8f4fd;color:#1a5f8a;border:1px solid #a8d4ef">Groq SDG ✓</span>'
+    +'<span class="badge" style="background:#e8f4fd;color:#1a5f8a;border:1px solid #a8d4ef"></span>'
     +'</div>';
 }
 function renderStats(){
