@@ -668,16 +668,6 @@ footer{border-top:1px solid var(--border);padding:1rem;text-align:center;font-fa
 
 <script>
 (function(){
-  document.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
-  document.addEventListener('keydown',function(e){
-    var k=e.key;
-    if(k==='F12'){e.preventDefault();return false;}
-    if(e.ctrlKey&&e.shiftKey&&(k==='I'||k==='i')){e.preventDefault();return false;}
-    if(e.ctrlKey&&e.shiftKey&&(k==='J'||k==='j')){e.preventDefault();return false;}
-    if(e.ctrlKey&&e.shiftKey&&(k==='C'||k==='c')){e.preventDefault();return false;}
-    if(e.ctrlKey&&(k==='U'||k==='u')){e.preventDefault();return false;}
-    if(e.ctrlKey&&(k==='S'||k==='s')){e.preventDefault();return false;}
-  });
   document.addEventListener('dragstart',function(e){
     var tag=(e.target.tagName||'').toUpperCase();
     if(tag==='IMG'||tag==='A'){e.preventDefault();}
