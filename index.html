@@ -629,7 +629,7 @@ footer{border-top:1px solid var(--seam);padding:.875rem 1rem;text-align:center;f
       <h1>Paper Search</h1>
       <p>Search by DOI, author name, or title — results are limited to papers in the connected database.</p>
     </div>
-    <div id="nsNotice" style="display:none"><div class="ns-bar">⚠ <span><strong>No sheet connected.</strong> Ask your admin to share the app link that includes the database URL.</span></div></div>
+    <div id="nsNotice" style="display:none"></div>
     <div class="scope-bar">🎯 <span><strong>Scoped to your database.</strong> Only sheet DOIs are shown. <span id="sheetScopeCount"></span></span></div>
     <div class="search-box">
       <div class="filter-row">
@@ -1191,6 +1191,8 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.get
   var isBroken=savedUrl&&(savedUrl.indexOf('/d/e/pub')>=0||savedUrl.indexOf('%2Fd%2Fe%2Fpub')>=0||(savedUrl.indexOf('/d/e/')>=0&&savedUrl.indexOf('/d/e/2PACX')<0&&savedUrl.indexOf('export?format=csv')<0));
   if(isBroken){LS.d('sl_url');LS.d('sl_rec');LS.d('sl_meta');LS.d('sl_sdg');}
   var c=LS.g('sl_rec');if(c){try{sheetRecords=JSON.parse(c);}catch(_){}}
+  // Restore sheetUrl from localStorage so it's available immediately
+  var savedUrlCheck=LS.g('sl_url');if(savedUrlCheck)sheetUrl=savedUrlCheck;
   var m=LS.g('sl_meta');if(m){try{metaCache=JSON.parse(m);}catch(_){}}
   var sg=LS.g('sl_sdg');if(sg){try{sdgCache=JSON.parse(sg);}catch(_){}}
   try{
