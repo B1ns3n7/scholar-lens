@@ -551,28 +551,20 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
     <div class="search-hero">
       <div class="search-hero-eyebrow">Research Database</div>
       <h1>Browse &amp; Explore</h1>
-      <p>Discover research by SDG goal or topic keyword. Explore the full database at a glance.</p>
+      <p>All records in the database are shown below. Type anything to filter by title, author, DOI, or SDG.</p>
     </div>
-    <div class="scope-bar">📊 <span><strong>Full database view.</strong> <span id="browseScopeCount"></span></span></div>
-    <div style="margin-bottom:1.25rem">
-      <div style="font-family:var(--mono);font-size:9px;color:var(--text-3);letter-spacing:2px;text-transform:uppercase;margin-bottom:.65rem">Filter by SDG Goal</div>
-      <div id="sdgChips" style="display:flex;flex-wrap:wrap;gap:6px;">
-        <button class="browse-chip browse-chip-active" onclick="setBrowseSDG('all',this)">All</button>
-      </div>
-    </div>
+    <div class="scope-bar">📊 <span><strong>Full database.</strong> <span id="browseScopeCount"></span></span></div>
     <div class="search-box" style="margin-bottom:1.25rem">
       <div class="search-input-wrap">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/></svg>
-        <input type="search" id="browseTopicInput" placeholder="Filter by keyword, topic, or author…" oninput="onBrowseInput()"/>
+        <input type="search" id="browseTopicInput" placeholder="Filter by title, author, DOI, or SDG…" oninput="onBrowseInput()"/>
       </div>
       <div class="search-footer">
-        <span class="search-count" id="browseMeta">0 records</span>
+        <span class="search-count" id="browseMeta"></span>
         <span class="search-count" id="browseCount"></span>
       </div>
     </div>
-    <div id="browseResults">
-      <div class="empty-state"><span class="empty-icon">📊</span><div class="empty-title">Loading database…</div></div>
-    </div>
+    <div id="browseResults"></div>
   </div>
   <footer>Scholar Lens · NU Laguna · Browse Mode — Full Database</footer>
 </div>
@@ -611,9 +603,6 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
 .method-tab.active{border-color:var(--nu-blue);background:var(--arc-bg);}
 .atab{transition:all .15s;}
 .atab.active{color:var(--nu-blue)!important;border-bottom-color:var(--nu-blue)!important;}
-.browse-chip{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-3);cursor:pointer;transition:all .15s;}
-.browse-chip:hover{border-color:var(--arc-border);color:var(--arc);}
-.browse-chip-active{background:var(--nu-blue)!important;color:#fff!important;border-color:var(--nu-blue)!important;}
 @media(max-width:640px){#adminSidebar{display:none}}
 </style>
 
@@ -778,78 +767,67 @@ function goPublicSearch(){
 }
 
 // ── BROWSE MODE ──
-var _browseSDG='all';
+var browseTimer=null;
 
 function goPublicBrowse(){
   showPage('pageBrowse');
-  document.getElementById('browseScopeCount').textContent=sheetRecords.length?sheetRecords.length+' records loaded':'No records — ask an admin to connect a sheet.';
-  _buildSDGChips();
-  _browseSDG='all';
   var inp=document.getElementById('browseTopicInput');
   if(inp)inp.value='';
   renderBrowse();
+  if(inp)setTimeout(function(){inp.focus();},80);
 }
 
-function _buildSDGChips(){
-  var container=document.getElementById('sdgChips');
-  if(!container)return;
-  var html='<button class="browse-chip browse-chip-active" onclick="setBrowseSDG(\'all\',this)">All</button>';
-  SDG_LIST.forEach(function(sdg){
-    html+='<button class="browse-chip" onclick="setBrowseSDG('+sdg.n+',this)">'+sdg.icon+' SDG '+sdg.n+'</button>';
-  });
-  container.innerHTML=html;
+function onBrowseInput(){
+  clearTimeout(browseTimer);
+  browseTimer=setTimeout(renderBrowse,200);
 }
-
-function setBrowseSDG(val,btn){
-  _browseSDG=val;
-  document.querySelectorAll('#sdgChips .browse-chip').forEach(function(c){c.classList.remove('browse-chip-active');});
-  if(btn)btn.classList.add('browse-chip-active');
-  renderBrowse();
-}
-
-function onBrowseInput(){renderBrowse();}
 
 function renderBrowse(){
   var q=(document.getElementById('browseTopicInput').value||'').toLowerCase().trim();
-  var filtered=sheetRecords.filter(function(r){
-    if(_browseSDG!=='all'){
-      var sdgStr=(r.sdg||'').toLowerCase();
-      var match=false;
-      SDG_LIST.forEach(function(s){if(s.n===_browseSDG&&(sdgStr.indexOf('sdg '+s.n)<0&&sdgStr.indexOf(''+s.n)<0?false:true))match=true;});
-      if(!match&&sdgStr.indexOf(''+_browseSDG)<0)return false;
-    }
-    if(q){
-      var hay=((r.title||'')+' '+(r.authors?r.authors.join(' '):'')+' '+(r.abstract||'')+' '+(r.keywords?r.keywords.join(' '):'')+' '+(r.sdg||'')).toLowerCase();
-      if(hay.indexOf(q)<0)return false;
-    }
-    return true;
-  });
-  var meta=document.getElementById('browseMeta');
+  var scopeEl=document.getElementById('browseScopeCount');
+  var metaEl=document.getElementById('browseMeta');
   var cntEl=document.getElementById('browseCount');
-  if(meta)meta.textContent=sheetRecords.length+' total records';
-  if(cntEl)cntEl.textContent=filtered.length+' shown';
   var wrap=document.getElementById('browseResults');
   if(!wrap)return;
+
   if(!sheetRecords.length){
+    if(scopeEl)scopeEl.textContent='No records loaded.';
+    if(metaEl)metaEl.textContent='';
+    if(cntEl)cntEl.textContent='';
     wrap.innerHTML='<div class="empty-state"><span class="empty-icon">📊</span><div class="empty-title">No records loaded</div><div class="empty-sub">Ask an admin to connect a Google Sheet.</div></div>';
     return;
   }
+
+  if(scopeEl)scopeEl.textContent=sheetRecords.length+' records loaded';
+
+  var filtered=q?sheetRecords.filter(function(r){
+    var hay=((r.doi||'')+' '+(r.title||'')+' '+(r.authors||'')+' '+(r.sdg||'')).toLowerCase();
+    return hay.indexOf(q)>=0;
+  }):sheetRecords;
+
+  if(metaEl)metaEl.textContent=sheetRecords.length+' total';
+  if(cntEl)cntEl.textContent=q?(filtered.length+' matched'):'';
+
   if(!filtered.length){
-    wrap.innerHTML='<div class="empty-state"><span class="empty-icon">🔍</span><div class="empty-title">No matching records</div><div class="empty-sub">Try a different SDG or keyword.</div></div>';
+    wrap.innerHTML='<div class="no-match"><span class="no-match-icon">🔎</span><div class="no-match-title">No matches</div><div class="no-match-sub">"'+esc(q)+'" did not match any records.</div></div>';
     return;
   }
-  var html=filtered.map(function(r){
-    var authStr=(r.authors&&r.authors.length)?r.authors.slice(0,3).join(', ')+(r.authors.length>3?' et al.':''):'Unknown authors';
-    var sdgBadge=r.sdg?'<span class="badge badge-sdg">'+esc(r.sdg.slice(0,50))+'</span>':'';
-    var yearBadge=r.year?'<span class="badge badge-gray">'+esc(String(r.year))+'</span>':'';
-    return '<div class="result-card" onclick="openDetail(\''+esc(r.doi)+'\')">'
-      +'<div class="result-title">'+esc(r.title||'Untitled')+'</div>'
-      +'<div class="result-authors">'+esc(authStr)+'</div>'
-      +'<div class="result-meta">'+yearBadge+sdgBadge+'</div>'
-      +'<div class="result-doi">doi.org/'+esc(r.doi)+'</div>'
-      +'</div>';
+
+  var items=filtered.slice(0,50).map(function(r,idx){
+    var dt=r.title||'Untitled';
+    var da=r.authors||'';
+    var sdgBadge=r.sdg?'<span class="badge-sdg">🎯 '+esc(r.sdg)+'</span>':'';
+    return '<div class="result-item fade-up" style="animation-delay:'+(idx*20)+'ms" onclick="openDetail(\''+encodeURIComponent(r.doi)+'\')">'
+      +'<div class="result-item-badge">📄</div>'
+      +'<div class="result-item-info">'
+      +'<div class="result-doi">'+esc(r.doi)+'</div>'
+      +'<div class="result-title">'+esc(dt)+'</div>'
+      +(da?'<div class="result-author">'+esc(da)+'</div>':'')
+      +(sdgBadge?'<div style="margin-top:4px">'+sdgBadge+'</div>':'')
+      +'</div><div class="result-arrow">›</div></div>';
   }).join('');
-  wrap.innerHTML=html;
+  var more=filtered.length>50?'<div style="text-align:center;padding:14px;font-family:var(--mono);font-size:9px;color:var(--text-3);letter-spacing:.5px">Showing 50 of '+filtered.length+' — type to narrow results</div>':'';
+  wrap.innerHTML='<div class="results-list">'+items+more+'</div>';
 }
 
 // ── AUTH ──
