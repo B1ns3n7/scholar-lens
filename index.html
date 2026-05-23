@@ -299,7 +299,7 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
       </div>
     </div>
     <div class="landing-divider"></div>
-    <div class="landing-tagline">Research DOI Lookup &amp; AI-Powered SDG Classification<br>Scopus · ScienceDirect · OpenAlex · Semantic Scholar</div>
+    <!-- <div class="landing-tagline">Research DOI Lookup &amp; AI-Powered SDG Classification<br>Scopus · ScienceDirect · OpenAlex · Semantic Scholar</div> -->
     <div class="role-grid">
       <div class="role-card" onclick="goPublicSearch()">
         <span class="role-card-icon">🔍</span>
@@ -312,7 +312,7 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
         <span class="role-card-icon">📊</span>
         <div class="role-card-num">Mode // 02</div>
         <div class="role-card-name">Browse</div>
-        <div class="role-card-desc">Explore the full database and discover research by topic or SDG goal</div>
+        <div class="role-card-desc">Explore the full database and discover research by Topic, Author, or DOI</div>
         <div class="role-card-arrow">→</div>
       </div>
     </div>
@@ -333,8 +333,8 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
     <div class="field"><label>Username</label><input type="text" id="loginUser" placeholder="username" autocomplete="username"/></div>
     <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <div id="loginSt"></div>
-    <button class="btn btn-primary btn-block" style="margin-top:1rem" onclick="doLogin()">Authenticate →</button>
-    <p class="modal-hint">Default: <code>admin</code> / <code>admin123</code></p>
+    <button class="btn btn-primary btn-block" style="margin-top:1rem" onclick="doLogin()">Log-in</button>
+    <!-- <p class="modal-hint">Default: <code>admin</code> / <code>admin123</code></p> -->
   </div>
 </div>
 
@@ -551,7 +551,7 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
     <div class="search-hero">
       <div class="search-hero-eyebrow">Research Database</div>
       <h1>Browse &amp; Explore</h1>
-      <p>All records in the database are shown below. Type anything to filter by title, author, DOI, or SDG.</p>
+      <p>All records in the database are shown below. Type anything to filter by title, author, or DOI.</p>
     </div>
     <div class="scope-bar">📊 <span><strong>Full database.</strong> <span id="browseScopeCount"></span></span></div>
     <div class="search-box" style="margin-bottom:1.25rem">
