@@ -176,23 +176,6 @@ input::placeholder,textarea::placeholder{color:var(--text-4);font-weight:300}
 .search-input-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--nu-blue);width:14px;height:14px;pointer-events:none;opacity:.5;}
 #pubInput{padding-left:36px!important;background:var(--surface-2);}
 .search-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.65rem;flex-wrap:wrap;gap:4px;}
-/* ══ BROWSE PAGE ══ */
-.browse-filter-bar{display:flex;align-items:flex-start;gap:10px;margin-bottom:.6rem;flex-wrap:wrap;}
-.browse-filter-label{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-3);padding-top:6px;flex-shrink:0;}
-.browse-sdg-chips{display:flex;flex-wrap:wrap;gap:6px;flex:1;}
-.browse-chip{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-3);cursor:pointer;transition:all .12s;}
-.browse-chip:hover{border-color:var(--border-2);color:var(--text);}
-.browse-chip.active{background:var(--nu-blue);border-color:var(--nu-blue);color:#fff;}
-.browse-sort-bar{display:flex;align-items:center;gap:6px;margin-bottom:.75rem;flex-wrap:wrap;}
-.browse-item{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all .15s;}
-.browse-item:hover{border-color:rgba(26,79,160,.35);box-shadow:var(--shadow-md);transform:translateX(2px);}
-.browse-item-badge{font-size:18px;flex-shrink:0;margin-top:2px;}
-.browse-item-info{flex:1;min-width:0;}
-.browse-item-doi{font-family:var(--mono);font-size:9px;color:var(--nu-gold);letter-spacing:1px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.browse-item-title{font-family:var(--display);font-size:13px;font-weight:700;color:var(--nu-blue);margin-bottom:3px;line-height:1.3;}
-.browse-item-author{font-size:11px;color:var(--text-3);margin-bottom:4px;}
-.browse-item-arrow{flex-shrink:0;font-family:var(--mono);font-size:14px;color:var(--nu-blue);opacity:0;transition:opacity .15s;align-self:center;}
-.browse-item:hover .browse-item-arrow{opacity:1;}
 .search-count{font-family:var(--mono);font-size:10px;color:var(--text-3);letter-spacing:.5px;}
 .search-count strong{color:var(--nu-blue);font-weight:700}
 .enrich-row{display:none;align-items:center;gap:7px;font-size:10px;font-family:var(--mono);letter-spacing:.5px;color:var(--warn);margin-top:7px;padding:7px 10px;background:var(--warn-bg);border-radius:var(--radius-sm);border:1px solid var(--warn-border);}
@@ -326,7 +309,7 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
         <div class="role-card-desc">Search papers by DOI, author, or title with full metadata &amp; SDG classification</div>
         <div class="role-card-arrow">→</div>
       </div>
-      <div class="role-card" onclick="goBrowse()">
+      <div class="role-card" onclick="goPublicSearch()">
         <span class="role-card-icon">📊</span>
         <div class="role-card-num">Mode // 02</div>
         <div class="role-card-name">Browse</div>
@@ -556,44 +539,6 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
   <footer>SPARK · NU Laguna · Results limited to connected sheet DOIs</footer>
 </div>
 
-<!-- BROWSE -->
-<div class="page" id="pageBrowse">
-  <nav class="nav">
-    <div class="nav-logo" onclick="showPage('pageLanding')">NU Laguna<span class="nav-logo-gold">SPARK</span></div>
-    <div class="nav-right">
-      <button class="nav-admin-link" onclick="openAdminModal()">⚙ Admin</button>
-      <button class="btn btn-sm btn-ghost" onclick="showPage('pageLanding')">← Home</button>
-    </div>
-  </nav>
-  <div class="search-wrap">
-    <div class="search-hero">
-      <div class="search-hero-eyebrow">Research Database</div>
-      <h1>Browse Publications</h1>
-      <p>Explore all records in the database. Filter by SDG goal or browse alphabetically by title.</p>
-    </div>
-    <div id="browseNotice" style="display:none"></div>
-    <div class="scope-bar">📚 <span><strong>Full database view.</strong> <span id="browseScopeCount"></span></span></div>
-    <!-- Filter bar -->
-    <div class="browse-filter-bar">
-      <div class="browse-filter-label">Filter by SDG:</div>
-      <div class="browse-sdg-chips" id="browseSDGChips">
-        <button class="browse-chip active" onclick="setBrowseSDG('all',this)">All</button>
-      </div>
-    </div>
-    <div class="browse-sort-bar">
-      <span class="browse-filter-label">Sort:</span>
-      <button class="filter-btn active" id="bSortTitle" onclick="setBrowseSort('title',this)">Title A–Z</button>
-      <button class="filter-btn" id="bSortAuthor" onclick="setBrowseSort('author',this)">Author</button>
-      <button class="filter-btn" id="bSortDoi" onclick="setBrowseSort('doi',this)">DOI</button>
-      <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-3)" id="browseCount"></span>
-    </div>
-    <div id="browseResults">
-      <div class="empty-state"><span class="empty-icon">📚</span><div class="empty-title">No records loaded</div><div class="empty-sub">Load a dataset in Admin → Sheet Config</div></div>
-    </div>
-  </div>
-  <footer>SPARK · NU Laguna · Browse Mode · Full database view</footer>
-</div>
-
 <!-- DETAIL -->
 <div class="page" id="pageDetail">
   <nav class="nav">
@@ -791,115 +736,7 @@ function goPublicSearch(){
   setTimeout(function(){var el=document.getElementById('pubInput');if(el)el.focus();},80);
 }
 
-// ── BROWSE MODE ──
-var browseSDGFilter='all';
-var browseSortMode='title';
-
-function goBrowse(){
-  showPage('pageBrowse');
-  var notice=document.getElementById('browseNotice');
-  if(notice)notice.style.display=sheetUrl?'none':'block';
-  renderBrowse();
-}
-
-function setBrowseSDG(sdg,el){
-  browseSDGFilter=sdg;
-  document.querySelectorAll('.browse-chip').forEach(function(b){b.classList.remove('active');});
-  if(el)el.classList.add('active');
-  renderBrowse();
-}
-
-function setBrowseSort(mode,el){
-  browseSortMode=mode;
-  document.querySelectorAll('.browse-sort-bar .filter-btn').forEach(function(b){b.classList.remove('active');});
-  if(el)el.classList.add('active');
-  renderBrowse();
-}
-
-function buildSDGChips(){
-  var chips=document.getElementById('browseSDGChips');
-  if(!chips)return;
-  // Collect unique SDG tags from records
-  var sdgSet={};
-  sheetRecords.forEach(function(r){
-    if(r.sdg){
-      var tags=r.sdg.split(/[,;|]+/);
-      tags.forEach(function(t){
-        var s=t.trim();
-        if(s)sdgSet[s]=true;
-      });
-    }
-  });
-  var sdgs=Object.keys(sdgSet).sort(function(a,b){
-    var na=parseInt(a),nb=parseInt(b);
-    if(!isNaN(na)&&!isNaN(nb))return na-nb;
-    return a.localeCompare(b);
-  });
-  var html='<button class="browse-chip active" onclick="setBrowseSDG(\'all\',this)">All</button>';
-  sdgs.forEach(function(s){
-    html+='<button class="browse-chip" onclick="setBrowseSDG('+JSON.stringify(s)+',this)">'+esc(s)+'</button>';
-  });
-  chips.innerHTML=html;
-}
-
-function renderBrowse(){
-  var wrap=document.getElementById('browseResults');
-  var cntEl=document.getElementById('browseScopeCount');
-  var countEl=document.getElementById('browseCount');
-  if(!wrap)return;
-  if(!sheetRecords.length){
-    wrap.innerHTML='<div class="empty-state"><span class="empty-icon">📚</span><div class="empty-title">No records loaded</div><div class="empty-sub">Load a dataset in Admin → Sheet Config</div></div>';
-    if(cntEl)cntEl.textContent='';
-    if(countEl)countEl.textContent='';
-    return;
-  }
-  if(cntEl)cntEl.textContent=sheetRecords.length+' records in database';
-  buildSDGChips();
-  // Filter
-  var filtered=sheetRecords.filter(function(r){
-    if(browseSDGFilter==='all')return true;
-    if(!r.sdg)return false;
-    var tags=r.sdg.split(/[,;|]+/).map(function(t){return t.trim();});
-    return tags.indexOf(browseSDGFilter)>=0;
-  });
-  // Sort
-  filtered=filtered.slice().sort(function(a,b){
-    if(browseSortMode==='author'){
-      return (a.authors||'').localeCompare(b.authors||'');
-    }else if(browseSortMode==='doi'){
-      return (a.doi||'').localeCompare(b.doi||'');
-    }else{
-      return (a.title||a.doi||'').localeCompare(b.title||b.doi||'');
-    }
-  });
-  if(countEl)countEl.textContent=filtered.length+' result'+(filtered.length!==1?'s':'');
-  if(!filtered.length){
-    wrap.innerHTML='<div class="empty-state"><span class="empty-icon">🔍</span><div class="empty-title">No results</div><div class="empty-sub">No records match the selected SDG filter</div></div>';
-    return;
-  }
-  var html=filtered.map(function(r,idx){
-    var sdgBadge='';
-    if(r.sdg){
-      sdgBadge='<div style="margin-top:4px">'+r.sdg.split(/[,;|]+/).map(function(s){
-        var st=s.trim();if(!st)return'';
-        return'<span style="font-family:var(--mono);font-size:8px;padding:1px 6px;border-radius:10px;background:var(--arc-bg);color:var(--nu-blue);border:1px solid rgba(26,79,160,.2);margin-right:3px">'+esc(st)+'</span>';
-      }).join('')+'</div>';
-    }
-    return'<div class="browse-item fade-up" style="animation-delay:'+(idx*20)+'ms" onclick="openDetail(\''+encodeURIComponent(r.doi)+'\')">'
-      +'<div class="browse-item-badge">📄</div>'
-      +'<div class="browse-item-info">'
-      +'<div class="browse-item-doi">'+esc(r.doi)+'</div>'
-      +'<div class="browse-item-title">'+(r.title||'<em style="color:var(--mist);font-size:11px">No title available</em>')+'</div>'
-      +(r.authors?'<div class="browse-item-author">'+esc(r.authors)+'</div>':'')
-      +sdgBadge
-      +'</div>'
-      +'<div class="browse-item-arrow">›</div>'
-      +'</div>';
-  }).join('');
-  wrap.innerHTML=html;
-}
-
-
+// ── AUTH ──
 function doLogin(){
   var u=document.getElementById('loginUser').value.trim();
   var p=document.getElementById('loginPass').value;
@@ -1185,25 +1022,8 @@ function renderResults(matches,ql,enriched){
 }
 function openDetail(enc){
   var doi=decodeURIComponent(enc);
-  // Detect which page we came from for proper back navigation
-  var prevPage='pageSearch';
-  if(document.getElementById('pageBrowse')&&document.getElementById('pageBrowse').classList.contains('show')){
-    prevPage='pageBrowse';
-  }
-  if(!sheetRecords.find(function(r){return r.doi===doi;})){showPage(prevPage);return;}
+  if(!sheetRecords.find(function(r){return r.doi===doi;})){showPage('pageSearch');return;}
   showPage('pageDetail');
-  // Update back button dynamically
-  var backBtn=document.querySelector('#pageDetail .btn-ghost');
-  if(backBtn){
-    backBtn.setAttribute('onclick','showPage(\''+prevPage+'\')');
-    backBtn.textContent='← '+(prevPage==='pageBrowse'?'Browse':'Search');
-  }
-  // Update breadcrumb
-  var bcSearch=document.querySelector('#pageDetail .bc-link[onclick*="pageSearch"], #pageDetail .bc-link[onclick*="pageBrowse"]');
-  if(bcSearch){
-    bcSearch.textContent=prevPage==='pageBrowse'?'Browse':'Search';
-    bcSearch.setAttribute('onclick','showPage(\''+prevPage+'\')');
-  }
   fetchAllSources(doi,sheetRecords.find(function(r){return r.doi===doi;}));
 }
 
