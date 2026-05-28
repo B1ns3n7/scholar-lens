@@ -489,12 +489,12 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
             <!-- Key 1 -->
             <div class="field" style="margin-bottom:.6rem">
               <label>Groq API Key 1 (primary)</label>
-              <div class="input-row"><input type="password" id="key-groq1" placeholder="gsk_…"/><button class="btn btn-sm btn-primary" onclick="saveGroqKeys()">Save</button></div>
+              <div class="input-row"><input type="password" id="key-groq1" placeholder="gsk_…"/><button class="btn btn-sm btn-primary" onclick="saveGroqKey(1)">Save</button></div>
             </div>
             <!-- Key 2 -->
             <div class="field" style="margin-bottom:.5rem">
               <label>Groq API Key 2 (fallback / extra capacity)</label>
-              <div class="input-row"><input type="password" id="key-groq2" placeholder="gsk_… (optional)"/></div>
+              <div class="input-row"><input type="password" id="key-groq2" placeholder="gsk_… (optional)"/><button class="btn btn-sm btn-primary" onclick="saveGroqKey(2)">Save</button></div>
             </div>
             <div style="font-size:10.5px;color:var(--text-3);margin-top:.25rem">Get free keys at <a href="https://console.groq.com" target="_blank" style="color:var(--nu-blue)">console.groq.com</a> · Free tier: ~14,400 tokens/min per key</div>
             <div id="groqSaveMsg" style="margin-top:.5rem"></div>
@@ -1166,15 +1166,17 @@ function saveKey(){
   LS.s('sl_elsevier_key',k);updSrcStatus();updOverview();renderStats();
   showAlert('srcSaveMsg','success','API key saved.');
 }
-function saveGroqKeys(){
-  var k1=(document.getElementById('key-groq1').value||'').trim();
-  var k2=(document.getElementById('key-groq2').value||'').trim();
-  if(!k1){showAlert('groqSaveMsg','error','Key 1 is required.');return;}
-  LS.s('sl_groq_key1',k1);
-  if(k2)LS.s('sl_groq_key2',k2);else LS.d('sl_groq_key2');
+function saveGroqKey(n){
+  var input=document.getElementById('key-groq'+n);
+  var val=(input?input.value||'':'').trim();
+  if(!val){showAlert('groqSaveMsg','error','Enter a key value first.');return;}
+  LS.s('sl_groq_key'+n,val);
+  if(input){input.value='';input.placeholder=val.slice(0,8)+'…'+val.slice(-4)+' (saved)';}
   updSrcStatus();updGroqTokenPanel();updateFooterTokens();
-  showAlert('groqSaveMsg','success','Groq key'+(k2?'s':'')+'saved. '+(k2?'Dual-key mode active.':'Single-key mode.'));
+  var keys=getGroqKeys();
+  showAlert('groqSaveMsg','success','Key '+n+' saved. '+(keys.length>1?'Dual-key mode active.':'Single-key mode.'));
 }
+function saveGroqKeys(){saveGroqKey(1);}
 function updGroqTokenPanel(){
   var keys=getGroqKeys();
   var detail=document.getElementById('groqTokDetail');
