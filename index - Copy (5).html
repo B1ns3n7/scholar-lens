@@ -496,11 +496,6 @@ footer{border-top:1px solid var(--border);padding:.875rem 1rem;text-align:center
               <label>Groq API Key 2 (fallback / extra capacity)</label>
               <div class="input-row"><input type="password" id="key-groq2" placeholder="gsk_… (optional)"/><button class="btn btn-sm btn-primary" onclick="saveGroqKey(2)">Save</button></div>
             </div>
-            <!-- Key 3 -->
-            <div class="field" style="margin-bottom:.5rem">
-              <label>Groq API Key 3 (extra capacity)</label>
-              <div class="input-row"><input type="password" id="key-groq3" placeholder="gsk_… (optional)"/><button class="btn btn-sm btn-primary" onclick="saveGroqKey(3)">Save</button></div>
-            </div>
             <div style="font-size:10.5px;color:var(--text-3);margin-top:.25rem">Get free keys at <a href="https://console.groq.com" target="_blank" style="color:var(--nu-blue)">console.groq.com</a> · Free tier: ~14,400 tokens/min per key</div>
             <div id="groqSaveMsg" style="margin-top:.5rem"></div>
           </div>
@@ -711,19 +706,14 @@ var LS={
 };
 
 // ── GROQ DUAL-KEY SYSTEM ──
-var GROQ_KEYS_DEFAULT=['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','',''];
+var GROQ_KEYS_DEFAULT=['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',''];
 var GROQ_DAILY_LIMIT=14400; // tokens per key per minute (Groq free tier ~14,400 TPM → tracked daily as soft budget)
-var GROQ_NUM_KEYS=3;
 
 function getGroqKeys(){
-  var keys=[];
-  for(var i=1;i<=GROQ_NUM_KEYS;i++){
-    var k=LS.g('sl_groq_key'+i)||(GROQ_KEYS_DEFAULT[i-1]||'');
-    if(k&&k.trim())keys.push({key:k.trim(),index:i-1});
-  }
-  return keys;
+  var k1=LS.g('sl_groq_key1')||GROQ_KEYS_DEFAULT[0];
+  var k2=LS.g('sl_groq_key2')||GROQ_KEYS_DEFAULT[1];
+  return [k1,k2].filter(function(k){return k&&k.trim();});
 }
-function getGroqKeyStrings(){return getGroqKeys().map(function(k){return k.key;});}
 
 // Token usage stored per key
 function getGroqTokensUsed(keyIndex){
@@ -740,43 +730,45 @@ function addGroqTokensUsed(keyIndex,tokens){
 }
 function resetGroqTokens(){
   var today=new Date().toISOString().slice(0,10);
-  [0,1,2].forEach(function(i){LS.s('sl_groq_tok_'+i,JSON.stringify({date:today,tokens:0}));});
+  [0,1].forEach(function(i){LS.s('sl_groq_tok_'+i,JSON.stringify({date:today,tokens:0}));});
   updateFooterTokens();
 }
 function getTotalTokensUsed(){
-  return getGroqTokensUsed(0).tokens+getGroqTokensUsed(1).tokens+getGroqTokensUsed(2).tokens;
+  return getGroqTokensUsed(0).tokens+getGroqTokensUsed(1).tokens;
 }
 function getTotalTokenLimit(){
   return getGroqKeys().length*GROQ_DAILY_LIMIT;
 }
 function updateFooterTokens(){
   var keys=getGroqKeys();
-  var total=0,limit=keys.length*GROQ_DAILY_LIMIT;
-  var parts=[];
-  keys.forEach(function(k,i){
-    var used=getGroqTokensUsed(k.index).tokens;
-    total+=used;
-    var col=used/GROQ_DAILY_LIMIT>0.85?'#c0263a':used/GROQ_DAILY_LIMIT>0.65?'#b86e00':'#1a7a4d';
-    parts.push('Key '+(i+1)+': <strong style="color:'+col+'">'+used.toLocaleString()+'</strong>/'+GROQ_DAILY_LIMIT.toLocaleString());
-  });
+  var used0=getGroqTokensUsed(0).tokens;
+  var used1=getGroqTokensUsed(1).tokens;
+  var total=used0+used1;
+  var limit=keys.length*GROQ_DAILY_LIMIT;
   var remaining=Math.max(0,limit-total);
   var pct=limit>0?Math.min(100,Math.round(total/limit*100)):0;
-  var remColor=pct>85?'#c0263a':pct>65?'#b86e00':'#1a7a4d';
-  var html='⚡ Groq Tokens — '+parts.join(' &nbsp;·&nbsp; ')+' &nbsp;·&nbsp; Remaining: <strong style="color:'+remColor+'">'+remaining.toLocaleString()+'</strong> tokens';
+  var color=pct>85?'#c0263a':pct>65?'#b86e00':'#1a7a4d';
+  var k2Active=keys.length>1;
+  var html='⚡ Groq Tokens — '
+    +'Key 1: <strong style="color:'+color+'">'+used0.toLocaleString()+'</strong>/'+GROQ_DAILY_LIMIT.toLocaleString()
+    +(k2Active?' &nbsp;·&nbsp; Key 2: <strong style="color:'+(getGroqTokensUsed(1).tokens/GROQ_DAILY_LIMIT>0.85?'#c0263a':getGroqTokensUsed(1).tokens/GROQ_DAILY_LIMIT>0.65?'#b86e00':'#1a7a4d')+'">'+used1.toLocaleString()+'</strong>/'+GROQ_DAILY_LIMIT.toLocaleString():'')
+    +' &nbsp;·&nbsp; Remaining: <strong style="color:'+color+'">'+remaining.toLocaleString()+'</strong> tokens';
   document.querySelectorAll('.footer-token-bar').forEach(function(el){el.innerHTML=html;});
 }
 
-// Pick which key to use (most remaining tokens first)
+// Pick which key to use (least used first, fallback to next)
+var _groqKeyCursor=0;
 function pickGroqKey(){
   var keys=getGroqKeys();
   if(!keys.length)return{key:'',index:0};
-  var best=keys[0];
-  var bestRemain=GROQ_DAILY_LIMIT-getGroqTokensUsed(keys[0].index).tokens;
-  for(var i=1;i<keys.length;i++){
-    var r=GROQ_DAILY_LIMIT-getGroqTokensUsed(keys[i].index).tokens;
-    if(r>bestRemain){best=keys[i];bestRemain=r;}
+  // Pick key with most remaining tokens
+  var best=0;
+  var bestRemain=GROQ_DAILY_LIMIT-getGroqTokensUsed(0).tokens;
+  if(keys.length>1){
+    var r1=GROQ_DAILY_LIMIT-getGroqTokensUsed(1).tokens;
+    if(r1>bestRemain){best=1;bestRemain=r1;}
   }
-  return best;
+  return{key:keys[best],index:best};
 }
 
 // ── SDG METADATA ──
@@ -812,9 +804,10 @@ async function classifySDGWithGroq(title,abstract,existingSDG){
 
   var keys=getGroqKeys();
   if(!keys.length)return{error:'No Groq API key configured.',sdgs:[],reasoning:''};
-  // Build ordered attempt list: best key first, then remaining keys as fallbacks
-  var best=pickGroqKey();
-  var attempts=[best].concat(keys.filter(function(k){return k.index!==best.index;}));
+  // Try keys in order of most remaining tokens; fallback to second key on rate-limit error
+  var attempts=keys.length>1?[pickGroqKey(),null]:null;
+  if(keys.length>1){var first=attempts[0];var secondIdx=first.index===0?1:0;attempts[1]={key:keys[secondIdx]||'',index:secondIdx};}
+  else{attempts=[{key:keys[0],index:0}];}
 
   for(var ai=0;ai<attempts.length;ai++){
     var attempt=attempts[ai];
@@ -832,10 +825,12 @@ async function classifySDGWithGroq(title,abstract,existingSDG){
       });
       if(!resp.ok){
         var errText=await resp.text();
-        if(resp.status===429&&ai<attempts.length-1){console.warn('Groq key '+(attempt.index+1)+' rate-limited, trying next key');continue;}
+        // On rate limit (429), try next key
+        if(resp.status===429&&ai<attempts.length-1){console.warn('Groq key '+(attempt.index+1)+' rate-limited, trying key '+(attempts[ai+1].index+1));continue;}
         throw new Error('Groq API error '+resp.status+': '+errText);
       }
       var data=await resp.json();
+      // Track token usage
       var usage=data.usage||{};
       var tokensUsed=(usage.total_tokens||usage.prompt_tokens||512);
       addGroqTokensUsed(attempt.index,tokensUsed);
@@ -1162,7 +1157,7 @@ function updSrcStatus(){
   // Groq status
   var gKeys=getGroqKeys();
   var stGroq=document.getElementById('st-groq');
-  if(stGroq){stGroq.textContent=gKeys.length>=3?'Triple-key ✓':gKeys.length===2?'Dual-key ✓':'Active';stGroq.className='badge badge-green';}
+  if(stGroq){stGroq.textContent=gKeys.length>1?'Dual-key ✓':'Active';stGroq.className='badge badge-green';}
   updGroqTokenPanel();
 }
 function saveKey(){
@@ -1183,15 +1178,16 @@ function saveGroqKey(n){
 }
 function saveGroqKeys(){saveGroqKey(1);}
 function updGroqTokenPanel(){
+  var keys=getGroqKeys();
   var detail=document.getElementById('groqTokDetail');
   var bar=document.getElementById('groqTokBar');
   var pctEl=document.getElementById('groqTokPct');
   if(!detail)return;
   var rows='';
   var totalUsed=0,totalLimit=0;
-  for(var i=0;i<GROQ_NUM_KEYS;i++){
-    var savedKey=LS.g('sl_groq_key'+(i+1))||(GROQ_KEYS_DEFAULT[i]||'');
-    if(!savedKey){
+  for(var i=0;i<2;i++){
+    var key=keys[i];
+    if(!key){
       rows+='<div style="opacity:.4"><span style="font-family:var(--mono);font-size:9px;text-transform:uppercase;color:var(--text-3)">Key '+(i+1)+'</span> <span style="color:var(--text-3)">not configured</span></div>';
       continue;
     }
@@ -1208,12 +1204,12 @@ function updGroqTokenPanel(){
   var barColor=pct>85?'var(--err)':pct>65?'var(--warn)':'var(--nu-blue)';
   if(bar){bar.style.width=pct+'%';bar.style.background=barColor;}
   if(pctEl)pctEl.textContent=pct+'% used · '+Math.max(0,totalLimit-totalUsed).toLocaleString()+' tokens remaining';
-  // Pre-fill input placeholders with masked key values
-  for(var j=1;j<=GROQ_NUM_KEYS;j++){
-    var gk=LS.g('sl_groq_key'+j)||(GROQ_KEYS_DEFAULT[j-1]||'');
-    var inp=document.getElementById('key-groq'+j);
-    if(inp&&gk)inp.placeholder=gk.slice(0,8)+'…'+gk.slice(-4)+' (saved)';
-  }
+  // Pre-fill inputs (mask with placeholder if saved)
+  var g1=LS.g('sl_groq_key1')||GROQ_KEYS_DEFAULT[0];
+  var g2=LS.g('sl_groq_key2')||'';
+  var i1=document.getElementById('key-groq1');var i2=document.getElementById('key-groq2');
+  if(i1&&g1)i1.placeholder=g1.slice(0,8)+'…'+g1.slice(-4)+' (saved)';
+  if(i2&&g2)i2.placeholder=g2.slice(0,8)+'…'+g2.slice(-4)+' (saved)';
 }
 function updShareSection(){
   var url=LS.g('sl_url');var hasRecs=sheetRecords.length>0;
